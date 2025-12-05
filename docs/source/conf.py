@@ -46,6 +46,7 @@ extensions = [
     "sphinx_sitemap",
     "myst_parser",
     "nbsphinx",
+    "sphinx_gallery.gen_gallery",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -122,3 +123,14 @@ sitemap_url_scheme = "{link}"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
+
+# Configure Sphinx gallery
+sphinx_gallery_conf = {
+    "examples_dirs": ["../../examples"],
+    "filename_pattern": "/*.py",  # which files to execute before inclusion
+    "gallery_dirs": ["examples"],  # output directory
+    "run_stale_examples": True,  # re-run examples on each build
+    "reference_url": {"poseinterface": None},
+    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
+    "remove_config_comments": True,
+}
