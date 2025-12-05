@@ -9,9 +9,9 @@
 # %%
 from pathlib import Path
 
-from sleap_io.io import coco, dlc
+from poseinterface.io import format_dlc_annotations_file
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Input data: DLC project with a single video
 
 data_dir = Path.home() / "swc" / "project_poseinterface" / "data"
@@ -19,10 +19,13 @@ data_dir = Path.home() / "swc" / "project_poseinterface" / "data"
 # One annotation file per video
 dlc_annotations_files_csv = (
     data_dir
-    / "DLC-openfield-Pranav-2018-10-30"  # -no-frames"
+    / "DLC-openfield-Pranav-2018-10-30"
+    / "labeled-data"
+    / "m4s1"
     / Path("CollectedData_Pranav.csv")
 )
 
+# Output path
 video_name = dlc_annotations_files_csv.parent.stem
 out_coco_json = (
     dlc_annotations_files_csv.parent
@@ -30,22 +33,10 @@ out_coco_json = (
 )
 
 # %%%%%%%%%%%%
-# Read DLC file
+# Export as COCO
 
-labels = dlc.load_dlc(dlc_annotations_files_csv, video_search_paths=None)
-
-print(labels)
-print(labels.videos)  # paths to extracted frames?
-print(labels.labeled_frames)
-print(labels.skeletons)
-
-assert len(labels.labeled_frames) != 0
-assert len(labels.videos) == 1
-assert len(labels.skeletons) == 1  # single animal?
-
-# %%%%%%%%%%%%%%%%%%%
-# Export as COCO JSON
-
-coco.write_labels(labels, out_coco_json, visibility_encoding="ternary")
+out_json = format_dlc_annotations_file(
+    dlc_annotations_files_csv, out_coco_json
+)
 
 # %%
