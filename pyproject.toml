@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.11.0"
 dynamic = ["version"]
 
-dependencies = []
+dependencies = [
+  "sleap-io",
+]
 
 license = {text = "BSD-3-Clause"}
 
