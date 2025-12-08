@@ -3,7 +3,9 @@
 # Notes
 # - all projects I tried are with a single video
 # - in LP example project: no video directory
-# - sleap io assumes frame paths are: (....)/ `labeled-data` / video-name / img0000x.extension
+# - sleap-io assumes frame paths have minimally: labeled-data/<video-name>/<img-name>.<ext>
+#   <img-name> must contain the (sequence of) digits representing the frame index
+#   if <img-name> is alphanumerical, the last sequence of digits is assumed to be the frame index
 # - when loading DLC files with sleap-io: the frames need to exist
 
 # %%
