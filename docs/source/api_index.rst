@@ -1,25 +1,13 @@
 API
 ===
 
-math
+io
 ----
 
-.. currentmodule:: poseinterface.math
+.. currentmodule:: poseinterface.io
 
 .. autosummary::
     :toctree: api_generated
     :template: function.rst
 
-    add_two_integers
-    subtract_two_integers
-
-greetings
----------
-
-.. currentmodule:: poseinterface.greetings
-
-.. autosummary::
-    :toctree: api_generated
-    :template: class.rst
-
-    Greetings
+    annotations_to_coco
