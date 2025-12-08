@@ -56,9 +56,6 @@ local_settings.py
 # Flask instance folder
 instance/
 
-# Sphinx documentation
-docs/_build/
-
 # MkDocs documentation
 /site/
 
@@ -84,3 +81,7 @@ venv/
 
 # uv
 uv.lock
+
+# Sphinx documentation
+docs/build/
+docs/source/api_generated/
