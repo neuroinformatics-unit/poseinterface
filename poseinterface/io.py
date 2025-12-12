@@ -5,14 +5,14 @@ from sleap_io.io import dlc
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
-        "No annotations could be extracted from the input file."
-        "Please check that the input file contains labeled frames."
+        "No annotations could be extracted from the input file. "
+        "Please check that the input file contains labeled frames. "
     ),
     "dlc": (
         "Ensure that the paths to the labelled frames are in the "
         "standard DLC project format: "
         "labeled-data / <video-name> / "
-        "<filename-with-frame-number>.<extension>"
+        "<filename-with-frame-number>.<extension> "
         "and that the frames files exist."
     ),
 }
