@@ -64,7 +64,7 @@ target_ses_dir = target_dir / f"sub-{sub_id}_ses-{ses_id}"
 target_ses_dir.mkdir(parents=True, exist_ok=True)
 
 # Copy video to target location with appropriate naming
-video_id = f"sub-{sub_id}_ses-{ses_id}_viw-{view}"
+video_id = f"sub-{sub_id}_ses-{ses_id}_view-{view}"
 source_video_path = dlc_project_dir / "videos" / source_video_name
 target_video_path = target_ses_dir / f"{video_id}.mp4"
 
