@@ -54,6 +54,15 @@ def annotations_to_coco(
     The format of the input annotations file is automatically inferred based
     on its extension. See :func:`sleap_io.io.main.load_file` for supported
     formats.
+
+    Example
+    -------
+    >>> from pathlib import Path
+    >>> from poseinterface.io import annotations_to_coco
+    >>> coco_json_path = annotations_to_coco(
+    ...     input_path=Path("path/to/annotations.slp"),
+    ...     output_json_path=Path("path/to/annotations_coco.json"),
+    ... )
     """
     labels = sio.load_file(input_path)
     # Check if labels object is empty
