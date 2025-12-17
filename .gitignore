@@ -81,6 +81,7 @@ venv/
 
 # uv
 uv.lock
+.venv/
 
 # Sphinx documentation
 docs/build/
