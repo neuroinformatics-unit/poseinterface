@@ -3,7 +3,7 @@
 Convert keypoint annotations
 from the Elevated Plus Maze (EPM) dataset from DLC to COCO format.
 
-Also copy a video and its labeled frames to the target directory,
+Also copy a video and its labeled frames to a target directory,
 organised in the pose benchmarks dataset structure.
 """
 
@@ -25,49 +25,49 @@ from poseinterface.io import annotations_to_coco
 # It contains single-animal top-down videos of mice exploring an elevated plus
 # maze, with keypoint annotations and predictions from DeepLabCut (DLC).
 #
-# In this notebook, we convert the DLC annotations to COCO .json format.
+# In this example, we convert the DLC annotations to COCO .json format.
 
 # %%
-# Specify paths
-# -------------
+# Define source and target directories
+# ------------------------------------
 # We specify the paths to the source DLC project directory
-# as well as the output directory where converted COCO files will be saved.
-# The latter will be organised in the pose benchmark dataset structure.
+# as well as the target directory where converted files will be saved.
+# The target will be organised in the pose benchmarks dataset structure.
 
-base_dir = Path(
+source_base_dir = Path(
     "/media/ceph-niu/neuroinformatics/sirmpilatzen/behav_data"
     "/Loukia/MASTER_DoNotModify"
 )
-dlc_project_dir = base_dir / "MouseTopDown-Loukia-2022-09-13"
-assert dlc_project_dir.exists(), (
-    f"DLC project dir not found: {dlc_project_dir}"
+source_project_dir = source_base_dir / "MouseTopDown-Loukia-2022-09-13"
+assert source_project_dir.exists(), (
+    f"DLC project directory not found: {source_project_dir}"
 )
 
-pose_benchmarks_dir = Path("/mnt/Data/pose_benchmarks")
-target_dir = pose_benchmarks_dir / "SWC_EPM"
-target_dir.mkdir(parents=True, exist_ok=True)
+target_base_dir = Path("/mnt/Data/pose_benchmarks")
+target_dataset_dir = target_base_dir / "SWC-EPM"
+target_dataset_dir.mkdir(parents=True, exist_ok=True)
 
 # %%
-# Copy a video to target location
-# -------------------------------
+# Copy video to target location
+# -----------------------------
+# We identify a specific video by name and copy it to the target directory
+# with a standardised naming convention.
 
-# Let's identify a specific video by name
 source_video_name = "M708149_EPM_20200317_165049331-converted.mp4"
+source_video_path = source_project_dir / "videos" / source_video_name
 
-# Define subject, session, and view IDs
-sub_id = "M708149"
-ses_id = "20200317"
-view = "topdown"
+# Define subject, session, and view identifiers
+subject_id = "M708149"
+session_id = "20200317"
+view_id = "topdown"
+video_id = f"sub-{subject_id}_ses-{session_id}_view-{view_id}"
 
 # Create target session directory
-target_ses_dir = target_dir / f"sub-{sub_id}_ses-{ses_id}"
-target_ses_dir.mkdir(parents=True, exist_ok=True)
+target_session_dir = target_dataset_dir / f"sub-{subject_id}_ses-{session_id}"
+target_session_dir.mkdir(parents=True, exist_ok=True)
 
-# Copy video to target location with appropriate naming
-video_id = f"sub-{sub_id}_ses-{ses_id}_view-{view}"
-source_video_path = dlc_project_dir / "videos" / source_video_name
-target_video_path = target_ses_dir / f"{video_id}.mp4"
-
+# Copy video to target location
+target_video_path = target_session_dir / f"{video_id}.mp4"
 if not target_video_path.exists():
     shutil.copy2(source_video_path, target_video_path)
     print(f"Copied video to: {target_video_path}")
@@ -88,27 +88,40 @@ else:
 # We fixed this by replacing the commas with slashes in the csv file.
 
 source_labels_dir = (
-    dlc_project_dir / "labeled-data" / source_video_name.replace(".mp4", "")
+    source_project_dir / "labeled-data" / source_video_name.replace(".mp4", "")
 )
-dlc_annotations_file = source_labels_dir / "CollectedData_Loukia.csv"
+source_annotations_path = source_labels_dir / "CollectedData_Loukia.csv"
 
-out_json_path = target_ses_dir / f"{video_id}_framelabels.json"
-
-annotations_to_coco(
-    input_path=dlc_annotations_file,
-    output_json_path=out_json_path,
-    coco_visibility_encoding="ternary",
-)
-
-# %%
-# Let's also copy the frames used for labeling to the target directory
-
-target_frames_dir = target_ses_dir / "frames"
+# Create Frames directory inside the session directory
+target_frames_dir = target_session_dir / "Frames"
 target_frames_dir.mkdir(parents=True, exist_ok=True)
 
-for frame_file in source_labels_dir.glob("*.png"):
-    target_frame_file = target_frames_dir / frame_file.name
-    if not target_frame_file.exists():
-        shutil.copy2(frame_file, target_frame_file)
+# Save COCO annotations inside the Frames directory
+target_annotations_path = target_frames_dir / f"{video_id}_framelabels.json"
+
+annotations_to_coco(
+    input_path=source_annotations_path,
+    output_json_path=target_annotations_path,
+    coco_visibility_encoding="ternary",
+)
+print(f"Saved COCO annotations to: {target_annotations_path}")
+
+# %%
+# Copy labeled frames to target directory
+# ---------------------------------------
+# Copy the frames used for labeling and rename them to follow
+# the naming convention:
+# ``sub-{subjectID}_ses-{SessionID}_view-{ViewID}_frame-{FrameID}.png``
+
+for source_frame_path in source_labels_dir.glob("*.png"):
+    # Extract frame number from original filename, e.g. "img0042.png" -> "0042"
+    frame_number = source_frame_path.stem.replace("img", "")
+    target_frame_path = (
+        target_frames_dir / f"{video_id}_frame-{frame_number}.png"
+    )
+    if not target_frame_path.exists():
+        shutil.copy2(source_frame_path, target_frame_path)
+
+print(f"Copied labeled frames to: {target_frames_dir}")
 
 # %%
