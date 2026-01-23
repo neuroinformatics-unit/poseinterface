@@ -7,7 +7,6 @@ from poseinterface.io import (
     _update_annotation_ids,
     _update_category_ids,
     _update_image_ids,
-    annotations_to_coco,
     update_ids,
 )
 
@@ -190,28 +189,3 @@ def test_update_ids(
     # Assert output file exists
     assert output_file.exists()
     assert result == output_file
-
-
-@pytest.mark.skip(reason="TODO: use sample project fixture from PR20")
-def test_annotations_to_coco(tmp_path):
-    """Test that annotations are converted to COCO format."""
-    # Path to annotations in mock project
-    # TODO: use sample project fixture from PR20
-    # input_path = Path(
-    #     "sample_MouseTopDown-Loukia-2022-09-13/"
-    #     "sub-00_ses-00/Frames/sub-00_ses-00_view-00_framelabels.json"
-    # )
-    input_path = ""
-
-    # Path to output file
-    output_path = tmp_path / "test.json"
-
-    annotations_to_coco(input_path, output_path)
-
-    # Check output file
-    assert output_path.is_file()
-    assert output_path.suffix == ".json"
-
-    # Check image IDs are as expected
-
-    # Check category and annotation IDs are as expected
