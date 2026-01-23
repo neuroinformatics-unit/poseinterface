@@ -29,7 +29,7 @@ def annotations_to_coco(
     coco_image_filenames: str | list[str] | None = None,
     coco_visibility_encoding: str = "ternary",
 ) -> Path:
-    """Export annotations file to COCO format.
+    """Export annotations file to COCO format for poseinterface.
 
     Parameters
     ----------
@@ -58,6 +58,10 @@ def annotations_to_coco(
     The format of the input annotations file is automatically inferred based
     on its extension. See :func:`sleap_io.io.main.load_file` for supported
     formats.
+
+    In the poseinterface COCO output file, the image ids correspond to the
+    frame numbers and are derived from the image filenames. The annotation and
+    category ids are 0-based indices.
 
     Example
     -------
