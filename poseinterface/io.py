@@ -88,8 +88,7 @@ def annotations_to_coco(
         visibility_encoding=coco_visibility_encoding,
     )
 
-    # Update image ids to reflect frame number,
-    # and annotation and category ids to be 0-based.
+    # Update image ids to reflect frame number
     update_ids(coco_data, output_json_path)
 
     return output_json_path
@@ -113,10 +112,8 @@ def update_ids(data: dict, output_file: Path) -> Path:
     pathlib.Path
         Path to the updated frame labels file.
     """
-    # Update image IDs so that they are derived from the filename
     data_updated = _update_image_ids(data)
 
-    # Save json
     with open(output_file, "w") as f:
         json.dump(data_updated, f)
 
