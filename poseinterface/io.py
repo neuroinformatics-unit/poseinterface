@@ -115,13 +115,20 @@ def update_ids(data: dict, output_file: Path) -> Path:
     # - image IDs are derived from the filename
     # - annotation and category IDs are 0-based following
     # the order they appear in their respective lists
-    _update_image_ids(data)
-    _update_annotation_ids(data)
-    _update_category_ids(data)
+    # data_image_ids_updated = _update_image_ids(data)
+    # data_annot_ids_updated = _update_annotation_ids(data_image_ids_updated)
+    # data_all_updated = _update_category_ids(data_annot_ids_updated)
+    data_updated = data
+    for update_fn in [
+        _update_image_ids,
+        _update_annotation_ids,
+        _update_category_ids,
+    ]:
+        data_updated = update_fn(data_updated)
 
     # Save json
     with open(output_file, "w") as f:
-        json.dump(data, f)
+        json.dump(data_updated, f)
 
     return output_file
 
