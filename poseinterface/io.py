@@ -160,7 +160,6 @@ def _update_image_ids(input_data: dict) -> dict:
     }
 
     # Check new IDs are unique
-    # TODO: add issue to move to the validator in the future
     if len(old_to_new_id) != len(set(old_to_new_id.values())):
         raise ValueError(
             "Extracted image IDs are not unique. Please check that the frame "
