@@ -12,7 +12,7 @@ These files are used to debug issue #17: `annotations_to_coco` fails with certai
 - **Source**: Shailaja Akella (Allen Institute)
 
 ### CollectedData_Loukia.csv
-- **Path structure**: `labeled-data/folder/filename.png` (slashes)
+- **Path structure**: `labeled-data,folder,filename.png` (path components separated by commas)
 - **Header columns**: empty columns before keypoint data (`scorer,,,Loukia,...`)
 - **Keypoints**: 20 body parts (mouse + EPM maze corners)
 - **Source**: Loukia Katsouri (Sainsbury Wellcome Centre)
@@ -25,8 +25,8 @@ These files are used to debug issue #17: `annotations_to_coco` fails with certai
 
 ## Key Differences
 
-| File     | Path separator | Empty columns after path |
-|----------|----------------|--------------------------|
-| Shailaja | commas         | yes (3)                  |
-| Loukia   | slashes        | yes (3)                  |
-| Pranav   | slashes        | no                       |
+| File     | Path separator |
+|----------|----------------|
+| Shailaja | commas         |
+| Loukia   | commas         |
+| Pranav   | slashes        |

@@ -1,13 +1,20 @@
 from pathlib import Path
 
+import pytest
+
 from poseinterface.io import annotations_to_coco
 
 
-def test_annotations_to_coco_pranav(dlc_project_pranav: Path, tmp_path: Path):
-    """Test that annotations_to_coco works with the Pranav CSV file."""
+@pytest.mark.parametrize(
+    "fixture_name",
+    ["dlc_project_pranav", "dlc_project_loukia", "dlc_project_shailaja"],
+)
+def test_annotations_to_coco(fixture_name: str, request, tmp_path: Path):
+    """Test that annotations_to_coco works with different DLC CSV formats."""
+    csv_path = request.getfixturevalue(fixture_name)
     output_path = tmp_path / "output.json"
 
-    result = annotations_to_coco(dlc_project_pranav, output_path)
+    result = annotations_to_coco(csv_path, output_path)
 
     assert result == output_path
     assert output_path.exists()
