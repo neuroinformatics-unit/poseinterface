@@ -1,3 +1,4 @@
+import copy
 import json
 import re
 from pathlib import Path
@@ -114,9 +115,9 @@ def update_ids(data: dict, output_file: Path) -> Path:
     # - image IDs are derived from the filename
     # - annotation and category IDs are 0-based following
     # the order they appear in their respective lists
-    _update_image_ids_in_place(data)
-    _update_annotation_ids_in_place(data)
-    _update_category_ids_in_place(data)
+    _update_image_ids(data)
+    _update_annotation_ids(data)
+    _update_category_ids(data)
 
     # Save json
     with open(output_file, "w") as f:
@@ -127,9 +128,9 @@ def update_ids(data: dict, output_file: Path) -> Path:
 
 def _extract_image_id_from_filename(filename: str) -> int | None:
     """Extract the image id from the filename.
-    
+
     The frame number is expected to be the group of digits after "frame-"
-    in the filename, preceded by at least one zero. If no frame number 
+    in the filename, preceded by at least one zero. If no frame number
     is found, returns None.
     """
     match = re.search(r"frame-(0\d*)", filename)
@@ -142,21 +143,24 @@ def _extract_image_id_from_filename(filename: str) -> int | None:
     return int(match.group(1))
 
 
-def _update_image_ids_in_place(data: dict) -> dict:
+def _update_image_ids(input_data: dict) -> dict:
     """Assigns image ids based on frame number from filename."""
     # Compute map old to new ID
     old_to_new_id = {
         img["id"]: _extract_image_id_from_filename(img["file_name"])
-        for img in data["images"]
+        for img in input_data["images"]
     }
 
     # Check new IDs are unique
-    # (maybe this should belong in the validator in the future)
+    # TODO: add issue to move to the validator in the future
     if len(old_to_new_id) != len(set(old_to_new_id.values())):
         raise ValueError(
             "Extracted image IDs are not unique. Please check that the frame "
             "numbers as specified in the filename are unique."
         )
+
+    # Create new dict
+    data = copy.deepcopy(input_data)
 
     # Update image IDs
     for img in data["images"]:
@@ -169,26 +173,31 @@ def _update_image_ids_in_place(data: dict) -> dict:
     return data
 
 
-def _update_annotation_ids_in_place(data: dict) -> dict:
+def _update_annotation_ids(input_data: dict) -> dict:
     """Assigns 0-based ids to the annotations.
 
     Ids are assigned in the order the annotations appear
     in the list.
     """
+    data = copy.deepcopy(input_data)
     for i, annot in enumerate(data["annotations"]):
         annot["id"] = i
-
     return data
 
 
-def _update_category_ids_in_place(data: dict) -> dict:
+def _update_category_ids(input_data: dict) -> dict:
     """Assigns 0-based ids to the categories.
 
     Ids are assigned in the order the categories appear
     in the list.
     """
     # Compute map old to new ID for categories
-    old_to_new_id = {cat["id"]: i for i, cat in enumerate(data["categories"])}
+    old_to_new_id = {
+        cat["id"]: i for i, cat in enumerate(input_data["categories"])
+    }
+
+    # Create new dict
+    data = copy.deepcopy(input_data)
 
     # Assign id in categories list
     for cat in data["categories"]:
