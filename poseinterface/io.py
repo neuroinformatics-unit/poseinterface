@@ -98,10 +98,8 @@ def annotations_to_coco(
 def update_ids(data: dict, output_file: Path) -> Path:
     """Update the ids of the data in the input COCO JSON file.
 
-    In the output file:
-    - the image ids are derived from the filename, and
-    - the annotation and category ids are 0-based following
-    the order they appear in their respective lists.
+    In the output file the image ids are derived from the frame
+    number in the filename.
 
     Parameters
     ----------
@@ -115,40 +113,14 @@ def update_ids(data: dict, output_file: Path) -> Path:
     pathlib.Path
         Path to the updated frame labels file.
     """
-    # Update image, annotation and category ids:
-    # - image IDs are derived from the filename
-    # - annotation and category IDs are 0-based following
-    # the order they appear in their respective lists
-    data_updated = data
-    for update_fn in [
-        _update_image_ids,
-        _update_annotation_ids,
-        _update_category_ids,
-    ]:
-        data_updated = update_fn(data_updated)
+    # Update image IDs so that they are derived from the filename
+    data_updated = _update_image_ids(data)
 
     # Save json
     with open(output_file, "w") as f:
         json.dump(data_updated, f)
 
     return output_file
-
-
-def _extract_image_id_from_filename(filename: str) -> int | None:
-    """Extract the image id from the filename.
-
-    The frame number is expected to be the group of digits after "frame-"
-    in the filename, preceded by at least one zero. If no frame number
-    is found, returns None.
-    """
-    match = re.search(r"frame-(0\d*)", filename)
-    if match is None:
-        raise ValueError(
-            "No frame number could be extracted from filename "
-            f"{filename}. Please check that the filename contains a "
-            "frame number after 'frame-' and is preceded by at least one zero."
-        )
-    return int(match.group(1))
 
 
 def _update_image_ids(input_data: dict) -> dict:
@@ -180,38 +152,18 @@ def _update_image_ids(input_data: dict) -> dict:
     return data
 
 
-def _update_annotation_ids(input_data: dict) -> dict:
-    """Assigns 0-based ids to the annotations.
+def _extract_image_id_from_filename(filename: str) -> int | None:
+    """Extract the image id from the filename.
 
-    Ids are assigned in the order the annotations appear
-    in the list.
+    The frame number is expected to be the group of digits after "frame-"
+    in the filename, preceded by at least one zero. If no frame number
+    is found, returns None.
     """
-    data = copy.deepcopy(input_data)
-    for i, annot in enumerate(data["annotations"]):
-        annot["id"] = i
-    return data
-
-
-def _update_category_ids(input_data: dict) -> dict:
-    """Assigns 0-based ids to the categories.
-
-    Ids are assigned in the order the categories appear
-    in the list.
-    """
-    # Compute map old to new ID for categories
-    old_to_new_id = {
-        cat["id"]: i for i, cat in enumerate(input_data["categories"])
-    }
-
-    # Create new dict
-    data = copy.deepcopy(input_data)
-
-    # Assign id in categories list
-    for cat in data["categories"]:
-        cat["id"] = old_to_new_id[cat["id"]]
-
-    # Update category_id in annotations list
-    for annot in data["annotations"]:
-        annot["category_id"] = old_to_new_id[annot["category_id"]]
-
-    return data
+    match = re.search(r"frame-(0\d*)", filename)
+    if match is None:
+        raise ValueError(
+            "No frame number could be extracted from filename "
+            f"{filename}. Please check that the filename contains a "
+            "frame number after 'frame-' and is preceded by at least one zero."
+        )
+    return int(match.group(1))
