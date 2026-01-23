@@ -4,8 +4,8 @@ import re
 from pathlib import Path
 
 import sleap_io as sio
-from sleap_io.io import dlc
 from sleap_io.io.coco import convert_labels
+from sleap_io.io.dlc import is_dlc_file
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
@@ -73,7 +73,7 @@ def annotations_to_coco(
     # Check if labels object is empty
     if len(labels.labeled_frames) == 0:
         error_msg = _EMPTY_LABELS_ERROR_MSG["default"]
-        if dlc.is_dlc_file(input_path):
+        if is_dlc_file(input_path):
             error_msg += _EMPTY_LABELS_ERROR_MSG["dlc"]
         raise ValueError(error_msg)
 
@@ -115,9 +115,6 @@ def update_ids(data: dict, output_file: Path) -> Path:
     # - image IDs are derived from the filename
     # - annotation and category IDs are 0-based following
     # the order they appear in their respective lists
-    # data_image_ids_updated = _update_image_ids(data)
-    # data_annot_ids_updated = _update_annotation_ids(data_image_ids_updated)
-    # data_all_updated = _update_category_ids(data_annot_ids_updated)
     data_updated = data
     for update_fn in [
         _update_image_ids,
