@@ -1,21 +1,85 @@
+import tempfile
 from pathlib import Path
 
+import pandas as pd
 import sleap_io as sio
-from sleap_io.io import dlc
 
-_EMPTY_LABELS_ERROR_MSG = {
-    "default": (
-        "No annotations could be extracted from the input file. "
-        "Please check that the input file contains labeled frames. "
-    ),
-    "dlc": (
-        "Ensure that the paths to the labelled frames are in the "
-        "standard DLC project format: "
-        "labeled-data / <video-name> / "
-        "<filename-with-frame-number>.<extension> "
-        "and that the frames files exist."
-    ),
-}
+_EMPTY_LABELS_ERROR_MSG = (
+    "No annotations could be extracted from the input file. "
+    "Please check that the input file contains labeled frames "
+    "and that the referenced frame files exist."
+)
+
+
+def _is_dlc_csv_with_multiindex_rows(file_path: Path) -> bool:
+    """Check if file is a DLC CSV with multi-index rows for image paths.
+
+    Newer DLC CSV files store the image path as a MultiIndex across 3 columns
+    (labeled-data, video-folder, filename) instead of a single column with
+    slash-separated path. This follows the detection logic from DLC's own
+    conversioncode.py.
+
+    Returns True if the file:
+    - Has .csv extension
+    - First line starts with 'scorer'
+    - First data row starts with 'labeled-data' as a separate column
+    """
+    if file_path.suffix.lower() != ".csv":
+        return False
+
+    with open(file_path) as f:
+        first_line = f.readline()
+        if not first_line.startswith("scorer"):
+            return False
+
+        # Skip header rows: 3 for single-animal, 4 for multi-animal
+        second_line = f.readline()
+        f.readline()  # bodyparts (or individuals for multi-animal)
+        if "individuals" in second_line:
+            f.readline()  # coords (extra row for multi-animal)
+
+        # Check if first data row starts with "labeled-data" as first column
+        # This indicates MultiIndex format (3 columns for path)
+        data_line = f.readline()
+        return data_line.split(",")[0] == "labeled-data"
+
+
+def _convert_dlc_csv_to_single_index(file_path: Path) -> Path:
+    """Convert a DLC CSV with MultiIndex rows to single-index format.
+
+    Reads the CSV using pandas with index_col=[0, 1, 2] to properly parse
+    the 3-column path structure, then re-saves with a single-column path
+    using forward slashes.
+
+    This follows the approach used by DLC's own conversioncode.py.
+
+    Returns path to the temporary file.
+    """
+    # Determine header rows (3 for standard, 4 for multi-animal)
+    with open(file_path) as f:
+        f.readline()  # scorer
+        second_line = f.readline()
+        header = list(range(4 if "individuals" in second_line else 3))
+
+    # Read with 3-column index (labeled-data, video-folder, filename)
+    df = pd.read_csv(file_path, index_col=[0, 1, 2], header=header)
+
+    # Convert MultiIndex to single index by joining with '/'
+    df.index = df.index.map("/".join)
+
+    # Create temp file in same directory (so relative paths still work)
+    temp_file = tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".csv",
+        dir=file_path.parent,
+        delete=False,
+    )
+    temp_file.close()
+
+    # Save with single-column index
+    df.to_csv(temp_file.name)
+
+    return Path(temp_file.name)
 
 
 def annotations_to_coco(
@@ -64,17 +128,26 @@ def annotations_to_coco(
     ...     output_json_path=Path("path/to/annotations_coco.json"),
     ... )
     """
-    labels = sio.load_file(input_path)
-    # Check if labels object is empty
-    if len(labels.labeled_frames) == 0:
-        error_msg = _EMPTY_LABELS_ERROR_MSG["default"]
-        if dlc.is_dlc_file(input_path):
-            error_msg += _EMPTY_LABELS_ERROR_MSG["dlc"]
-        raise ValueError(error_msg)
-    sio.save_coco(
-        labels,
-        output_json_path,
-        image_filenames=coco_image_filenames,
-        visibility_encoding=coco_visibility_encoding,
-    )
-    return output_json_path
+    # Handle DLC CSV files with multi-column row index
+    temp_file_path = None
+    load_path = input_path
+    if _is_dlc_csv_with_multiindex_rows(input_path):
+        temp_file_path = _convert_dlc_csv_to_single_index(input_path)
+        load_path = temp_file_path
+
+    try:
+        labels = sio.load_file(load_path)
+        # Check if labels object is empty
+        if len(labels.labeled_frames) == 0:
+            raise ValueError(_EMPTY_LABELS_ERROR_MSG)
+        sio.save_coco(
+            labels,
+            output_json_path,
+            image_filenames=coco_image_filenames,
+            visibility_encoding=coco_visibility_encoding,
+        )
+        return output_json_path
+    finally:
+        # Clean up temp file if created
+        if temp_file_path is not None:
+            temp_file_path.unlink(missing_ok=True)
