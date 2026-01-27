@@ -2,7 +2,7 @@
 
 import shutil
 from pathlib import Path
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 import pytest
 
@@ -18,6 +18,8 @@ class DLCTestFile(TypedDict):
 DATA_DIR = Path(__file__).parent / "data"
 
 # CSV files and their corresponding video folder names and frame filenames
+# "pranav" uses single-index format (path in one column)
+# "shailaja" uses multi-index format (path split across 3 columns)
 DLC_TEST_FILES: dict[str, DLCTestFile] = {
     "pranav": {
         "csv": "CollectedData_Pranav.csv",
@@ -43,6 +45,9 @@ DLC_TEST_FILES: dict[str, DLCTestFile] = {
     },
 }
 
+# CSV location options for DLC project structure
+CSVLocation = Literal["video_folder", "project_root"]
+
 
 def create_dummy_png(path: Path) -> None:
     """Create a minimal valid PNG file (1x1 transparent pixel)."""
@@ -58,7 +63,11 @@ def create_dummy_png(path: Path) -> None:
     path.write_bytes(png_bytes)
 
 
-def create_dlc_project(tmp_path: Path, test_file_key: str) -> Path:
+def create_dlc_project(
+    tmp_path: Path,
+    test_file_key: str,
+    csv_location: CSVLocation = "video_folder",
+) -> Path:
     """Create a mock DLC project structure with a CSV and dummy frame images.
 
     Parameters
@@ -66,7 +75,11 @@ def create_dlc_project(tmp_path: Path, test_file_key: str) -> Path:
     tmp_path : Path
         Temporary directory to create the project in.
     test_file_key : str
-        Key from DLC_TEST_FILES ("pranav", "loukia", or "shailaja").
+        Key from DLC_TEST_FILES ("pranav" or "shailaja").
+    csv_location : CSVLocation
+        Where to place the CSV file:
+        - "video_folder": in labeled-data/<video_folder>/ (same as frames)
+        - "project_root": in the project root directory (tmp_path)
 
     Returns
     -------
@@ -79,9 +92,12 @@ def create_dlc_project(tmp_path: Path, test_file_key: str) -> Path:
     video_dir = tmp_path / "labeled-data" / config["video_folder"]
     video_dir.mkdir(parents=True)
 
-    # Copy CSV to video folder
+    # Copy CSV to the appropriate location
     src_csv = DATA_DIR / config["csv"]
-    dst_csv = video_dir / config["csv"]
+    if csv_location == "video_folder":
+        dst_csv = video_dir / config["csv"]
+    else:  # project_root
+        dst_csv = tmp_path / config["csv"]
     shutil.copy(src_csv, dst_csv)
 
     # Create dummy PNG files for each frame
@@ -92,12 +108,28 @@ def create_dlc_project(tmp_path: Path, test_file_key: str) -> Path:
 
 
 @pytest.fixture
-def dlc_project_pranav(tmp_path: Path) -> Path:
-    """Mock DLC project with Pranav CSV (slashes in file paths)."""
-    return create_dlc_project(tmp_path, "pranav")
+def dlc_single_index_in_video_folder(tmp_path: Path) -> Path:
+    """Mock DLC project: single-index CSV in video folder (same as frames)."""
+    return create_dlc_project(tmp_path, "pranav", csv_location="video_folder")
 
 
 @pytest.fixture
-def dlc_project_shailaja(tmp_path: Path) -> Path:
-    """Mock DLC project with Shailaja CSV (commas in file paths)."""
-    return create_dlc_project(tmp_path, "shailaja")
+def dlc_single_index_in_project_root(tmp_path: Path) -> Path:
+    """Mock DLC project: single-index CSV in project root."""
+    return create_dlc_project(tmp_path, "pranav", csv_location="project_root")
+
+
+@pytest.fixture
+def dlc_multi_index_in_video_folder(tmp_path: Path) -> Path:
+    """Mock DLC project: multi-index CSV in video folder (same as frames)."""
+    return create_dlc_project(
+        tmp_path, "shailaja", csv_location="video_folder"
+    )
+
+
+@pytest.fixture
+def dlc_multi_index_in_project_root(tmp_path: Path) -> Path:
+    """Mock DLC project: multi-index CSV in project root."""
+    return create_dlc_project(
+        tmp_path, "shailaja", csv_location="project_root"
+    )

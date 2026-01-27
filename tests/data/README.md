@@ -26,9 +26,16 @@ The multi-index format is used by newer DLC versions. The `sleap-io` library exp
 - **Keypoints**: 4 body parts (snout, leftear, rightear, tailbase)
 - **Source**: https://github.com/DeepLabCut/DeepLabCut/tree/main/examples/openfield-Pranav-2018-10-30
 
-## Summary
+## Test Matrix
 
-| File     | Format       | Path columns |
-|----------|--------------|--------------|
-| Shailaja | Multi-index  | 3            |
-| Pranav   | Single-index | 1            |
+The test fixtures combine these files with two CSV location options:
+
+| Fixture Name                       | Format       | CSV Location   |
+|------------------------------------|--------------|----------------|
+| `dlc_single_index_in_video_folder` | Single-index | Video folder   |
+| `dlc_single_index_in_project_root` | Single-index | Project root   |
+| `dlc_multi_index_in_video_folder`  | Multi-index  | Video folder   |
+| `dlc_multi_index_in_project_root`  | Multi-index  | Project root   |
+
+- **Video folder**: CSV in `labeled-data/<video_folder>/` (same directory as frames)
+- **Project root**: CSV in the DLC project root directory
