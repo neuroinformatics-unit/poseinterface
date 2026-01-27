@@ -20,12 +20,6 @@ The multi-index format is used by newer DLC versions. The `sleap-io` library exp
 - **Keypoints**: 40 body parts (mouse face/paws/tail tracking)
 - **Source**: Shailaja Akella (Allen Institute)
 
-### CollectedData_Loukia.csv
-- **Format**: Multi-index (3 columns for path)
-- **Path structure**: `labeled-data,folder,filename.png`
-- **Keypoints**: 20 body parts (mouse + EPM maze corners)
-- **Source**: Loukia Katsouri (Sainsbury Wellcome Centre)
-
 ### CollectedData_Pranav.csv
 - **Format**: Single-index (1 column for path)
 - **Path structure**: `labeled-data/folder/filename.png`
@@ -37,5 +31,4 @@ The multi-index format is used by newer DLC versions. The `sleap-io` library exp
 | File     | Format       | Path columns |
 |----------|--------------|--------------|
 | Shailaja | Multi-index  | 3            |
-| Loukia   | Multi-index  | 3            |
 | Pranav   | Single-index | 1            |

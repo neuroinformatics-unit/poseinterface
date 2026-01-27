@@ -30,17 +30,6 @@ DLC_TEST_FILES: dict[str, DLCTestFile] = {
             "img0004.png",
         ],
     },
-    "loukia": {
-        "csv": "CollectedData_Loukia.csv",
-        "video_folder": "M708154_EPM_20200317_185651629-converted",
-        "frames": [
-            "img01841.png",
-            "img08489.png",
-            "img09286.png",
-            "img12980.png",
-            "img18418.png",
-        ],
-    },
     "shailaja": {
         "csv": "CollectedData_Shailaja.csv",
         "video_folder": "1052533639_530862_20200924.face",
@@ -106,12 +95,6 @@ def create_dlc_project(tmp_path: Path, test_file_key: str) -> Path:
 def dlc_project_pranav(tmp_path: Path) -> Path:
     """Mock DLC project with Pranav CSV (slashes in file paths)."""
     return create_dlc_project(tmp_path, "pranav")
-
-
-@pytest.fixture
-def dlc_project_loukia(tmp_path: Path) -> Path:
-    """Mock DLC project with Loukia CSV (commas in file paths)."""
-    return create_dlc_project(tmp_path, "loukia")
 
 
 @pytest.fixture
