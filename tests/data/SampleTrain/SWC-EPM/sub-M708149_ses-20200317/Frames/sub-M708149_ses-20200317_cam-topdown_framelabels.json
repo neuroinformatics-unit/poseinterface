@@ -2,38 +2,38 @@
   "images": [
     {
       "id": 1000,
-      "file_name": "sub-M708149_ses-20200317_view-topdown_frame-01000.png",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01000.png",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 1001,
-      "file_name": "sub-M708149_ses-20200317_view-topdown_frame-01001.png",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01001.png",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 1002,
-      "file_name": "sub-M708149_ses-20200317_view-topdown_frame-01002.png",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01002.png",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 1003,
-      "file_name": "sub-M708149_ses-20200317_view-topdown_frame-01003.png",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01003.png",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 1004,
-      "file_name": "sub-M708149_ses-20200317_view-topdown_frame-01004.png",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01004.png",
       "width": 1300,
       "height": 1028
     }
   ],
   "annotations": [
     {
-      "id": 0,
+      "id": 1,
       "image_id": 1000,
       "category_id": 1,
       "keypoints": [
@@ -73,7 +73,7 @@
       "iscrowd": 0
     },
     {
-      "id": 1,
+      "id": 2,
       "image_id": 1001,
       "category_id": 1,
       "keypoints": [
@@ -113,7 +113,7 @@
       "iscrowd": 0
     },
     {
-      "id": 2,
+      "id": 3,
       "image_id": 1002,
       "category_id": 1,
       "keypoints": [
@@ -153,7 +153,7 @@
       "iscrowd": 0
     },
     {
-      "id": 3,
+      "id": 4,
       "image_id": 1003,
       "category_id": 1,
       "keypoints": [
@@ -193,7 +193,7 @@
       "iscrowd": 0
     },
     {
-      "id": 4,
+      "id": 5,
       "image_id": 1004,
       "category_id": 1,
       "keypoints": [
