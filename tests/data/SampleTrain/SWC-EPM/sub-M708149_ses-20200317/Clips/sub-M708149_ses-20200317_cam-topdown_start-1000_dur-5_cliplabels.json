@@ -2,38 +2,38 @@
   "images": [
     {
       "id": 0,
-      "file_name": "sub-M708149_ses-20200317_start-1000_dur-5_view-topdown.mp4",
-      "width": 0,
-      "height": 0
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01000",
+      "width": 1300,
+      "height": 1028
     },
     {
       "id": 1,
-      "file_name": "sub-M708149_ses-20200317_start-1000_dur-5_view-topdown.mp4",
-      "width": 0,
-      "height": 0
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01001",
+      "width": 1300,
+      "height": 1028
     },
     {
       "id": 2,
-      "file_name": "sub-M708149_ses-20200317_start-1000_dur-5_view-topdown.mp4",
-      "width": 0,
-      "height": 0
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01002",
+      "width": 1300,
+      "height": 1028
     },
     {
       "id": 3,
-      "file_name": "sub-M708149_ses-20200317_start-1000_dur-5_view-topdown.mp4",
-      "width": 0,
-      "height": 0
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01003",
+      "width": 1300,
+      "height": 1028
     },
     {
       "id": 4,
-      "file_name": "sub-M708149_ses-20200317_start-1000_dur-5_view-topdown.mp4",
-      "width": 0,
-      "height": 0
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01004",
+      "width": 1300,
+      "height": 1028
     }
   ],
   "annotations": [
     {
-      "id": 0,
+      "id": 1,
       "image_id": 0,
       "category_id": 1,
       "keypoints": [
@@ -73,7 +73,7 @@
       "iscrowd": 0
     },
     {
-      "id": 1,
+      "id": 2,
       "image_id": 1,
       "category_id": 1,
       "keypoints": [
@@ -113,7 +113,7 @@
       "iscrowd": 0
     },
     {
-      "id": 2,
+      "id": 3,
       "image_id": 2,
       "category_id": 1,
       "keypoints": [
@@ -153,7 +153,7 @@
       "iscrowd": 0
     },
     {
-      "id": 3,
+      "id": 4,
       "image_id": 3,
       "category_id": 1,
       "keypoints": [
@@ -193,7 +193,7 @@
       "iscrowd": 0
     },
     {
-      "id": 4,
+      "id": 5,
       "image_id": 4,
       "category_id": 1,
       "keypoints": [
