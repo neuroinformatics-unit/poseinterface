@@ -101,33 +101,49 @@ def create_dlc_project(
     return csv_path_in_project
 
 
-@pytest.fixture
-def dlc_single_index_in_video_folder(tmp_path: Path) -> Path:
+@pytest.fixture(scope="session")
+def dlc_single_index_in_video_folder(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     """Mock DLC project: single-index CSV in video folder (same as frames)."""
     return create_dlc_project(
-        tmp_path, "single-index", csv_location="video_folder"
+        tmp_path_factory.mktemp("dlc_single_video"),
+        "single-index",
+        csv_location="video_folder",
     )
 
 
-@pytest.fixture
-def dlc_single_index_in_project_root(tmp_path: Path) -> Path:
+@pytest.fixture(scope="session")
+def dlc_single_index_in_project_root(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     """Mock DLC project: single-index CSV in project root."""
     return create_dlc_project(
-        tmp_path, "single-index", csv_location="project_root"
+        tmp_path_factory.mktemp("dlc_single_root"),
+        "single-index",
+        csv_location="project_root",
     )
 
 
-@pytest.fixture
-def dlc_multi_index_in_video_folder(tmp_path: Path) -> Path:
+@pytest.fixture(scope="session")
+def dlc_multi_index_in_video_folder(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     """Mock DLC project: multi-index CSV in video folder (same as frames)."""
     return create_dlc_project(
-        tmp_path, "multi-index", csv_location="video_folder"
+        tmp_path_factory.mktemp("dlc_multi_video"),
+        "multi-index",
+        csv_location="video_folder",
     )
 
 
-@pytest.fixture
-def dlc_multi_index_in_project_root(tmp_path: Path) -> Path:
+@pytest.fixture(scope="session")
+def dlc_multi_index_in_project_root(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     """Mock DLC project: multi-index CSV in project root."""
     return create_dlc_project(
-        tmp_path, "multi-index", csv_location="project_root"
+        tmp_path_factory.mktemp("dlc_multi_root"),
+        "multi-index",
+        csv_location="project_root",
     )
