@@ -158,3 +158,67 @@ def _extract_frame_number(
             rf"'{frame_regexp}'."
         )
     return int(match.group(1))
+
+
+def generate_coco_image_filenames(
+    input_path: Path,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    include_file_extension: bool = False,
+) -> list[str]:
+    """Generate COCO image filenames an input annotations file.
+
+    The generated filenames are in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
+
+    If `include_file_extension` is True, the generated filenames will include
+    the file extension of the original frame files, in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}.{file_extension}
+
+    Parameters
+    ----------
+    input_path
+        Path to the input annotations file.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+    include_file_extension
+        Whether to include the file extension of the original frame files
+        in the generated filenames. Default is False.
+
+    Returns
+    -------
+    list[str]
+        List of generated COCO image filenames corresponding to each
+        labeled frame.
+
+    Raises
+    ------
+    ValueError
+        If no labeled frames could be extracted from the input file.
+    """
+    labels = sio.load_file(input_path)
+    coco_image_filenames = []
+    for fn in labels.videos[0].filename:
+        # To be replaced with _extract_image_id_from_filename
+        matches = re.findall(r"(\d+)", Path(fn).stem)
+        if matches:
+            frame_number = matches[-1]  # Use last number found
+        else:
+            raise ValueError(
+                f"No frame number could be extracted from filename {fn}. "
+                "Please check that the filename contains a frame number."
+            )
+        file_name = (
+            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{frame_number}"
+        )
+        if include_file_extension:
+            file_extension = Path(fn).suffix
+            file_name += file_extension
+        coco_image_filenames.append(file_name)
+    return coco_image_filenames
