@@ -9,17 +9,16 @@ from poseinterface.io import (
     _extract_frame_number,
     _update_image_ids,
     annotations_to_coco,
-    update_ids,
 )
 
 
-@patch("poseinterface.io.update_ids")
-@patch("poseinterface.io.convert_labels")
+@patch("poseinterface.io._update_image_ids")
+@patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
 def test_annotations_to_coco(
     mock_load_file,
     mock_convert_labels,
-    mock_update_ids,
+    mock_update_image_ids,
     tmp_path,
 ):
     """Test that the relevant subfunctions are called."""
@@ -30,12 +29,12 @@ def test_annotations_to_coco(
     # Mock return value of convert_labels
     mock_convert_labels.return_value = {"images": [], "annotations": []}
 
-    # Mock return value of update_ids
-    output_path = tmp_path / "output.json"
-    mock_update_ids.return_value = output_path
+    # Mock return value of update_image_ids
+    mock_update_image_ids.return_value = {"images": [], "annotations": []}
 
     # Run function to test
     input_csv = tmp_path / "input.csv"
+    output_path = tmp_path / "output.json"
     result = annotations_to_coco(input_csv, output_path)
 
     # Check subfunctions are all called
@@ -45,10 +44,13 @@ def test_annotations_to_coco(
         image_filenames=None,
         visibility_encoding="ternary",
     )
-    mock_update_ids.assert_called_once()
+    mock_update_image_ids.assert_called_once_with(
+        mock_convert_labels.return_value, DEFAULT_FRAME_REGEXP
+    )
 
     # Check output file path is as expected
     assert result == output_path
+    assert output_path.exists()
 
 
 @patch("poseinterface.io.sio.load_file")
@@ -85,36 +87,6 @@ def test_annotations_to_coco_invalid(
 
     # Check is_dlc_file was called
     mock_is_dlc_file.assert_called_once_with(input_file)
-
-
-@patch("poseinterface.io._update_image_ids")
-def test_update_ids(
-    mock_update_image_ids,
-    tmp_path,
-):
-    """Test that update functions are called and a file is saved."""
-    # Input data
-    input_data = {}
-    output_file = tmp_path / "output.json"
-
-    # Configure the mock to return a JSON-serializable dict
-    mock_update_image_ids.return_value = {"images": [], "annotations": []}
-
-    # Call the function under test
-    result = update_ids(
-        input_data,
-        output_file,
-        frame_regexp=DEFAULT_FRAME_REGEXP,
-    )
-
-    # Assert each function was called with correct input
-    mock_update_image_ids.assert_called_once_with(
-        input_data, DEFAULT_FRAME_REGEXP
-    )
-
-    # Assert output file exists
-    assert output_file.exists()
-    assert result == output_file
 
 
 def test_update_image_ids():
