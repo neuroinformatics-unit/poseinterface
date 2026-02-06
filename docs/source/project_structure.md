@@ -138,6 +138,7 @@ Annotation and category `id` values *should* be 1-indexed. This convention follo
 ### Clip labels (`cliplabels.json`)
 
 * There *must* be one `cliplabels.json` per clip (in the `Train` split only).
+* The `images` array *must* contain an entry for every frame in the clip, in consecutive, monotonically increasing order (covering the entire clip duration).
 * Clip labels follow the same COCO keypoints format as frame labels, but with different conventions for image `id` and `file_name` values:
   * Each image `id` *must* be the **0-based index of the frame within the clip** (i.e. `0`, `1`, `2`, ...), not the index in the session video.
   * Each `file_name` *must* follow the same pattern as frame image filenames, but **without the `.png` extension**. The `frame` field in the `file_name` *must* hold the index of that frame in the **session video**.
