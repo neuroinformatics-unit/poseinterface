@@ -11,6 +11,7 @@ Welcome to poseinterface's documentation!
    :caption: Contents:
 
    getting_started
+   auto_examples/index
    api_index
 
 By default the documentation includes the following sections:

@@ -36,7 +36,8 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    # Deploy on merges to main (for latest docs) and on tag pushes (releases)
+    if: github.event_name == 'push' && (github.ref_type == 'tag' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v2

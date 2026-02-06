@@ -86,3 +86,5 @@ uv.lock
 # Sphinx documentation
 docs/build/
 docs/source/api_generated/
+docs/source/auto_examples/
+sg_execution_times.rst

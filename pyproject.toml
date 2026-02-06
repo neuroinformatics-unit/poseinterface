@@ -50,6 +50,7 @@ docs = [
   "setuptools-scm",
   "sphinx",
   "sphinx-autodoc-typehints",
+  "sphinx-gallery",
   "sphinx-sitemap",
 ]
 
