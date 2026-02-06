@@ -5,6 +5,7 @@ from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
+    DEFAULT_FRAME_REGEXP,
     _extract_frame_number,
     _update_image_ids,
     annotations_to_coco,
@@ -100,10 +101,16 @@ def test_update_ids(
     mock_update_image_ids.return_value = {"images": [], "annotations": []}
 
     # Call the function under test
-    result = update_ids(input_data, output_file)
+    result = update_ids(
+        input_data,
+        output_file,
+        frame_regexp=DEFAULT_FRAME_REGEXP,
+    )
 
     # Assert each function was called with correct input
-    mock_update_image_ids.assert_called_once_with(input_data)
+    mock_update_image_ids.assert_called_once_with(
+        input_data, DEFAULT_FRAME_REGEXP
+    )
 
     # Assert output file exists
     assert output_file.exists()
@@ -123,15 +130,16 @@ def test_update_image_ids():
             {"id": 2, "image_id": 234},
         ],
     }
+    frame_regexp = r"frame-(0\d*)"
 
     # New image IDs are derived from filename
     expected_old_to_new_image_ids = {
-        img["id"]: _extract_frame_number(img["file_name"])
+        img["id"]: _extract_frame_number(img["file_name"], frame_regexp)
         for img in input_data["images"]
     }
 
     # Update image IDs
-    data = _update_image_ids(input_data)
+    data = _update_image_ids(input_data, frame_regexp)
 
     # Check image IDs in list of images
     list_ids = [img["id"] for img in data["images"]]
@@ -161,40 +169,51 @@ def test_update_image_ids_duplicate_ids():
     }
 
     with pytest.raises(ValueError, match="Extracted image IDs are not unique"):
-        _update_image_ids(data)
+        _update_image_ids(data, frame_regexp=r"frame-(0\d*)")
 
 
 @pytest.mark.parametrize(
-    "filename, expected_image_id",
+    "filename, frame_regexp, expected_image_id",
     [
-        ("sub-M708149_ses-20200317_view-topdown_frame-00000.png", 0),
-        ("frame-0234", 234),
-        ("frame-0234abcd", 234),
+        # default regexp
+        ("img0000.png", r"img(0\d*)", 0),
+        ("img0234.png", r"img(0\d*)", 234),
+        # custom regexp matching "frame-0NNN"
+        (
+            "sub-M708149_ses-20200317_view-topdown_frame-00000.png",
+            r"frame-(0\d*)",
+            0,
+        ),
+        ("frame-0234", r"frame-(0\d*)", 234),
+        ("frame-0234abcd", r"frame-(0\d*)", 234),
     ],
 )
-def test_extract_frame_number(filename, expected_image_id):
+def test_extract_frame_number(filename, frame_regexp, expected_image_id):
     """Test that image id is correctly extracted from filename."""
-    image_id = _extract_frame_number(filename)
+    image_id = _extract_frame_number(filename, frame_regexp)
     assert isinstance(image_id, int)
     assert image_id == expected_image_id
 
 
 @pytest.mark.parametrize(
-    "filename",
+    "filename, frame_regexp",
     [
-        "sub-M708149_ses-20200317_view-topdown_frame.png",
+        ("sub-M708149_ses-20200317_view-topdown_frame.png", r"frame-(0\d*)"),
         # no frame number after "frame-"
-        "frame-234",
+        ("frame-234", r"frame-(0\d*)"),
         # no leading zero
-        "sub-M708149_ses-20200317_view-topdown_.png",
+        ("sub-M708149_ses-20200317_view-topdown_.png", r"frame-(0\d*)"),
         # no "frame-" prefix
+        ("frame-0234", r"img(0\d*)"),
+        # regexp does not produce a match
     ],
 )
-def test_extract_frame_number_invalid(filename):
+def test_extract_frame_number_invalid(filename, frame_regexp):
     """Test that ValueError is raised when frame number cannot be extracted."""
-    with pytest.raises(ValueError) as excinfo:
-        _extract_frame_number(filename)
-
-    assert "No frame number could be extracted from filename" in str(
-        excinfo.value
-    )
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"No frame number could be extracted from filename.*regexp pattern"
+        ),
+    ):
+        _extract_frame_number(filename, frame_regexp)

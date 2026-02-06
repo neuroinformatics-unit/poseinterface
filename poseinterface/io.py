@@ -21,12 +21,14 @@ _EMPTY_LABELS_ERROR_MSG = {
     ),
 }
 
+DEFAULT_FRAME_REGEXP = r"img(0\d*)"
+
 
 def annotations_to_coco(
     input_path: Path,
     output_json_path: Path,
     *,
-    frame_regexp: str = r"img(0\d*)",
+    frame_regexp: str = DEFAULT_FRAME_REGEXP,
     coco_image_filenames: str | list[str] | None = None,
     coco_visibility_encoding: str = "ternary",
 ) -> Path:
@@ -170,6 +172,6 @@ def _extract_frame_number(filename: str, frame_regexp: str) -> int | None:
             "No frame number could be extracted from filename "
             f"{filename}. Please check that the filename contains a "
             "frame number matching the provided regexp pattern "
-            rf"{frame_regexp}."
+            rf"'{frame_regexp}'."
         )
     return int(match.group(1))
