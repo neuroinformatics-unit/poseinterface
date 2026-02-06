@@ -69,7 +69,6 @@ def test_annotations_to_coco_invalid(
     input_file,
     error_message,
     tmp_path,
-    request,
 ):
     # Mock return value of load_file to have empty
     # labeled frames
