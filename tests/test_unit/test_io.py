@@ -5,7 +5,7 @@ from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
-    _extract_image_id_from_filename,
+    _extract_frame_number,
     _update_image_ids,
     annotations_to_coco,
     update_ids,
@@ -126,7 +126,7 @@ def test_update_image_ids():
 
     # New image IDs are derived from filename
     expected_old_to_new_image_ids = {
-        img["id"]: _extract_image_id_from_filename(img["file_name"])
+        img["id"]: _extract_frame_number(img["file_name"])
         for img in input_data["images"]
     }
 
@@ -172,9 +172,9 @@ def test_update_image_ids_duplicate_ids():
         ("frame-0234abcd", 234),
     ],
 )
-def test_extract_image_id_from_filename(filename, expected_image_id):
+def test_extract_frame_number(filename, expected_image_id):
     """Test that image id is correctly extracted from filename."""
-    image_id = _extract_image_id_from_filename(filename)
+    image_id = _extract_frame_number(filename)
     assert isinstance(image_id, int)
     assert image_id == expected_image_id
 
@@ -190,10 +190,10 @@ def test_extract_image_id_from_filename(filename, expected_image_id):
         # no "frame-" prefix
     ],
 )
-def test_extract_image_id_from_filename_invalid(filename):
+def test_extract_frame_number_invalid(filename):
     """Test that ValueError is raised when frame number cannot be extracted."""
     with pytest.raises(ValueError) as excinfo:
-        _extract_image_id_from_filename(filename)
+        _extract_frame_number(filename)
 
     assert "No frame number could be extracted from filename" in str(
         excinfo.value
