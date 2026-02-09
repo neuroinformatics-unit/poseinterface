@@ -39,7 +39,7 @@ The current scope is limited to **single-animal pose estimation** from a **singl
 ```
 
 :::{note}
-The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included. Labels for the `Test` split are withheld so that they can be used to score submissions in benchmarking competitions.
+The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation.
 :::
 
 ### Train / Test
@@ -69,7 +69,7 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
   * `mouse-M708149_ses-20200317`: the first key should be `sub`.
   * `sub-M708149_20200317`: missing the `ses` key.
   * `sub-M70_8149_ses-20200317`: underscores are not allowed within values (ambiguous parsing).
-  * `sub-M70-8149_ses-2020-03-17`: hyphens are not allowed within values.
+  * `sub-M70-8149_ses-2020-03-17`: hyphens are not allowed within values (ambiguous parsing).
 :::
 
 ### Session video
@@ -79,18 +79,20 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
 
 ### Frames
 
-The `Frames` folder contains individually sampled images and their annotations. Frames *must* be extracted from the session video.
+The `Frames` folder contains individually sampled images and their annotations. 
 
+* Frames *must* be extracted from the session video.
 * Frame images *must* be in PNG format.
 * Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png`.
 * `<frameID>` *must* be the 0-based index of the frame in the session video.
-* `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `01000`, `01001`).
-* In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. See [Label format](#label-format) for details.
+* `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `0999`, `1000`).
+* In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. At present, only one camera view is included, so the split contains exactly one such label file. See [Label format](#label-format) for details.
 
 ### Clips
 
-A session *may* include a `Clips` folder containing short video segments and their annotations. Clips *must* be extracted from the session video.
+A session *may* include a `Clips` folder containing short video segments and their annotations.
 
+* Clips *must* be extracted from the session video.
 * Clip filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4`.
 * `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width.
 * `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames.
