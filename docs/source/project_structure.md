@@ -74,12 +74,12 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
 
 ### Session video
 
-* All video files (session videos and clips) *should* be in MP4 format (H.264 codec, yuv420p pixel format). Contributors *should* re-encode their videos to this format before submission (see [SLEAP documentation](https://sleap.ai/help.html#does-my-data-need-to-be-in-a-particular-format) for guidance).
+* All video files (session videos and clips) *should* be in MP4 format (H.264 codec, yuv420p pixel format). Contributors *should* re-encode their videos to this format before submission (see [SLEAP documentation](https://docs.sleap.ai/latest/help/#usage) for guidance).
 * Session video filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4`.
 
 ### Frames
 
-The `Frames` folder contains individually sampled images and their annotations. 
+The `Frames` folder contains individually sampled images and their annotations.
 
 * Frames *must* be extracted from the session video.
 * Frame images *must* be in PNG format.
