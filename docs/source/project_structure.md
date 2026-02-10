@@ -85,17 +85,17 @@ The `Frames` folder contains individually sampled images and their annotations.
 * Frame images *must* be in PNG format.
 * Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png`.
 * `<frameID>` *must* be the 0-based index of the frame in the session video.
-* `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `0999`, `1000`).
+* `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `0000`, `1000`).
 * In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. At present, only one camera view is included, so the split contains exactly one such label file. See [Label format](#label-format) for details.
 
 ### Clips
 
 A session *may* include a `Clips` folder containing short video segments and their annotations.
 
-* Clips *must* be extracted from the session video.
+* Clips *must* be extracted from the session video and *must* have the same file format.
 * Clip filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4`.
-* `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width.
-* `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames.
+* `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. `0500`, `1000`).
+* `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames (e.g. `5`, `30`).
 * In the `Train` split, a single label file *must* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`. See [Label format](#label-format) for details.
 
 ## File naming
@@ -110,22 +110,24 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
   The recognised suffixes are `framelabels` (for frame label files) and `cliplabels` (for clip label files).
 * The following keys are used:
 
-| Key     | Description                                    | Example         |
+| Key     | Description                                    | Examples         |
 |---------|------------------------------------------------|-----------------|
-| `sub`   | Subject identifier                             | `sub-M708149`   |
-| `ses`   | Session identifier                             | `ses-20200317`  |
-| `cam`   | Camera identifier                              | `cam-topdown`   |
-| `frame` | 0-based frame index in the session video        | `frame-01000`   |
-| `start` | 0-based frame index of the first frame of a clip in the session video | `start-01000` |
-| `dur`   | Clip duration in number of frames              | `dur-5`         |
+| `sub`   | Subject identifier                             | `sub-001`, `sub-M708149`   |
+| `ses`   | Session identifier                             | `ses-02`, `ses-25`, `ses-20200317`  |
+| `cam`   | Camera identifier                              | `cam-topdown`, `cam-side2`   |
+| `frame` | 0-based frame index in the session video        | `frame-0000`, `frame-0500`, `frame-1000`   |
+| `start` | 0-based frame index of the first frame of a clip in the session video | `start-0000`, `start-0500`, `start-1000` |
+| `dur`   | Clip duration in number of frames              | `dur-5`, `dur-30`         |
 
 * The keys `sub`, `ses`, and `cam` *must* appear in every filename, in that order.
-* Key values *must* be strictly alphanumeric (i.e. only `A-Z`, `a-z`, `0-9`). Since underscores separate key-value pairs and hyphens separate keys from values, neither character is allowed within values.
+* Key values *must* be strictly alphanumeric for `sub`, `ses` and `cam` (i.e. only `A-Z`, `a-z`, `0-9`).
+* Key values *must* be strictly numeric for `frame`, `start` and `dur` (i.e. only `0-9`).
 * Filenames *must* not contain spaces.
 
 ## Label format
 
-Annotations *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with some additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` fields. Image, annotation and category `id` values *must* be unique integers within a label file.
+* Labels (also referred to as annotations) are only included in the `Train` split, and **must** be stored as JSON files in the same folder as the corresponding frames or clips.
+* Annotations *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with some additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 
 :::{note}
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/#sleap_io.io.coco.save_coco) function and avoids conflicts with models that treat category `0` as background. Image `id` indexing differs between frame and clip labels — see below for details.
@@ -133,9 +135,27 @@ Annotation and category `id` values *should* be 1-indexed. This convention follo
 
 ### Frame labels (`framelabels.json`)
 
-* There *must* be one `framelabels.json` per camera view within the `Frames` folder (in the `Train` split only).
+* There *must* be one `framelabels.json` per camera view within the `Frames` folder.
 * Each entry in the `images` array *must* have an `id` equal to the integer frame index in the session video (matching the `<frameID>` in the corresponding image filename).
 * Each entry in the `images` array *must* have a `file_name` that matches the full filename (including the `.png` extension) of an existing frame image in the `Frames` folder.
+
+:::{admonition} Example
+:class: tip
+
+For a session with 5 labelled frames sampled from different parts of the video, the `images` array would be:
+
+```json
+[
+  {"id": 1000, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01000.png", "width": 1300, "height": 1028},
+  {"id": 2300, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-02300.png", "width": 1300, "height": 1028},
+  {"id": 3500, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-03500.png", "width": 1300, "height": 1028},
+  {"id": 7200, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-07200.png", "width": 1300, "height": 1028},
+  {"id": 9800, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-09800.png", "width": 1300, "height": 1028}
+]
+```
+
+Here each `id` is the frame index in the session video (matching the `<frameID>` in the filename), and each `file_name` includes the `.png` extension.
+:::
 
 ### Clip labels (`cliplabels.json`)
 
