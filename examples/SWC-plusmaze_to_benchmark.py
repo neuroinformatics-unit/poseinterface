@@ -46,7 +46,7 @@ assert source_project_dir.exists(), (
 )
 
 target_base_dir = Path("/mnt/Data/pose_benchmarks")
-target_dataset_dir = target_base_dir / "SWC-EPM"
+target_dataset_dir = target_base_dir / "SWC-plusmaze"
 target_dataset_dir.mkdir(parents=True, exist_ok=True)
 
 # %%

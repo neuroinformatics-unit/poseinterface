@@ -139,5 +139,5 @@ sphinx_gallery_conf = {
     # Use this for scripts that depend on data/resources not available in CI
     # or on the developer's machine (e.g. files on a specific mount point).
     # To re-enable an example, remove its pattern from this list.
-    "ignore_pattern": r"EPM_to_benchmark",
+    "ignore_pattern": r"SWC-plusmaze_to_benchmark",
 }

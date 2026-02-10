@@ -50,7 +50,7 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
 ### Project
 
 * Each project *must* have exactly one project-level folder within a given split.
-* The project folder name *should* be descriptive and without spaces (e.g. `SWC-EPM`, `IBL-headfixed`, `AIND-openfield`).
+* The project folder name *should* be descriptive and without spaces (e.g. `SWC-plusmaze`, `IBL-headfixed`, `AIND-openfield`).
 
 ### Session
 
@@ -200,7 +200,7 @@ Below is a concrete example project structure (only the `Train` split is shown):
 
 ```
 Train/
-└── SWC-EPM/
+└── SWC-plusmaze/
     └── sub-M708149_ses-20200317/
         ├── Frames/
         │   ├── sub-M708149_ses-20200317_cam-topdown_frame-01000.png
