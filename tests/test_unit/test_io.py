@@ -162,17 +162,16 @@ def test_update_image_ids_duplicate_ids():
 @pytest.mark.parametrize(
     "filename, frame_regexp, expected_image_id",
     [
-        # default regexp
-        ("img0000.png", r"img(0\d*)", 0),
+        ("img0000.png", r"img(\d*)", 0),
         ("img0234.png", r"img(0\d*)", 234),
-        # custom regexp matching "frame-0NNN"
         (
             "sub-M708149_ses-20200317_view-topdown_frame-00000.png",
-            r"frame-(0\d*)",
+            POSEINTERFACE_FRAME_REGEXP,
             0,
         ),
-        ("frame-0234", r"frame-(0\d*)", 234),
-        ("frame-0234abcd", r"frame-(0\d*)", 234),
+        ("frame-234", POSEINTERFACE_FRAME_REGEXP, 234),
+        ("frame-0234", POSEINTERFACE_FRAME_REGEXP, 234),
+        ("frame-0234abcd", POSEINTERFACE_FRAME_REGEXP, 234),
     ],
 )
 def test_extract_frame_number(filename, frame_regexp, expected_image_id):

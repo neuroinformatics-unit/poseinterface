@@ -121,10 +121,7 @@ def _update_image_ids(input_data: dict) -> dict:
     for img in data["images"]:
         # map old image_id to new image_id
         old_img_id = img["id"]
-        new_img_id = _extract_frame_number(
-            img["file_name"],
-            POSEINTERFACE_FRAME_REGEXP,
-        )
+        new_img_id = _extract_frame_number(img["file_name"])
         old_to_new_id[old_img_id] = new_img_id
 
         # update image_id in images list
@@ -144,7 +141,9 @@ def _update_image_ids(input_data: dict) -> dict:
     return data
 
 
-def _extract_frame_number(filename: str, frame_regexp: str) -> int | None:
+def _extract_frame_number(
+    filename: str, frame_regexp: str = POSEINTERFACE_FRAME_REGEXP
+) -> int | None:
     """Extract the frame number in the input filename.
 
     If no frame number is found, returns None.
