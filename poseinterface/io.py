@@ -31,29 +31,30 @@ def annotations_to_coco(
     coco_image_filenames: str | list[str] | None = None,
     coco_visibility_encoding: str = "ternary",
 ) -> Path:
-    """Export annotations file from a single video to poseinterface format.
+    """Export annotations file from a single video to ``poseinterface`` format.
 
     Parameters
     ----------
     input_path : pathlib.Path
         Path to the input annotations file.
     output_json_path : pathlib.Path
-        Path to save the output COCO JSON file.
+        Path to save the output ``poseinterface`` COCO JSON file.
     coco_image_filenames : str | list[str] | None, optional
-        Optional image filenames to use in the COCO JSON. If provided,
-        must be a single string (for single-frame videos) or a list of
-        strings matching the number of labeled frames. If None (default),
-        generates filenames from video filenames and frame indices.
+        Optional image filenames to use in the ``poseinterface`` COCO JSON.
+        If provided, must be a single string (for single-frame videos)
+        or a list of strings matching the number of labeled frames.
+        If None (default), generates filenames from video filenames
+        and frame indices.
     coco_visibility_encoding : str, optional
-        Encoding scheme for keypoint visibility in the COCO JSON file.
-        Options are "ternary" (0: not labeled, 1: labeled but not visible,
-        2: labeled and visible) or "binary" (0: not visible, 1: visible).
-        Default is "ternary".
+        Encoding scheme for keypoint visibility in the ``poseinterface`` COCO
+        JSON file. Options are "ternary" (0: not labeled, 1: labeled
+        but not visible, 2: labeled and visible) or "binary" (0: not
+        visible, 1: visible). Default is "ternary".
 
     Returns
     -------
     pathlib.Path
-        Path to the saved COCO JSON file.
+        Path to the saved ``poseinterface`` COCO JSON file.
 
     Notes
     -----
@@ -61,9 +62,10 @@ def annotations_to_coco(
     on its extension. See :func:`sleap_io.io.main.load_file` for supported
     formats.
 
-    In the poseinterface COCO output file, the image IDs correspond to the
-    frame numbers and are derived from the image filenames. The annotation and
-    category ids are 0-based indices.
+    See Also
+    --------
+    sleap_io.io.coco.convert_labels
+        The underlying function used to convert SLEAP labels to COCO format.
 
     Example
     -------
@@ -93,7 +95,6 @@ def annotations_to_coco(
         )
 
     # Generate COCO dict from sleap-io
-    # with PR19 image_filenames = poseinterface filenames
     coco_data = coco.convert_labels(
         labels,
         image_filenames=coco_image_filenames,

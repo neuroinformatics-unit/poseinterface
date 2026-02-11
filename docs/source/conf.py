@@ -129,6 +129,7 @@ sitemap_url_scheme = "{link}"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "sleap_io": ("https://io.sleap.ai/latest/", None),
 }
 
 # -- Sphinx-Gallery configuration -------------------------------------------
