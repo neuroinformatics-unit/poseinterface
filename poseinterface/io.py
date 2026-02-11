@@ -21,18 +21,17 @@ _EMPTY_LABELS_ERROR_MSG = {
     ),
 }
 
-DEFAULT_FRAME_REGEXP = r"img(0\d*)"
+POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
 
 
 def annotations_to_coco(
     input_path: Path,
     output_json_path: Path,
     *,
-    frame_regexp: str = DEFAULT_FRAME_REGEXP,
     coco_image_filenames: str | list[str] | None = None,
     coco_visibility_encoding: str = "ternary",
 ) -> Path:
-    """Export annotations file to COCO format for poseinterface.
+    """Export annotations file from a single video to poseinterface format.
 
     Parameters
     ----------
@@ -40,11 +39,6 @@ def annotations_to_coco(
         Path to the input annotations file.
     output_json_path : pathlib.Path
         Path to save the output COCO JSON file.
-    frame_regexp: str, optional
-        Regular expression pattern to extract the frame number from the image
-        filename as stated in the input annotations file. By default,
-        the frame number is expected to be the group of
-        digits after "img" in the filename, preceded by at least one zero.
     coco_image_filenames : str | list[str] | None, optional
         Optional image filenames to use in the COCO JSON. If provided,
         must be a single string (for single-frame videos) or a list of
@@ -89,6 +83,10 @@ def annotations_to_coco(
             error_msg += _EMPTY_LABELS_ERROR_MSG["dlc"]
         raise ValueError(error_msg)
 
+    # Check single video
+    if len(labels.videos) > 1:
+        raise ValueError("Single video annotations only")
+
     # Generate COCO dict from sleap-io
     coco_data = coco.convert_labels(
         labels,
@@ -97,25 +95,28 @@ def annotations_to_coco(
     )
 
     # Update image ids to reflect frame number
-    coco_data_updated = _update_image_ids(coco_data, frame_regexp)
+    # coco_data = _update_image_ids(coco_data)
 
     # Save JSON file
     with open(output_json_path, "w") as f:
-        json.dump(coco_data_updated, f)
+        json.dump(coco_data, f)
 
     return output_json_path
 
 
-def _update_image_ids(input_data: dict, frame_regexp: str) -> dict:
+def _update_image_ids(input_data: dict) -> dict:
     """Assigns new image IDs based on the frame number in the filename."""
     # Create new dict
     data = copy.deepcopy(input_data)
 
-    # Build map old-to-new image IDs and update in images list
+    # Build map old-to-new image IDs and update image id in images list
     old_to_new_id = {}
     for img in data["images"]:
         old_img_id = img["id"]
-        new_img_id = _extract_frame_number(img["file_name"], frame_regexp)
+        new_img_id = _extract_frame_number(
+            img["file_name"],
+            POSEINTERFACE_FRAME_REGEXP,
+        )
 
         # map old to new
         old_to_new_id[old_img_id] = new_img_id
