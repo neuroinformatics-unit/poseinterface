@@ -348,10 +348,14 @@
                 <article class="bd-article">
                   
   <h1>Source code for poseinterface.io</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">dlc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">coco</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.dlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_dlc_file</span>
 
 <span class="n">_EMPTY_LABELS_ERROR_MSG</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -367,6 +371,8 @@
     <span class="p">),</span>
 <span class="p">}</span>
 
+<span class="n">POSEINTERFACE_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;frame-(\d+)&quot;</span>
+
 
 <div class="viewcode-block" id="annotations_to_coco">
 <a class="viewcode-back" href="../../api_generated/poseinterface.io.annotations_to_coco.html#poseinterface.io.annotations_to_coco">[docs]</a>
@@ -377,7 +383,7 @@
     <span class="n">coco_image_filenames</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">coco_visibility_encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ternary&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export annotations file to COCO format.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export annotations file from a single video to poseinterface format.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -407,6 +413,10 @@
 <span class="sd">    on its extension. See :func:`sleap_io.io.main.load_file` for supported</span>
 <span class="sd">    formats.</span>
 
+<span class="sd">    In the poseinterface COCO output file, the image IDs correspond to the</span>
+<span class="sd">    frame numbers and are derived from the image filenames. The annotation and</span>
+<span class="sd">    category ids are 0-based indices.</span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
@@ -417,20 +427,89 @@
 <span class="sd">    ... )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+
     <span class="c1"># Check if labels object is empty</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">labeled_frames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_EMPTY_LABELS_ERROR_MSG</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">dlc</span><span class="o">.</span><span class="n">is_dlc_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_dlc_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">):</span>
             <span class="n">error_msg</span> <span class="o">+=</span> <span class="n">_EMPTY_LABELS_ERROR_MSG</span><span class="p">[</span><span class="s2">&quot;dlc&quot;</span><span class="p">]</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-    <span class="n">sio</span><span class="o">.</span><span class="n">save_coco</span><span class="p">(</span>
+
+    <span class="c1"># Check single video</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">videos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The annotations refer to multiple videos &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">videos</span><span class="p">)</span><span class="si">}</span><span class="s2">). &quot;</span>
+            <span class="s2">&quot;Please check that the input file contains annotations &quot;</span>
+            <span class="s2">&quot;for a single video only.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Generate COCO dict from sleap-io</span>
+    <span class="c1"># with PR19 image_filenames = poseinterface filenames</span>
+    <span class="n">coco_data</span> <span class="o">=</span> <span class="n">coco</span><span class="o">.</span><span class="n">convert_labels</span><span class="p">(</span>
         <span class="n">labels</span><span class="p">,</span>
-        <span class="n">output_json_path</span><span class="p">,</span>
         <span class="n">image_filenames</span><span class="o">=</span><span class="n">coco_image_filenames</span><span class="p">,</span>
         <span class="n">visibility_encoding</span><span class="o">=</span><span class="n">coco_visibility_encoding</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Update image ids to match frame number</span>
+    <span class="c1"># uncomment after PR19</span>
+    <span class="c1"># coco_data = _update_image_ids(coco_data)</span>
+
+    <span class="c1"># Save JSON file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_json_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">coco_data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">output_json_path</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_image_ids</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assigns new image IDs based on the frame number in the filename.&quot;&quot;&quot;</span>
+    <span class="c1"># Create new dict</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+
+    <span class="c1"># Build map old-to-new image IDs and update image id in images list</span>
+    <span class="n">old_to_new_id</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]:</span>
+        <span class="c1"># map old image_id to new image_id</span>
+        <span class="n">old_img_id</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="n">new_img_id</span> <span class="o">=</span> <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>
+        <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">old_img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_img_id</span>
+
+        <span class="c1"># update image_id in images list</span>
+        <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_img_id</span>
+
+    <span class="c1"># Check new image IDs are unique</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_to_new_id</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">old_to_new_id</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Extracted image IDs are not unique. Please check that the frame &quot;</span>
+            <span class="s2">&quot;numbers as specified in the filename are unique.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Update image_id in annotations list</span>
+    <span class="k">for</span> <span class="n">annot</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]:</span>
+        <span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_number</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">POSEINTERFACE_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the frame number in the input filename.</span>
+
+<span class="sd">    If no frame number is found, returns None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No frame number could be extracted from filename &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">. Please check that the filename contains a &quot;</span>
+            <span class="s2">&quot;frame number matching the provided regexp pattern &quot;</span>
+            <span class="sa">rf</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 
                 </article>
