@@ -5,20 +5,18 @@ from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
-    DEFAULT_FRAME_REGEXP,
+    POSEINTERFACE_FRAME_REGEXP,
     _extract_frame_number,
     _update_image_ids,
     annotations_to_coco,
 )
 
 
-@patch("poseinterface.io._update_image_ids")
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
 def test_annotations_to_coco(
     mock_load_file,
     mock_convert_labels,
-    mock_update_image_ids,
     tmp_path,
 ):
     """Test that the relevant subfunctions are called."""
@@ -28,9 +26,6 @@ def test_annotations_to_coco(
 
     # Mock return value of convert_labels
     mock_convert_labels.return_value = {"images": [], "annotations": []}
-
-    # Mock return value of update_image_ids
-    mock_update_image_ids.return_value = {"images": [], "annotations": []}
 
     # Run function to test
     input_csv = tmp_path / "input.csv"
@@ -43,9 +38,6 @@ def test_annotations_to_coco(
         mock_labels,
         image_filenames=None,
         visibility_encoding="ternary",
-    )
-    mock_update_image_ids.assert_called_once_with(
-        mock_convert_labels.return_value, DEFAULT_FRAME_REGEXP
     )
 
     # Check output file path is as expected
@@ -101,16 +93,18 @@ def test_update_image_ids():
             {"id": 2, "image_id": 234},
         ],
     }
-    frame_regexp = r"frame-(0\d*)"
 
     # New image IDs are derived from filename
     expected_old_to_new_image_ids = {
-        img["id"]: _extract_frame_number(img["file_name"], frame_regexp)
+        img["id"]: _extract_frame_number(
+            img["file_name"],
+            POSEINTERFACE_FRAME_REGEXP,
+        )
         for img in input_data["images"]
     }
 
     # Update image IDs
-    data = _update_image_ids(input_data, frame_regexp)
+    data = _update_image_ids(input_data)
 
     # Check image IDs in list of images
     list_ids = [img["id"] for img in data["images"]]
@@ -140,7 +134,7 @@ def test_update_image_ids_duplicate_ids():
     }
 
     with pytest.raises(ValueError, match="Extracted image IDs are not unique"):
-        _update_image_ids(data, frame_regexp=r"frame-(0\d*)")
+        _update_image_ids(data)
 
 
 @pytest.mark.parametrize(

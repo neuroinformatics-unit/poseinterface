@@ -88,13 +88,15 @@ def annotations_to_coco(
         raise ValueError("Single video annotations only")
 
     # Generate COCO dict from sleap-io
+    # with PR19 image_filenames = poseinterface filenames
     coco_data = coco.convert_labels(
         labels,
         image_filenames=coco_image_filenames,
         visibility_encoding=coco_visibility_encoding,
     )
 
-    # Update image ids to reflect frame number
+    # Update image ids to match frame number
+    # uncomment after PR19
     # coco_data = _update_image_ids(coco_data)
 
     # Save JSON file
@@ -112,13 +114,12 @@ def _update_image_ids(input_data: dict) -> dict:
     # Build map old-to-new image IDs and update image id in images list
     old_to_new_id = {}
     for img in data["images"]:
+        # map old image_id to new image_id
         old_img_id = img["id"]
         new_img_id = _extract_frame_number(
             img["file_name"],
             POSEINTERFACE_FRAME_REGEXP,
         )
-
-        # map old to new
         old_to_new_id[old_img_id] = new_img_id
 
         # update image_id in images list
