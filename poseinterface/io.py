@@ -85,7 +85,12 @@ def annotations_to_coco(
 
     # Check single video
     if len(labels.videos) > 1:
-        raise ValueError("Single video annotations only")
+        raise ValueError(
+            "The annotations refer to multiple videos "
+            f"(n={len(labels.videos)}). "
+            "Please check that the input file contains annotations "
+            "for a single video only."
+        )
 
     # Generate COCO dict from sleap-io
     # with PR19 image_filenames = poseinterface filenames

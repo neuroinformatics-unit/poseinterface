@@ -80,6 +80,28 @@ def test_annotations_to_coco_invalid(
     mock_is_dlc_file.assert_called_once_with(input_file)
 
 
+@patch("poseinterface.io.sio.load_file")
+def test_annotations_to_coco_not_single_video(
+    mock_load_file,
+    tmp_path,
+):
+    """Test that error is raised when labels object contains >1 videos."""
+    # Mock return value of load_file
+    mock_labels = mock_load_file.return_value
+    mock_labels.labeled_frames = [1]  # there are labelled frames
+    mock_labels.videos = [1, 2]  # from multiple videos
+
+    # Check error is raised
+    with pytest.raises(
+        ValueError,
+        match=(r"The annotations refer to multiple videos.*Please check .*"),
+    ):
+        annotations_to_coco(
+            tmp_path / "input.csv",
+            tmp_path / "output.json",
+        )
+
+
 def test_update_image_ids():
     """Test that image ids are updated based on frame number."""
     # Define a COCO data dict with minimal info
