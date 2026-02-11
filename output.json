@@ -1,10 +1,12 @@
 {"filename": "api_index.rst", "lineno": 1, "status": "unchecked", "code": 0, "uri": "#poseinterface.io.annotations_to_coco", "info": ""}
-{"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 2, "status": "working", "code": 0, "uri": "https://docs.python.org/3/library/stdtypes.html#list", "info": ""}
-{"filename": "project_structure.md", "lineno": 130, "status": "working", "code": 0, "uri": "https://cocodataset.org/", "info": ""}
 {"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 2, "status": "working", "code": 0, "uri": "https://docs.python.org/3/library/pathlib.html#pathlib.Path", "info": ""}
+{"filename": "project_structure.md", "lineno": 130, "status": "working", "code": 0, "uri": "https://cocodataset.org/", "info": ""}
+{"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 2, "status": "working", "code": 0, "uri": "https://docs.python.org/3/library/stdtypes.html#list", "info": ""}
 {"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 2, "status": "working", "code": 0, "uri": "https://docs.python.org/3/library/stdtypes.html#str", "info": ""}
 {"filename": "project_structure.md", "lineno": 103, "status": "working", "code": 0, "uri": "https://bids-specification.readthedocs.io/en/stable/02-common-principles.html", "info": ""}
-{"filename": "project_structure.md", "lineno": 6, "status": "working", "code": 0, "uri": "https://www.ietf.org/rfc/rfc2119.txt", "info": ""}
-{"filename": "project_structure.md", "lineno": 103, "status": "working", "code": 0, "uri": "https://neuroblueprint.neuroinformatics.dev/latest/specification.html", "info": ""}
 {"filename": "project_structure.md", "lineno": 77, "status": "working", "code": 0, "uri": "https://docs.sleap.ai/latest/help/#usage", "info": ""}
 {"filename": "project_structure.md", "lineno": 133, "status": "working", "code": 0, "uri": "https://io.sleap.ai/latest/reference/sleap_io/io/coco/", "info": ""}
+{"filename": "project_structure.md", "lineno": 6, "status": "working", "code": 0, "uri": "https://www.ietf.org/rfc/rfc2119.txt", "info": ""}
+{"filename": "project_structure.md", "lineno": 103, "status": "working", "code": 0, "uri": "https://neuroblueprint.neuroinformatics.dev/latest/specification.html", "info": ""}
+{"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 28, "status": "working", "code": 0, "uri": "https://io.sleap.ai/latest/reference/sleap_io/io/main/#sleap_io.io.main.load_file", "info": ""}
+{"filename": "api_generated/poseinterface.io.annotations_to_coco.rst", "lineno": 34, "status": "working", "code": 0, "uri": "https://io.sleap.ai/latest/reference/sleap_io/io/coco/#sleap_io.io.coco.convert_labels", "info": ""}
