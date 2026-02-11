@@ -533,13 +533,13 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Annotation and category <code class="docutils literal notranslate"><span class="pre">id</span></code> values <em>should</em> be 1-indexed. This convention follows sleap-io’s <a class="reference external" href="https://io.sleap.ai/latest/reference/sleap_io/io/coco/"><code class="docutils literal notranslate"><span class="pre">save_coco</span></code></a> function and avoids conflicts with models that treat category <code class="docutils literal notranslate"><span class="pre">0</span></code> as background.</p>
-<p>Image <code class="docutils literal notranslate"><span class="pre">id</span></code> indexing differs between frame and clip labels — see below for details.</p>
+<p>Image <code class="docutils literal notranslate"><span class="pre">id</span></code> values are always 0-indexed. However, the indexing origin differs between frame and clip labels — see below for details.</p>
 </div>
 <section id="frame-labels-framelabels-json">
 <h3>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)<a class="headerlink" href="#frame-labels-framelabels-json" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>There <em>must</em> be one <code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code> per camera view within the <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder.</p></li>
-<li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have an <code class="docutils literal notranslate"><span class="pre">id</span></code> equal to the integer frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the corresponding image filename).</p></li>
+<li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have an <code class="docutils literal notranslate"><span class="pre">id</span></code> equal to the 0-based frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the corresponding image filename).</p></li>
 <li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have a <code class="docutils literal notranslate"><span class="pre">file_name</span></code> that matches the full filename (including the <code class="docutils literal notranslate"><span class="pre">.png</span></code> extension) of an existing frame image in the <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder.</p></li>
 </ul>
 <div class="tip admonition">
@@ -554,7 +554,7 @@
 <span class="p">]</span>
 </pre></div>
 </div>
-<p>Here each <code class="docutils literal notranslate"><span class="pre">id</span></code> is the frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the filename), and each <code class="docutils literal notranslate"><span class="pre">file_name</span></code> includes the <code class="docutils literal notranslate"><span class="pre">.png</span></code> extension.</p>
+<p>Here each <code class="docutils literal notranslate"><span class="pre">id</span></code> is the 0-based frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the filename), and each <code class="docutils literal notranslate"><span class="pre">file_name</span></code> includes the <code class="docutils literal notranslate"><span class="pre">.png</span></code> extension.</p>
 </div>
 </section>
 <section id="clip-labels-cliplabels-json">
@@ -569,7 +569,7 @@
 </ul>
 </li>
 </ul>
-<p>This means that each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array encodes two pieces of information: the <code class="docutils literal notranslate"><span class="pre">id</span></code> gives the local position within the clip, while the <code class="docutils literal notranslate"><span class="pre">frame</span></code> field in <code class="docutils literal notranslate"><span class="pre">file_name</span></code> gives the global position in the session video.</p>
+<p>This means that each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array encodes two pieces of information: the <code class="docutils literal notranslate"><span class="pre">id</span></code> gives the local position within the clip, while the <code class="docutils literal notranslate"><span class="pre">frame</span></code> field in <code class="docutils literal notranslate"><span class="pre">file_name</span></code> gives the global position in the session video. Note that in both cases the indices are 0-based.</p>
 <div class="tip admonition">
 <p class="admonition-title">Example</p>
 <p>For a clip starting at frame 1000 with a duration of 5 frames, the <code class="docutils literal notranslate"><span class="pre">images</span></code> array would be:</p>

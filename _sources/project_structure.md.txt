@@ -132,13 +132,13 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 :::{note}
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/) function and avoids conflicts with models that treat category `0` as background.
 
-Image `id` indexing differs between frame and clip labels — see below for details.
+Image `id` values are always 0-indexed. However, the indexing origin differs between frame and clip labels — see below for details.
 :::
 
 ### Frame labels (`framelabels.json`)
 
 * There *must* be one `framelabels.json` per camera view within the `Frames` folder.
-* Each entry in the `images` array *must* have an `id` equal to the integer frame index in the session video (matching the `<frameID>` in the corresponding image filename).
+* Each entry in the `images` array *must* have an `id` equal to the 0-based frame index in the session video (matching the `<frameID>` in the corresponding image filename).
 * Each entry in the `images` array *must* have a `file_name` that matches the full filename (including the `.png` extension) of an existing frame image in the `Frames` folder.
 
 :::{admonition} Example
@@ -156,7 +156,7 @@ For a session with 5 labelled frames sampled from different parts of the video, 
 ]
 ```
 
-Here each `id` is the frame index in the session video (matching the `<frameID>` in the filename), and each `file_name` includes the `.png` extension.
+Here each `id` is the 0-based frame index in the session video (matching the `<frameID>` in the filename), and each `file_name` includes the `.png` extension.
 :::
 
 ### Clip labels (`cliplabels.json`)
@@ -167,7 +167,7 @@ Here each `id` is the frame index in the session video (matching the `<frameID>`
   * Each image `id` *must* be the **0-based index of the frame within the clip** (i.e. `0`, `1`, `2`, ...), not the index in the session video.
   * Each `file_name` *must* follow the same pattern as frame image filenames, but **without the `.png` extension**. The `frame` field in the `file_name` *must* hold the index of that frame in the **session video**.
 
-This means that each entry in the `images` array encodes two pieces of information: the `id` gives the local position within the clip, while the `frame` field in `file_name` gives the global position in the session video.
+This means that each entry in the `images` array encodes two pieces of information: the `id` gives the local position within the clip, while the `frame` field in `file_name` gives the global position in the session video. Note that in both cases the indices are 0-based.
 
 :::{admonition} Example
 :class: tip
