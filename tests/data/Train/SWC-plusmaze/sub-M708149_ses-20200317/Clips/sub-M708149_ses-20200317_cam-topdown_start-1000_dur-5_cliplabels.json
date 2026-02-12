@@ -2,31 +2,31 @@
   "images": [
     {
       "id": 0,
-      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01000",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1000",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 1,
-      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01001",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1001",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 2,
-      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01002",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1002",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 3,
-      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01003",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1003",
       "width": 1300,
       "height": 1028
     },
     {
       "id": 4,
-      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01004",
+      "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1004",
       "width": 1300,
       "height": 1028
     }
