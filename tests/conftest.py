@@ -9,6 +9,7 @@ from PIL import Image
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
 TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
+TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
 
 
 class DLCTestFile(TypedDict):
@@ -146,4 +147,13 @@ def dlc_multi_index_in_project_root(
         tmp_path_factory.mktemp("dlc_multi_root"),
         "multi-index",
         csv_location="project_root",
+    )
+
+
+@pytest.fixture(scope="session")
+def sleap_h5_file():
+    """Path to a single-animal SLEAP .h5 file."""
+    return (
+        TEST_DATA_SLEAP_DIR
+        / "SLEAP_single-mouse_EPM_start-1000_dur-5.predictions.slp"
     )
