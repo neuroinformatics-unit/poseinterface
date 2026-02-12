@@ -7,8 +7,8 @@ from typing import Literal, TypedDict
 import pytest
 from PIL import Image
 
-# Path to the directory containing the test data
 TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
 
 
 class DLCTestFile(TypedDict):
@@ -87,7 +87,7 @@ def create_dlc_project(
     video_dir.mkdir(parents=True)
 
     # Copy CSV from the source (tests/data) to the appropriate location
-    source_csv_path = TEST_DATA_DIR / project_structure["csv"]
+    source_csv_path = TEST_DATA_DLC_DIR / project_structure["csv"]
     if csv_location == "video_folder":
         csv_path_in_project = video_dir / project_structure["csv"]
     else:  # project_root
