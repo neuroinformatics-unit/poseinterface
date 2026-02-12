@@ -2,6 +2,7 @@ import copy
 import json
 import re
 from pathlib import Path
+from typing import Literal
 
 import sleap_io as sio
 from sleap_io.io import coco
@@ -28,33 +29,43 @@ def annotations_to_coco(
     input_path: Path,
     output_json_path: Path,
     *,
-    coco_image_filenames: str | list[str] | None = None,
-    coco_visibility_encoding: str = "ternary",
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    mode: Literal["clip", "frame"] = "frame",
 ) -> Path:
     """Export annotations file from a single video to ``poseinterface`` format.
 
     Parameters
     ----------
-    input_path : pathlib.Path
+    input_path
         Path to the input annotations file.
-    output_json_path : pathlib.Path
+    output_json_path
         Path to save the output ``poseinterface`` COCO JSON file.
-    coco_image_filenames : str | list[str] | None, optional
-        Optional image filenames to use in the ``poseinterface`` COCO JSON.
-        If provided, must be a single string (for single-frame videos)
-        or a list of strings matching the number of labeled frames.
-        If None (default), generates filenames from video filenames
-        and frame indices.
-    coco_visibility_encoding : str, optional
-        Encoding scheme for keypoint visibility in the ``poseinterface`` COCO
-        JSON file. Options are "ternary" (0: not labeled, 1: labeled
-        but not visible, 2: labeled and visible) or "binary" (0: not
-        visible, 1: visible). Default is "ternary".
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+    mode
+        Whether to generate framelabels.json or cliplabels.json.
+        If "frame", the image filenames will include the file
+        extension of frame files. If "clip", the image filenames
+        will not include the file extension as these frame files
+        may not exist (e.g. if the frames files have not been
+        extracted from the clip).
 
     Returns
     -------
-    pathlib.Path
-        Path to the saved ``poseinterface`` COCO JSON file.
+    Path
+        Path to the saved COCO JSON file.
+
+    Raises
+    ------
+    ValueError
+        If no labeled frames could be extracted from the input file,
+        or if the annotations refer to multiple videos.
 
     Notes
     -----
@@ -78,14 +89,12 @@ def annotations_to_coco(
     """
     labels = sio.load_file(input_path)
 
-    # Check if labels object is empty
     if len(labels.labeled_frames) == 0:
         error_msg = _EMPTY_LABELS_ERROR_MSG["default"]
         if is_dlc_file(input_path):
             error_msg += _EMPTY_LABELS_ERROR_MSG["dlc"]
         raise ValueError(error_msg)
 
-    # Check single video
     if len(labels.videos) > 1:
         raise ValueError(
             "The annotations refer to multiple videos "
@@ -94,18 +103,19 @@ def annotations_to_coco(
             "for a single video only."
         )
 
-    # Generate COCO dict from sleap-io
-    coco_data = coco.convert_labels(
+    # Generate image filenames in the poseinterface format
+    image_filenames = _generate_poseinterface_filenames(
         labels,
-        image_filenames=coco_image_filenames,
-        visibility_encoding=coco_visibility_encoding,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        include_file_extension=(mode == "frame"),
     )
+    # Generate COCO dict
+    coco_data = coco.convert_labels(labels, image_filenames=image_filenames)
+    # Update image IDs in coco_data to match the frame IDs in the filenames
+    coco_data = _update_image_ids(coco_data)
 
-    # Update image ids to match frame number
-    # uncomment after PR19
-    # coco_data = _update_image_ids(coco_data)
-
-    # Save JSON file
     with open(output_json_path, "w") as f:
         json.dump(coco_data, f)
 
@@ -202,40 +212,37 @@ def _generate_poseinterface_filenames(
     ValueError
         If no labeled frames could be extracted from the input file.
     """
-    image_filenames = []
-    videos = labels.videos[0].filename
-    frame_numbers = []
-    file_extensions = []
-    if isinstance(videos, list):  # Sequence of frame images
-        for fn in labels.videos[0].filename:
-            # Look for consecutive digits in the filename
-            frame_numbers.append(
-                _extract_frame_number(Path(fn).stem, frame_regexp=r"(\d+)")
-            )
-            if include_file_extension:
-                file_extensions.append(Path(fn).suffix)
+    video_filenames = labels.videos[0].filename
+    if isinstance(video_filenames, list):  # Sequence of frame images
+        frame_numbers = [
+            _extract_frame_number(Path(fn).stem, frame_regexp=r"(\d+)")
+            for fn in video_filenames
+        ]
+        file_extensions = (
+            [Path(fn).suffix for fn in video_filenames]
+            if include_file_extension
+            else []
+        )
     else:  # Video file
-        for labeled_frame in labels.labeled_frames:
-            frame_numbers.append(labeled_frame.frame_idx)
-        if include_file_extension:
-            # Default to .png for all frame images
-            file_extensions = [".png"] * len(frame_numbers)
+        frame_numbers = [lf.frame_idx for lf in labels.labeled_frames]
+        file_extensions = (
+            [".png"] * len(frame_numbers) if include_file_extension else []
+        )
     # Pad frame_numbers to the same width
     padded_frame_numbers = _pad_integers_to_same_width(frame_numbers)
-    # Generate filenames
-    for i, padded_frame_number in enumerate(padded_frame_numbers):
-        file_name = (
-            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}"
-            f"_frame-{padded_frame_number}"
-        )
-        if include_file_extension:
-            file_name += file_extensions[i]
-        image_filenames.append(file_name)
-    return image_filenames
+    # Build filenames
+    prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-"
+    if include_file_extension:
+        return [
+            prefix + frame_id + ext
+            for frame_id, ext in zip(padded_frame_numbers, file_extensions)
+        ]
+    else:
+        return [prefix + frame_id for frame_id in padded_frame_numbers]
 
 
 def _pad_integers_to_same_width(input: list[int]) -> list[str]:
     """Pad a list of integers to the same width with leading zeros."""
-    number_width = len(str(max(input)))
-    padded_numbers = [str(number).zfill(number_width) for number in input]
+    width = len(str(max(input)))
+    padded_numbers = [str(number).zfill(width) for number in input]
     return padded_numbers

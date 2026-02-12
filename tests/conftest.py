@@ -12,6 +12,16 @@ TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
 TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
 
 
+@pytest.fixture
+def test_ids():
+    """Test subject, session, and camera IDs."""
+    return {
+        "sub_id": "testSub123",
+        "ses_id": "testSes123",
+        "cam_id": "testCam123",
+    }
+
+
 class DLCTestFile(TypedDict):
     """Type definition for DLC test file configuration."""
 
@@ -156,4 +166,22 @@ def sleap_h5_file():
     return (
         TEST_DATA_SLEAP_DIR
         / "SLEAP_single-mouse_EPM_start-1000_dur-5.predictions.slp"
+    )
+
+
+@pytest.fixture
+def dlc_multi_index_framelabels_json():
+    """Path to the framelabels JSON file for the multi-index DLC project."""
+    return (
+        TEST_DATA_DLC_DIR
+        / "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json"
+    )
+
+
+@pytest.fixture
+def sleap_h5_file_cliplabels_json():
+    """Path to the cliplabels JSON file for the SLEAP .h5 file."""
+    return (
+        TEST_DATA_SLEAP_DIR / "sub-testSub123_ses-testSes123_cam-testCam123_"
+        "start-1000_dur-5_cliplabels.json"
     )

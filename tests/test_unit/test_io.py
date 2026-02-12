@@ -1,12 +1,16 @@
-from unittest.mock import patch
+import json
+from unittest.mock import Mock, patch
 
 import pytest
+import sleap_io as sio
 from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
     POSEINTERFACE_FRAME_REGEXP,
     _extract_frame_number,
+    _generate_poseinterface_filenames,
+    _pad_integers_to_same_width,
     _update_image_ids,
     annotations_to_coco,
 )
@@ -18,26 +22,32 @@ def test_annotations_to_coco(
     mock_load_file,
     mock_convert_labels,
     tmp_path,
+    test_ids,
 ):
     """Test that the relevant subfunctions are called."""
     # Mock return value of load_file
     mock_labels = mock_load_file.return_value
-    mock_labels.labeled_frames = [1]  # non-empty
-
+    # Create mock labeled frames with single mock frame (frame_idx=0)
+    mock_labels.labeled_frames = [Mock(frame_idx=0)]
     # Mock return value of convert_labels
     mock_convert_labels.return_value = {"images": [], "annotations": []}
 
     # Run function to test
     input_csv = tmp_path / "input.csv"
     output_path = tmp_path / "output.json"
-    result = annotations_to_coco(input_csv, output_path)
+    result = annotations_to_coco(
+        input_csv,
+        output_path,
+        **test_ids,
+    )
 
     # Check subfunctions are all called
     mock_load_file.assert_called_once_with(input_csv)
     mock_convert_labels.assert_called_once_with(
         mock_labels,
-        image_filenames=None,
-        visibility_encoding="ternary",
+        image_filenames=[
+            "sub-testSub123_ses-testSes123_cam-testCam123_frame-0.png"
+        ],
     )
 
     # Check output file path is as expected
@@ -61,11 +71,13 @@ def test_annotations_to_coco_invalid(
     input_file,
     error_message,
     tmp_path,
+    test_ids,
 ):
     # Mock return value of load_file to have empty
     # labeled frames
     mock_labels = mock_load_file.return_value
     mock_labels.labeled_frames = []  # empty
+    mock_labels.videos = []  # empty videos
 
     # Check error is raised
     with pytest.raises(
@@ -74,6 +86,7 @@ def test_annotations_to_coco_invalid(
         annotations_to_coco(
             input_file,
             tmp_path / "output.json",
+            **test_ids,
         )
 
     # Check is_dlc_file was called
@@ -84,11 +97,13 @@ def test_annotations_to_coco_invalid(
 def test_annotations_to_coco_not_single_video(
     mock_load_file,
     tmp_path,
+    test_ids,
 ):
     """Test that error is raised when labels object contains >1 videos."""
     # Mock return value of load_file
     mock_labels = mock_load_file.return_value
-    mock_labels.labeled_frames = [1]  # there are labelled frames
+    mock_frame = type("MockFrame", (), {"frame_idx": 0})()
+    mock_labels.labeled_frames = [mock_frame]  # there are labelled frames
     mock_labels.videos = [1, 2]  # from multiple videos
 
     # Check error is raised
@@ -99,6 +114,7 @@ def test_annotations_to_coco_not_single_video(
         annotations_to_coco(
             tmp_path / "input.csv",
             tmp_path / "output.json",
+            **test_ids,
         )
 
 
@@ -203,3 +219,42 @@ def test_extract_frame_number_invalid(filename, frame_regexp):
         ),
     ):
         _extract_frame_number(filename, frame_regexp)
+
+
+@pytest.mark.parametrize(
+    "input_file, include_file_extension, expected_json",
+    [
+        (lf("sleap_h5_file"), False, lf("sleap_h5_file_cliplabels_json")),
+        (
+            lf("dlc_multi_index_in_video_folder"),
+            True,
+            lf("dlc_multi_index_framelabels_json"),
+        ),
+    ],
+)
+def test_generate_poseinterface_filenames(
+    input_file,
+    include_file_extension,
+    expected_json,
+):
+    generated_filenames = _generate_poseinterface_filenames(
+        sio.load_file(input_file),
+        sub_id="testSub123",
+        ses_id="testSes123",
+        cam_id="testCam123",
+        include_file_extension=include_file_extension,
+    )
+    # Load expected filenames from labels JSON file
+    with open(expected_json) as f:
+        frames_data = json.load(f)
+    expected_frames_filenames = [
+        img["file_name"] for img in frames_data["images"]
+    ]
+    assert generated_filenames == expected_frames_filenames
+
+
+def test_pad_integers_to_same_width():
+    """Test that integers are padded to the same width with leading zeros."""
+    input = [0, 1, 10, 100]
+    expected = ["000", "001", "010", "100"]
+    assert _pad_integers_to_same_width(input) == expected
