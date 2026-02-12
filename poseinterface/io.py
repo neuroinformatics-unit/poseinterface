@@ -144,10 +144,10 @@ def _update_image_ids(input_data: dict) -> dict:
 
 def _extract_frame_number(
     filename: str, frame_regexp: str = POSEINTERFACE_FRAME_REGEXP
-) -> int | None:
+) -> int:
     """Extract the frame number in the input filename.
 
-    If no frame number is found, returns None.
+    If no frame number is found, a ValueError is raised.
     """
     match = re.search(frame_regexp, filename)
     if match is None:
@@ -160,15 +160,15 @@ def _extract_frame_number(
     return int(match.group(1))
 
 
-def generate_coco_image_filenames(
-    input_path: Path,
+def _generate_poseinterface_filenames(
+    labels: sio.Labels,
     *,
     sub_id: str,
     ses_id: str,
     cam_id: str,
     include_file_extension: bool = False,
 ) -> list[str]:
-    """Generate COCO image filenames an input annotations file.
+    """Generate PoseInterface image filenames an input annotations file.
 
     The generated filenames are in the format:
     {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
@@ -202,23 +202,40 @@ def generate_coco_image_filenames(
     ValueError
         If no labeled frames could be extracted from the input file.
     """
-    labels = sio.load_file(input_path)
-    coco_image_filenames = []
-    for fn in labels.videos[0].filename:
-        # To be replaced with _extract_image_id_from_filename
-        matches = re.findall(r"(\d+)", Path(fn).stem)
-        if matches:
-            frame_number = matches[-1]  # Use last number found
-        else:
-            raise ValueError(
-                f"No frame number could be extracted from filename {fn}. "
-                "Please check that the filename contains a frame number."
+    image_filenames = []
+    videos = labels.videos[0].filename
+    frame_numbers = []
+    file_extensions = []
+    if isinstance(videos, list):  # Sequence of frame images
+        for fn in labels.videos[0].filename:
+            # Look for consecutive digits in the filename
+            frame_numbers.append(
+                _extract_frame_number(Path(fn).stem, frame_regexp=r"(\d+)")
             )
+            if include_file_extension:
+                file_extensions.append(Path(fn).suffix)
+    else:  # Video file
+        for labeled_frame in labels.labeled_frames:
+            frame_numbers.append(labeled_frame.frame_idx)
+        if include_file_extension:
+            # Default to .png for all frame images
+            file_extensions = [".png"] * len(frame_numbers)
+    # Pad frame_numbers to the same width
+    padded_frame_numbers = _pad_integers_to_same_width(frame_numbers)
+    # Generate filenames
+    for i, padded_frame_number in enumerate(padded_frame_numbers):
         file_name = (
-            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{frame_number}"
+            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}"
+            f"_frame-{padded_frame_number}"
         )
         if include_file_extension:
-            file_extension = Path(fn).suffix
-            file_name += file_extension
-        coco_image_filenames.append(file_name)
-    return coco_image_filenames
+            file_name += file_extensions[i]
+        image_filenames.append(file_name)
+    return image_filenames
+
+
+def _pad_integers_to_same_width(input: list[int]) -> list[str]:
+    """Pad a list of integers to the same width with leading zeros."""
+    number_width = len(str(max(input)))
+    padded_numbers = [str(number).zfill(number_width) for number in input]
+    return padded_numbers

@@ -2,8 +2,12 @@ import json
 from pathlib import Path
 
 import pytest
+import sleap_io as sio
 
-from poseinterface.io import generate_coco_image_filenames
+from poseinterface.io import (
+    _generate_poseinterface_filenames,
+    _pad_integers_to_same_width,
+)
 
 
 @pytest.fixture
@@ -28,7 +32,7 @@ def dlc_testdata_v2(dlc_data_dir):
 def framelabels_json_path():
     """Path to the framelabels JSON file."""
     return Path(
-        "tests/data/SampleTrain/SWC-EPM/sub-M708149_ses-20200317/Frames/"
+        "tests/data/Train/SWC-plusmaze/sub-M708149_ses-20200317/Frames/"
         "sub-M708149_ses-20200317_cam-topdown_framelabels.json"
     )
 
@@ -37,22 +41,22 @@ def framelabels_json_path():
 def clips_json_path():
     """Path to the clips JSON file."""
     return Path(
-        "tests/data/SampleTrain/SWC-EPM/sub-M708149_ses-20200317/Clips/"
+        "tests/data/Train/SWC-plusmaze/sub-M708149_ses-20200317/Clips/"
         "sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json"
     )
 
 
 @pytest.mark.parametrize("include_file_extension", [True, False])
 @pytest.mark.parametrize("input_path", ["dlc_testdata", "dlc_testdata_v2"])
-def test_generate_coco_image_filenames(
+def test_generate_poseinterface_filenames(
     input_path,
     include_file_extension,
     framelabels_json_path,
     clips_json_path,
     request,
 ):
-    generated_filenames = generate_coco_image_filenames(
-        request.getfixturevalue(input_path),
+    generated_filenames = _generate_poseinterface_filenames(
+        sio.load_file(request.getfixturevalue(input_path)),
         sub_id="M708149",
         ses_id="20200317",
         cam_id="topdown",
@@ -68,3 +72,9 @@ def test_generate_coco_image_filenames(
         img["file_name"] for img in frames_data["images"]
     ]
     assert generated_filenames == expected_frames_filenames
+
+
+def test_pad_integers_to_same_width():
+    input = [1, 10, 100]
+    expected_output = ["001", "010", "100"]
+    assert _pad_integers_to_same_width(input) == expected_output
