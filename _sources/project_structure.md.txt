@@ -152,7 +152,7 @@ For a session with 5 labelled frames sampled from different parts of the video, 
   {"id": 2300, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-02300.png", "width": 1300, "height": 1028},
   {"id": 3500, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-03500.png", "width": 1300, "height": 1028},
   {"id": 7200, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-07200.png", "width": 1300, "height": 1028},
-  {"id": 9800, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-09800.png", "width": 1300, "height": 1028}
+  {"id": 19800, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-19800.png", "width": 1300, "height": 1028}
 ]
 ```
 
@@ -176,15 +176,15 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 
 ```json
 [
-  {"id": 0, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01000", "width": 1300, "height": 1028},
-  {"id": 1, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01001", "width": 1300, "height": 1028},
-  {"id": 2, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01002", "width": 1300, "height": 1028},
-  {"id": 3, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01003", "width": 1300, "height": 1028},
-  {"id": 4, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-01004", "width": 1300, "height": 1028}
+  {"id": 0, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1000", "width": 1300, "height": 1028},
+  {"id": 1, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1001", "width": 1300, "height": 1028},
+  {"id": 2, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1002", "width": 1300, "height": 1028},
+  {"id": 3, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1003", "width": 1300, "height": 1028},
+  {"id": 4, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1004", "width": 1300, "height": 1028}
 ]
 ```
 
-Here `id: 0` through `id: 4` are the local clip indices, while `frame-01000` through `frame-01004` in the `file_name` values refer to the original frame positions in the session video.
+Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` through `frame-1004` in the `file_name` values refer to the original frame positions in the session video.
 :::
 
 ### Visibility encoding
@@ -207,10 +207,10 @@ Train/
         │   ├── sub-M708149_ses-20200317_cam-topdown_frame-02300.png
         │   ├── sub-M708149_ses-20200317_cam-topdown_frame-03500.png
         │   ├── sub-M708149_ses-20200317_cam-topdown_frame-07200.png
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-09800.png
+        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-19800.png
         │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
         ├── Clips/
-        │   ├── sub-M708149_ses-20200317_cam-topdown_start-01000_dur-5.mp4
-        │   └── sub-M708149_ses-20200317_cam-topdown_start-01000_dur-5_cliplabels.json
+        │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
+        │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
         └── sub-M708149_ses-20200317_cam-topdown.mp4
 ```
