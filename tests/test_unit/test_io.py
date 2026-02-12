@@ -233,15 +233,11 @@ def test_extract_frame_number_invalid(filename, frame_regexp):
     ],
 )
 def test_generate_poseinterface_filenames(
-    input_file,
-    include_file_extension,
-    expected_json,
+    input_file, include_file_extension, expected_json, test_ids
 ):
     generated_filenames = _generate_poseinterface_filenames(
         sio.load_file(input_file),
-        sub_id="testSub123",
-        ses_id="testSes123",
-        cam_id="testCam123",
+        **test_ids,
         include_file_extension=include_file_extension,
     )
     # Load expected filenames from labels JSON file
