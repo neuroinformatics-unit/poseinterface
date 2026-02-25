@@ -35,12 +35,14 @@ The current scope is limited to **single-animal pose estimation** from a **singl
             │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png
             ├── Clips/    (optional)
             │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
-            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json    (optional)
+            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json
             └── sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4
 ```
 
 :::{note}
-The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation. The `Test` split *may* include `startlabels.json` files in the `Clips` folder to support point tracker evaluation (see [Start labels](#start-labels)).
+The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation.
+
+The `Test` split *may* include `startlabels.json` files in the `Clips` folder to support point tracker evaluation (see [Start labels](target-startlabels)).
 :::
 
 ### Train / Test
@@ -98,7 +100,7 @@ A session *may* include a `Clips` folder containing short video segments and the
 * `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. `0500`, `1000`).
 * `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames (e.g. `5`, `30`).
 * In the `Train` split, a single label file *must* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`. See [Label format](#label-format) for details.
-* In the `Test` split, a start label file *may* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`. See [Start labels](#start-labels) for details.
+* In the `Test` split, a start label file *may* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`. See [Start labels](target-startlabels) for details.
 
 ## File naming
 
@@ -189,6 +191,7 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` through `frame-1004` in the `file_name` values refer to the original frame positions in the session video.
 :::
 
+(target-startlabels)=
 ### Start labels (`startlabels.json`)
 
 * Start label files *may* be included in the `Test` split only, one per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`.
