@@ -53,6 +53,7 @@ The `Test` split follows the same structure as `Train`, but includes different l
 
 * The top level *must* contain a `Train` and a `Test` folder.
 * Each split *must* contain at least one project folder.
+* The `Train` and `Test` splits *must* not share any sessions (i.e. no session folder may appear in both splits).
 
 ### Project
 
