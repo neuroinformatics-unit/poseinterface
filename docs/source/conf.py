@@ -93,6 +93,11 @@ exclude_patterns = [
 html_theme = "pydata_sphinx_theme"
 html_title = "poseinterface"
 
+# Remove the primary (left) sidebar for specific pages
+html_sidebars = {
+    "project_structure": [],
+}
+
 # Customize the theme
 html_theme_options = {
     "icon_links": [
