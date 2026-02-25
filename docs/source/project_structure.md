@@ -34,12 +34,13 @@ The current scope is limited to **single-animal pose estimation** from a **singl
             ├── Frames/
             │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png
             ├── Clips/    (optional)
-            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
+            │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
+            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json    (optional)
             └── sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4
 ```
 
 :::{note}
-The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation.
+The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation. The `Test` split *may* include `startlabels.json` files in the `Clips` folder to support point tracker evaluation (see [Start labels](#start-labels)).
 :::
 
 ### Train / Test
@@ -97,6 +98,7 @@ A session *may* include a `Clips` folder containing short video segments and the
 * `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. `0500`, `1000`).
 * `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames (e.g. `5`, `30`).
 * In the `Train` split, a single label file *must* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`. See [Label format](#label-format) for details.
+* In the `Test` split, a start label file *may* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`. See [Start labels](#start-labels) for details.
 
 ## File naming
 
@@ -107,7 +109,7 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
   <key>-<value>_<key>-<value>.<extension>
   <key>-<value>_<key>-<value>_<suffix>.<extension>
   ```
-  The recognised suffixes are `framelabels` (for frame label files) and `cliplabels` (for clip label files).
+  The recognised suffixes are `framelabels` (for frame label files), `cliplabels` (for clip label files), and `startlabels` (for start label files).
 * The following keys are used:
 
 | Key     | Description                                    | Examples         |
@@ -126,7 +128,7 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 
 ## Label format
 
-* Labels (also referred to as annotations) are only included in the `Train` split, and *must* be stored in the same folder as the corresponding frames or clips.
+* Labels (also referred to as annotations) are only included in the `Train` split, with the exception of start label files (`startlabels.json`), which *may* be included in the `Test` split. Labels *must* be stored in the same folder as the corresponding frames or clips.
 * Annotations *must* be stored in [COCO keypoints format](https://cocodataset.org/), with some additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 
 :::{note}
@@ -185,6 +187,24 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 ```
 
 Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` through `frame-1004` in the `file_name` values refer to the original frame positions in the session video.
+:::
+
+### Start labels (`startlabels.json`)
+
+* Start label files *may* be included in the `Test` split only, one per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`.
+* Start labels provide keypoint annotations for the **first frame of the clip only**, and are intended to support point tracker evaluation (i.e. providing the initial point positions from which a tracker should propagate).
+* Start labels follow the same COCO keypoints format and conventions as clip labels, with one difference: the `images` array *must* contain exactly one entry, for the first frame of the clip (`id: 0`).
+
+:::{admonition} Example
+:class: tip
+
+For a clip starting at frame 1000, the `images` array in the `startlabels.json` would be:
+
+```json
+[
+  {"id": 0, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1000", "width": 1300, "height": 1028}
+]
+```
 :::
 
 ### Visibility encoding
