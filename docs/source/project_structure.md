@@ -82,8 +82,8 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
 The `Frames` folder contains individually sampled images and their annotations.
 
 * Frames *must* be extracted from the session video.
-* Frame images *must* be in PNG format.
-* Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png`.
+* Frame images *should* be in PNG format (`.png`). JPEG format (`.jpg` or `.jpeg`) *may* also be used.
+* Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.<ext>`, where `<ext>` is `.png`, `.jpg`, or `.jpeg`.
 * `<frameID>` *must* be the 0-based index of the frame in the session video.
 * `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `0000`, `1000`).
 * In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. At present, only one camera view is included, so the split contains exactly one such label file. See [Label format](#label-format) for details.
@@ -139,7 +139,7 @@ Image `id` values are always 0-indexed. However, the indexing origin differs bet
 
 * There *must* be one `framelabels.json` per camera view within the `Frames` folder.
 * Each entry in the `images` array *must* have an `id` equal to the 0-based frame index in the session video (matching the `<frameID>` in the corresponding image filename).
-* Each entry in the `images` array *must* have a `file_name` that matches the full filename (including the `.png` extension) of an existing frame image in the `Frames` folder.
+* Each entry in the `images` array *must* have a `file_name` that matches the full filename (including extension) of an existing frame image in the `Frames` folder.
 
 :::{admonition} Example
 :class: tip
