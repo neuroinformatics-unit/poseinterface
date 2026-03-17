@@ -25,7 +25,20 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+:process_targets
+if "%1" == "clean" (
+	if exist "%BUILDDIR%" rmdir /s /q "%BUILDDIR%"
+	if exist "%SOURCEDIR%\api_generated" rmdir /s /q "%SOURCEDIR%\api_generated"
+	if exist "%SOURCEDIR%\auto_examples" rmdir /s /q "%SOURCEDIR%\auto_examples"
+	if exist "%SOURCEDIR%\sg_execution_times.rst" del /q "%SOURCEDIR%\sg_execution_times.rst"
+) else (
+	%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+	if errorlevel 1 goto end
+)
+
+shift
+if not "%1" == "" goto process_targets
+
 goto end
 
 :help
