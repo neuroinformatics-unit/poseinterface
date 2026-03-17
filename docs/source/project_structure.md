@@ -120,14 +120,14 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
   The recognised suffixes are `framelabels` (for frame label files), `cliplabels` (for clip label files), and `startlabels` (for clip start label files).
 * The following keys are used:
 
-| Key     | Description                                    | Examples         |
-|---------|------------------------------------------------|-----------------|
-| `sub`   | Subject identifier                             | `sub-001`, `sub-M708149`   |
-| `ses`   | Session identifier                             | `ses-02`, `ses-25`, `ses-20200317`  |
-| `cam`   | Camera identifier                              | `cam-topdown`, `cam-side2`   |
-| `frame` | 0-based frame index in the session video        | `frame-0000`, `frame-0500`, `frame-1000`   |
-| `start` | 0-based frame index of the first frame of a clip in the session video | `start-0000`, `start-0500`, `start-1000` |
-| `dur`   | Clip duration in number of frames              | `dur-5`, `dur-30`         |
+  | Key     | Description                                    | Examples         |
+  |---------|------------------------------------------------|-----------------|
+  | `sub`   | Subject identifier                             | `sub-001`, `sub-M708149`   |
+  | `ses`   | Session identifier                             | `ses-02`, `ses-25`, `ses-20200317`  |
+  | `cam`   | Camera identifier                              | `cam-topdown`, `cam-side2`   |
+  | `frame` | 0-based frame index in the session video        | `frame-0000`, `frame-0500`, `frame-1000`   |
+  | `start` | 0-based frame index of the first frame of a clip in the session video | `start-0000`, `start-0500`, `start-1000` |
+  | `dur`   | Clip duration in number of frames              | `dur-5`, `dur-30`         |
 
 * The keys `sub`, `ses`, and `cam` *must* appear in every filename, in that order.
 * Key values *must* be strictly alphanumeric for `sub`, `ses` and `cam` (i.e. only `A-Z`, `a-z`, `0-9`).
