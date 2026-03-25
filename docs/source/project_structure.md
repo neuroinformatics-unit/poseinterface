@@ -8,7 +8,11 @@ We mark requirements with italicised *keywords* that should be interpreted as de
 
 ## Overview
 
-A benchmark dataset is organised into a `Train` and a `Test` split. Each split contains one or more **projects** (i.e. datasets contributed by different groups). Each project contains one or more **sessions**. A session centres on a single video file (the **session video**), from which **frames** (individually sampled images) and optionally **clips** (short video segments) are extracted. In the `Train` split, frames and clips are accompanied by keypoint annotations.
+- A benchmark dataset is organised into a `Train` and a `Test` split.
+- Each split contains one or more [projects](#project) (i.e. datasets contributed by different groups).
+- Each project contains one or more [sessions](#session).
+- A session centres on a single video file (the [session video](#session-video)), from which [frames](#frames) (individually sampled images) and optionally [clips](#clips) (short video segments) are extracted.
+- Frames and clips are accompanied by [label files](#label-format) in COCO keypoints format.
 
 The current scope is limited to **single-animal pose estimation** from a **single camera view**. Support for multi-camera setups is planned for a future version.
 
@@ -32,20 +36,24 @@ The current scope is limited to **single-animal pose estimation** from a **singl
     └── <ProjectName>/
         └── sub-<subjectID>_ses-<sessionID>/
             ├── Frames/
-            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png
+            │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png
+            │   └── ...
             ├── Clips/    (optional)
-            │   └── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
+            │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
+            │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json
+            │   └── ...
             └── sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4
 ```
 
 :::{note}
-The `Test` split follows the same structure as `Train`, but label files (`framelabels.json` and `cliplabels.json`) *must* not be included so that they can be used for evaluation.
+The `Test` split follows the same structure as `Train`, but includes different label files (see [Label format](#label-format) for details).
 :::
 
 ### Train / Test
 
 * The top level *must* contain a `Train` and a `Test` folder.
 * Each split *must* contain at least one project folder.
+* Each session *must* belong to exactly one split.
 
 ### Project
 
@@ -79,24 +87,26 @@ The `Test` split follows the same structure as `Train`, but label files (`framel
 
 ### Frames
 
-The `Frames` folder contains individually sampled images and their annotations.
+The `Frames` folder contains individually sampled images. In the `Train` split, it also contains a label file with keypoint annotations.
 
 * Frames *must* be extracted from the session video.
-* Frame images *must* be in PNG format.
-* Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.png`.
+* Frame images *should* be in PNG format (`.png`). JPEG format (`.jpg` or `.jpeg`) *may* also be used.
+* Frame image filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_frame-<frameID>.<ext>`, where `<ext>` is `.png`, `.jpg`, or `.jpeg`.
 * `<frameID>` *must* be the 0-based index of the frame in the session video.
 * `<frameID>` *must* be padded to a consistent width across all frame files within a session (e.g. `0000`, `1000`).
-* In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. At present, only one camera view is included, so the split contains exactly one such label file. See [Label format](#label-format) for details.
+* In the `Train` split, a single label file *must* be provided per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`. At present, only one camera view is included, so the split contains exactly one such label file. See [Frame labels](target-framelabels) for details.
 
 ### Clips
 
-A session *may* include a `Clips` folder containing short video segments and their annotations.
+A session *may* include a `Clips` folder containing short video segments and their label files.
 
 * Clips *must* be extracted from the session video and *must* have the same file format.
 * Clip filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4`.
 * `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. `0500`, `1000`).
 * `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames (e.g. `5`, `30`).
-* In the `Train` split, a single label file *must* be provided per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`. See [Label format](#label-format) for details.
+* A single label file *must* be provided per clip:
+  * In the `Train` split, the file is named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json` and contains keypoint annotations for every frame in the clip. See [Clip labels](target-cliplabels) for details.
+  * In the `Test` split, the file is named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json` and contains keypoint annotations only for the first frame of the clip. See [Clip start labels](target-startlabels) for details.
 
 ## File naming
 
@@ -107,17 +117,22 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
   <key>-<value>_<key>-<value>.<extension>
   <key>-<value>_<key>-<value>_<suffix>.<extension>
   ```
-  The recognised suffixes are `framelabels` (for frame label files) and `cliplabels` (for clip label files).
+  The recognised suffixes are:
+
+  * `framelabels` for [frame label files](target-framelabels).
+  * `cliplabels` for [clip label files](target-cliplabels).
+  * `startlabels` for [clip start label files](target-startlabels).
+
 * The following keys are used:
 
-| Key     | Description                                    | Examples         |
-|---------|------------------------------------------------|-----------------|
-| `sub`   | Subject identifier                             | `sub-001`, `sub-M708149`   |
-| `ses`   | Session identifier                             | `ses-02`, `ses-25`, `ses-20200317`  |
-| `cam`   | Camera identifier                              | `cam-topdown`, `cam-side2`   |
-| `frame` | 0-based frame index in the session video        | `frame-0000`, `frame-0500`, `frame-1000`   |
-| `start` | 0-based frame index of the first frame of a clip in the session video | `start-0000`, `start-0500`, `start-1000` |
-| `dur`   | Clip duration in number of frames              | `dur-5`, `dur-30`         |
+  | Key     | Description                                    | Examples         |
+  |---------|------------------------------------------------|-----------------|
+  | `sub`   | Subject identifier                             | `sub-001`, `sub-M708149`   |
+  | `ses`   | Session identifier                             | `ses-02`, `ses-25`, `ses-20200317`  |
+  | `cam`   | Camera identifier                              | `cam-topdown`, `cam-side2`   |
+  | `frame` | 0-based frame index in the session video        | `frame-0000`, `frame-0500`, `frame-1000`   |
+  | `start` | 0-based frame index of the first frame of a clip in the session video | `start-0000`, `start-0500`, `start-1000` |
+  | `dur`   | Clip duration in number of frames              | `dur-5`, `dur-30`         |
 
 * The keys `sub`, `ses`, and `cam` *must* appear in every filename, in that order.
 * Key values *must* be strictly alphanumeric for `sub`, `ses` and `cam` (i.e. only `A-Z`, `a-z`, `0-9`).
@@ -126,20 +141,24 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 
 ## Label format
 
-* Labels (also referred to as annotations) are only included in the `Train` split, and *must* be stored in the same folder as the corresponding frames or clips.
-* Annotations *must* be stored in [COCO keypoints format](https://cocodataset.org/), with some additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
+* The `Train` split includes ground-truth keypoint annotations both for the sampled frames (`framelabels.json`) and for entire clips (`cliplabels.json`), if present.
+* The `Test` split includes keypoint annotations only for the first frame of each clip (`startlabels.json`), if clips are present. Labels for frames and entire clips are withheld to support evaluation of pose estimation and point tracking methods.
+* Labels *must* be stored in the same folder as the corresponding frames or clips.
+* Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 
 :::{note}
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/) function and avoids conflicts with models that treat category `0` as background.
 
-Image `id` values are always 0-indexed. However, the indexing origin differs between frame and clip labels — see below for details.
+Image `id` values are always 0-indexed. The indexing origin differs for frame labels and clip labels, and clip start labels follow the same conventions as clip labels. Details are provided below.
 :::
 
+(target-framelabels)=
 ### Frame labels (`framelabels.json`)
 
-* There *must* be one `framelabels.json` per camera view within the `Frames` folder.
+* Frame labels *must* only exist in the `Train` split.
+* Within the `Frames` folder, there *must* be one frame label file per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`.
 * Each entry in the `images` array *must* have an `id` equal to the 0-based frame index in the session video (matching the `<frameID>` in the corresponding image filename).
-* Each entry in the `images` array *must* have a `file_name` that matches the full filename (including the `.png` extension) of an existing frame image in the `Frames` folder.
+* Each entry in the `images` array *must* have a `file_name` that exactly matches the name of an existing [frame image](#frames) in the `Frames` folder (including the extension).
 
 :::{admonition} Example
 :class: tip
@@ -159,13 +178,15 @@ For a session with 5 labelled frames sampled from different parts of the video, 
 Here each `id` is the 0-based frame index in the session video (matching the `<frameID>` in the filename), and each `file_name` includes the `.png` extension.
 :::
 
+(target-cliplabels)=
 ### Clip labels (`cliplabels.json`)
 
-* There *must* be one `cliplabels.json` per clip.
+* Clip labels *must* only exist in the `Train` split.
+* If a `Clips` folder is present, there *must* be one clip label file per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`.
 * The `images` array *must* contain an entry for every frame in the clip, in consecutive, monotonically increasing order (covering the entire clip duration).
 * Clip labels follow the same COCO keypoints format as frame labels, but with different conventions for image `id` and `file_name` values:
   * Each image `id` *must* be the **0-based index of the frame within the clip** (i.e. `0`, `1`, `2`, ...), not the index in the session video.
-  * Each `file_name` *must* follow the same pattern as frame image filenames, but **without the `.png` extension**. The `frame` field in the `file_name` *must* hold the index of that frame in the **session video**.
+  * Each `file_name` *must* follow the same pattern as [frame image filenames](#frames), but **without the extension**. The `frame` field in the `file_name` *must* correspond to the index of that frame in the **session video**.
 
 This means that each entry in the `images` array encodes two pieces of information: the `id` gives the local position within the clip, while the `frame` field in `file_name` gives the global position in the session video. Note that in both cases the indices are 0-based.
 
@@ -187,6 +208,26 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` through `frame-1004` in the `file_name` values refer to the original frame positions in the session video.
 :::
 
+(target-startlabels)=
+### Clip start labels (`startlabels.json`)
+
+* Clip start labels *must* only exist in the `Test` split.
+* If a `Clips` folder is present, there *must* be one clip start label file per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`.
+* Clip start labels provide keypoint annotations for the **first frame of the clip only**. They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.
+* Clip start labels are identical to [Clip labels](target-cliplabels), except that the `images` array *must* contain exactly one entry corresponding to the first frame of the clip, and therefore must have `id: 0`.
+
+:::{admonition} Example
+:class: tip
+
+For a clip starting at frame 1000 with a duration of 5 frames, the `images` array would be:
+
+```json
+[
+  {"id": 0, "file_name": "sub-M708149_ses-20200317_cam-topdown_frame-1000", "width": 1300, "height": 1028}
+]
+```
+:::
+
 ### Visibility encoding
 
 * Keypoint visibility *must* use ternary encoding:
@@ -196,21 +237,35 @@ Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` thro
 
 ## Example
 
-Below is a concrete example project structure (only the `Train` split is shown):
+Below is a concrete example project structure:
 
 ```
-Train/
-└── SWC-plusmaze/
-    └── sub-M708149_ses-20200317/
-        ├── Frames/
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-01000.png
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-02300.png
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-03500.png
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-07200.png
-        │   ├── sub-M708149_ses-20200317_cam-topdown_frame-19800.png
-        │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
-        ├── Clips/
-        │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
-        │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
-        └── sub-M708149_ses-20200317_cam-topdown.mp4
+.
+├── Train/
+│   └── SWC-plusmaze/
+│       └── sub-M708149_ses-20200317/
+│           ├── Frames/
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-01000.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-02300.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-03500.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-07200.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-19800.png
+│           │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
+│           ├── Clips/
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
+│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           └── sub-M708149_ses-20200317_cam-topdown.mp4
+└── Test/
+    └── SWC-plusmaze/
+        └── sub-M235678_ses-20210415/
+            ├── Frames/
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-00500.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-01200.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-04800.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-09100.png
+            │   └── sub-M235678_ses-20210415_cam-topdown_frame-15300.png
+            ├── Clips/
+            │   ├── sub-M235678_ses-20210415_cam-topdown_start-0500_dur-5.mp4
+            │   └── sub-M235678_ses-20210415_cam-topdown_start-0500_dur-5_startlabels.json
+            └── sub-M235678_ses-20210415_cam-topdown.mp4
 ```

@@ -8,7 +8,6 @@
 
 import os
 import sys
-
 from importlib.metadata import version as get_version
 
 # Used when building API docs, put the dependencies
@@ -93,6 +92,11 @@ exclude_patterns = [
 html_theme = "pydata_sphinx_theme"
 html_title = "poseinterface"
 
+# Remove the primary (left) sidebar for specific pages
+html_sidebars = {
+    "project_structure": [],
+}
+
 # Customize the theme
 html_theme_options = {
     "icon_links": [
@@ -141,4 +145,22 @@ sphinx_gallery_conf = {
     # or on the developer's machine (e.g. files on a specific mount point).
     # To re-enable an example, remove its pattern from this list.
     "ignore_pattern": r"SWC-plusmaze_to_benchmark",
+}
+
+# -- linkcheck configuration -------------------------------------------------
+linkcheck_timeout = 60  # defaut is 30
+linkcheck_retries = 3  # default is 1
+
+# The linkcheck builder will skip verifying that anchors exist when checking
+# these URLs (because they are generated dynamically)
+linkcheck_anchors_ignore_for_url = [
+    "https://cocodataset.org/",
+]
+# A list of regular expressions that match URIs that should not be checked
+linkcheck_ignore = []
+# Add request headers for specific domains (e.g. to avoid rate-limiting)
+linkcheck_request_headers = {
+    "https://github.com": {
+        "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
+    },
 }

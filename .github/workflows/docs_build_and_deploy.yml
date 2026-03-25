@@ -31,6 +31,7 @@ jobs:
         with:
           python-version: "3.13"
           use-requirements-txt: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
