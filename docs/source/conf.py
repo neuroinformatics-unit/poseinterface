@@ -122,7 +122,7 @@ html_theme_options = {
 # The default is the URL of the GitHub pages
 # https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
 github_user = "neuroinformatics-unit"
-html_baseurl = f"https://{github_user}.github.io/{project}"
+html_baseurl = "https://poseinterface.neuroinformatics.dev"
 sitemap_url_scheme = "{link}"
 
 # Add any paths that contain custom static files (such as style sheets) here,
