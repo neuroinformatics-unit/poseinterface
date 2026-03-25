@@ -104,9 +104,9 @@ A session *may* include a `Clips` folder containing short video segments and the
 * Clip filenames *must* follow the pattern: `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4`.
 * `<frameID>` in the `start` field *must* be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. `0500`, `1000`).
 * `<nFrames>` in the `dur` field *must* be the duration of the clip in number of frames (e.g. `5`, `30`).
-* A single label file *must* be provided per clip file:
-  * In the `Train` split it's named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json` and provides keypoint annotations for every frame in the clip. See [Clip labels](target-cliplabels) for details.
-  * In the `Test` split it's named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json` and provides keypoint annotations only for the first frame of each clip. See [Clip start labels](target-startlabels) for details.
+* A single label file *must* be provided per clip:
+  * In the `Train` split, the file is named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json` and contains keypoint annotations for every frame in the clip. See [Clip labels](target-cliplabels) for details.
+  * In the `Test` split, the file is named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json` and contains keypoint annotations only for the first frame of the clip. See [Clip start labels](target-startlabels) for details.
 
 ## File naming
 
@@ -117,7 +117,12 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
   <key>-<value>_<key>-<value>.<extension>
   <key>-<value>_<key>-<value>_<suffix>.<extension>
   ```
-  The recognised suffixes are `framelabels` (for frame label files), `cliplabels` (for clip label files), and `startlabels` (for clip start label files).
+  The recognised suffixes are:
+
+  * `framelabels` for [frame label files](target-framelabels).
+  * `cliplabels` for [clip label files](target-cliplabels).
+  * `startlabels` for [clip start label files](target-startlabels).
+
 * The following keys are used:
 
   | Key     | Description                                    | Examples         |
@@ -137,22 +142,23 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 ## Label format
 
 * The `Train` split includes ground-truth keypoint annotations both for the sampled frames (`framelabels.json`) and for entire clips (`cliplabels.json`), if present.
-* The `Test` split only includes keypoint annotations for the first frame of each clip (`startlabels.json`), if clips are present. Labels for frames and entire clips are withheld to support evaluation of pose estimation and point tracking methods.
+* The `Test` split includes keypoint annotations only for the first frame of each clip (`startlabels.json`), if clips are present. Labels for frames and entire clips are withheld to support evaluation of pose estimation and point tracking methods.
 * Labels *must* be stored in the same folder as the corresponding frames or clips.
-* Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/), with some additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
+* Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 
 :::{note}
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/) function and avoids conflicts with models that treat category `0` as background.
 
-Image `id` values are always 0-indexed. However, the indexing origin differs between frame labels and clip labels; clip start labels follow the same conventions as clip labels — see below for details.
+Image `id` values are always 0-indexed. The indexing origin differs for frame labels and clip labels, and clip start labels follow the same conventions as clip labels. Details are provided below.
 :::
 
 (target-framelabels)=
 ### Frame labels (`framelabels.json`)
 
-* In the `Train` split, there *must* be one `framelabels.json` per camera view within the `Frames` folder.
+* Frame labels *must* only exist in the `Train` split.
+* Within the `Frames` folder, there *must* be one frame label file per camera view, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_framelabels.json`.
 * Each entry in the `images` array *must* have an `id` equal to the 0-based frame index in the session video (matching the `<frameID>` in the corresponding image filename).
-* Each entry in the `images` array *must* have a `file_name` that matches the full filename (including extension) of an existing frame image in the `Frames` folder.
+* Each entry in the `images` array *must* have a `file_name` that exactly matches the name of an existing [frame image](#frames) in the `Frames` folder (including the extension).
 
 :::{admonition} Example
 :class: tip
@@ -175,11 +181,12 @@ Here each `id` is the 0-based frame index in the session video (matching the `<f
 (target-cliplabels)=
 ### Clip labels (`cliplabels.json`)
 
-* In the `Train` split, there *must* be one `cliplabels.json` per clip.
+* Clip labels *must* only exist in the `Train` split.
+* If a `Clips` folder is present, there *must* be one clip label file per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json`.
 * The `images` array *must* contain an entry for every frame in the clip, in consecutive, monotonically increasing order (covering the entire clip duration).
 * Clip labels follow the same COCO keypoints format as frame labels, but with different conventions for image `id` and `file_name` values:
   * Each image `id` *must* be the **0-based index of the frame within the clip** (i.e. `0`, `1`, `2`, ...), not the index in the session video.
-  * Each `file_name` *must* follow the same pattern as frame image filenames, but **without the extension**. The `frame` field in the `file_name` *must* hold the index of that frame in the **session video**.
+  * Each `file_name` *must* follow the same pattern as [frame image filenames](#frames), but **without the extension**. The `frame` field in the `file_name` *must* correspond to the index of that frame in the **session video**.
 
 This means that each entry in the `images` array encodes two pieces of information: the `id` gives the local position within the clip, while the `frame` field in `file_name` gives the global position in the session video. Note that in both cases the indices are 0-based.
 
@@ -204,14 +211,15 @@ Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` thro
 (target-startlabels)=
 ### Clip start labels (`startlabels.json`)
 
-* Clip start labels are included in the `Test` split only. If a `Clips` folder is present, each clip *must* have a corresponding clip start label file named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`.
-* Clip start labels provide keypoint annotations for the **first frame of the clip only**, and are intended to support point tracker evaluation (i.e. providing the initial point positions from which a tracker should propagate).
-* Clip start labels follow the same COCO keypoints format and conventions as clip labels, with one difference: the `images` array *must* contain exactly one entry, for the first frame of the clip (`id: 0`).
+* Clip start labels *must* only exist in the `Test` split.
+* If a `Clips` folder is present, there *must* be one clip start label file per clip, named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json`.
+* Clip start labels provide keypoint annotations for the **first frame of the clip only**. They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.
+* Clip start labels are identical to [Clip labels](target-cliplabels), except that the `images` array *must* contain exactly one entry corresponding to the first frame of the clip, and therefore must have `id: 0`.
 
 :::{admonition} Example
 :class: tip
 
-For a clip starting at frame 1000, the `images` array in the `startlabels.json` would be:
+For a clip starting at frame 1000 with a duration of 5 frames, the `images` array would be:
 
 ```json
 [
