@@ -372,14 +372,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>pathlib.Path</em></a>) – Path to the input annotations file.</p></li>
-<li><p><strong>output_json_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>pathlib.Path</em></a>) – Path to save the output <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON file.</p></li>
-<li><p><strong>coco_image_filenames</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – Optional image filenames to use in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON.
+<li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to the input annotations file.</p></li>
+<li><p><strong>output_json_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to save the output <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON file.</p></li>
+<li><p><strong>coco_image_filenames</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional image filenames to use in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON.
 If provided, must be a single string (for single-frame videos)
 or a list of strings matching the number of labeled frames.
 If None (default), generates filenames from video filenames
 and frame indices.</p></li>
-<li><p><strong>coco_visibility_encoding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Encoding scheme for keypoint visibility in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO
+<li><p><strong>coco_visibility_encoding</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Encoding scheme for keypoint visibility in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO
 JSON file. Options are “ternary” (0: not labeled, 1: labeled
 but not visible, 2: labeled and visible) or “binary” (0: not
 visible, 1: visible). Default is “ternary”.</p></li>
@@ -389,7 +389,7 @@ visible, 1: visible). Default is “ternary”.</p></li>
 <dd class="field-even"><p>Path to the saved <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)">pathlib.Path</a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
