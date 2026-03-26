@@ -165,3 +165,24 @@ linkcheck_request_headers = {
         "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
     },
 }
+
+# -- myst-parser configuration -------------------------------------------------
+
+myst_url_schemes = {
+    "http": None,
+    "https": None,
+    "ftp": None,
+    "mailto": None,
+    "github-docs": (
+        "https://docs.github.com/en/"
+        "{{path}}#{{fragment}}"
+    ),
+    "myst-parser": (
+        "https://myst-parser.readthedocs.io/en/latest/"
+        "{{path}}#{{fragment}}"
+    ),
+    "sphinx-doc": (
+        "https://www.sphinx-doc.org/en/master/usage/"
+        "{{path}}#{{fragment}}"
+    ),
+}
