@@ -1,10 +1,10 @@
 (target-poseinterface)=
 # poseinterface
 
-**poseinterface** is a framework for benchmarking pose estimation and point
-tracking methods on animal behaviour videos. The project aims to provide
-benchmark datasets, tools for running and comparing pose estimation methods,
-and baseline models.
+**poseinterface** exists to advance pose estimation and point tracking
+applications in animal behaviour videos. The project aims to provide
+benchmark datasets, baseline models trained on those datasets, as well as
+tools for running and comparing pose estimation and tracking methods.
 
 ::::{grid} 1 2 2 4
 :gutter: 3
@@ -17,7 +17,7 @@ Learn about the project's mission, team and how to contribute.
 :::
 
 :::{grid-item-card} {fas}`database;sd-text-primary` Benchmark dataset
-:link: benchmark_dataset
+:link: benchmark-dataset
 :link-type: doc
 
 Folder structure and file naming conventions for benchmark datasets.
@@ -44,7 +44,7 @@ Public functions and classes in `poseinterface`.
 :hidden:
 
 about
-benchmark_dataset
+benchmark-dataset
 auto_examples/index
 api_index
 ```
