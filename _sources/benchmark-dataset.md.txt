@@ -1,6 +1,7 @@
-# Benchmark project structure
+(target-benchmark-dataset)=
+# Benchmark dataset
 
-This page describes the expected folder structure and file naming conventions for pose estimation benchmark datasets.
+This page describes the expected folder structure and file naming conventions for `poseinterface` benchmark datasets.
 
 :::{note}
 We mark requirements with italicised *keywords* that should be interpreted as described by the [Network Working Group](https://www.ietf.org/rfc/rfc2119.txt). In decreasing order of requirement, these are: *must*, *should*, and *may*.
