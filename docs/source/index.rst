@@ -11,6 +11,6 @@ Welcome to poseinterface's documentation!
    :caption: Contents:
 
    about
-   project_structure
+   benchmark_dataset
    auto_examples/index
    api_index
