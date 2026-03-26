@@ -5,4 +5,6 @@
 
 mission
 team
+license
+code-of-conduct
 ```
