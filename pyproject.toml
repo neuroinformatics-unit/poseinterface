@@ -59,6 +59,9 @@ docs = [
   "sphinx-design",
 ]
 
+[project.scripts]
+extract-clip = "poseinterface.video:wrapper"
+
 [build-system]
 requires = [
     "setuptools>=64",
@@ -137,3 +140,4 @@ commands =
 [tool.codespell]
 skip = '.git'
 check-hidden = true
+ignore-words-list = 'reencode'
