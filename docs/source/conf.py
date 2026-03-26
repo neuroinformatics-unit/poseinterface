@@ -46,6 +46,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "myst_parser",
     "nbsphinx",
+    "sphinx_design",
 ]
 
 # Configure the myst parser to enable cool markdown features

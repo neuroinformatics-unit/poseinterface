@@ -5,6 +5,7 @@
 
 mission
 team
+contributing
 license
 code-of-conduct
 ```
