@@ -10,6 +10,7 @@ Welcome to poseinterface's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   about
    project_structure
    auto_examples/index
    api_index
