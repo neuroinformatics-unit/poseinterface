@@ -20,8 +20,8 @@ autodoc_mock_imports = []
 sys.path.insert(0, os.path.abspath("../.."))
 
 project = "poseinterface"
-copyright = "2022, Sofia Minano"
-author = "Sofia Minano"
+copyright = "2025, The poseinterface developers"
+author = "The poseinterface developers"
 try:
     full_version = get_version(project)
     # Splitting the release on '+' to remove the commit hash
@@ -46,6 +46,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "myst_parser",
     "nbsphinx",
+    "sphinx_design",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -94,7 +95,7 @@ html_title = "poseinterface"
 
 # Remove the primary (left) sidebar for specific pages
 html_sidebars = {
-    "project_structure": [],
+    "benchmark-dataset": [],
 }
 
 # Customize the theme
@@ -157,10 +158,34 @@ linkcheck_anchors_ignore_for_url = [
     "https://cocodataset.org/",
 ]
 # A list of regular expressions that match URIs that should not be checked
-linkcheck_ignore = []
+linkcheck_ignore = [
+    r"https://docutils\.sourceforge\.io/.*",       # returns 403
+    r"https://www\.contributor-covenant\.org/.*",  # flaky
+]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
     "https://github.com": {
         "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
     },
+}
+
+# -- myst-parser configuration -------------------------------------------------
+
+myst_url_schemes = {
+    "http": None,
+    "https": None,
+    "ftp": None,
+    "mailto": None,
+    "github-docs": (
+        "https://docs.github.com/en/"
+        "{{path}}#{{fragment}}"
+    ),
+    "myst-parser": (
+        "https://myst-parser.readthedocs.io/en/latest/"
+        "{{path}}#{{fragment}}"
+    ),
+    "sphinx-doc": (
+        "https://www.sphinx-doc.org/en/master/usage/"
+        "{{path}}#{{fragment}}"
+    ),
 }

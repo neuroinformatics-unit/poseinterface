@@ -1,7 +1,11 @@
 [project]
 name = "poseinterface"
-authors = [{name = "Sofia Minano", email= "s.minano@ucl.ac.uk"}]
-description = "Run pose estimation across frameworks"
+authors = [
+  {name = "Sofia Minano", email = "s.minano@ucl.ac.uk"},
+  {name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk" },
+  {name = "Nikoloz Sirmpilatze", email = "n.sirmpilatze@ucl.ac.uk" },
+]
+description = "A framework for benchmarking pose estimation and point tracking methods on animal beheviour videos."
 readme = "README.md"
 requires-python = ">=3.11.0"
 dynamic = ["version"]
@@ -24,10 +28,9 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/neuroinformatics-unit/poseinterface"
+"Homepage" = "https://poseinterface.neuroinformatics.dev"
 "Bug Tracker" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
-"Documentation" = "https://neuroinformatics-unit.github.io/poseinterface"
-
+"Documentation" = "https://poseinterface.neuroinformatics.dev"
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
 
@@ -53,6 +56,7 @@ docs = [
   "sphinx-autodoc-typehints",
   "sphinx-gallery",
   "sphinx-sitemap",
+  "sphinx-design",
 ]
 
 [build-system]
