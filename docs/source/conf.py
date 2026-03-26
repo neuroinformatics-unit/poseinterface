@@ -158,7 +158,10 @@ linkcheck_anchors_ignore_for_url = [
     "https://cocodataset.org/",
 ]
 # A list of regular expressions that match URIs that should not be checked
-linkcheck_ignore = []
+linkcheck_ignore = [
+    r"https://docutils\.sourceforge\.io/.*",       # returns 403
+    r"https://www\.contributor-covenant\.org/.*",  # flaky
+]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
     "https://github.com": {
