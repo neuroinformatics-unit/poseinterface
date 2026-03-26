@@ -20,8 +20,8 @@ autodoc_mock_imports = []
 sys.path.insert(0, os.path.abspath("../.."))
 
 project = "poseinterface"
-copyright = "2022, Sofia Minano"
-author = "Sofia Minano"
+copyright = "2025, The poseinterface developers"
+author = "The poseinterface developers"
 try:
     full_version = get_version(project)
     # Splitting the release on '+' to remove the commit hash
