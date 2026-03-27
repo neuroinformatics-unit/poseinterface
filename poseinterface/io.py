@@ -1,3 +1,5 @@
+"""Functions to convert annotations and videos to PoseInterface format."""
+
 import copy
 import json
 import logging
@@ -357,8 +359,8 @@ def video_to_poseinterface(
     return output_video
 
 
-def _check_ffmpeg():
-    "Check FFMPEG availability"
+def _check_ffmpeg() -> None:
+    """Check FFMPEG availability."""
     sio.set_default_video_plugin("ffmpeg")
     if not _is_ffmpeg_available():
         raise RuntimeError("ffmpeg is required but not found")
@@ -383,21 +385,24 @@ def _needs_reencoding(input_video_path: str | Path) -> bool:
     return False
 
 
-def _get_codec_pixelformat(input_video_path: str | Path) -> dict:
+def _get_codec_pixelformat(input_video_path: str | Path) -> dict[str, str]:
     """Get video encoding parameters as dictionary.
 
-    It wraps sleap-io's _get_video_encoding_info, which
-    uses `ffmpeg -i` to extract metadata without requiring ffprobe in PATH.
+    It wraps sleap-io's `_get_video_encoding_info`, which
+    uses `ffmpeg -i` to extract metadata without requiring
+    `ffprobe` to be in PATH.
 
-    `_get_video_encoding_info` returns a VideoEncodingInfo object
-    with attributes:
-      codec: Video codec name (e.g., "h264", "hevc").
-      codec_profile: Codec profile (e.g., "Main", "High").
-      pixel_format: Pixel format (e.g., "yuv420p").
-      bitrate_kbps: Bitrate in kilobits per second.
-      fps: Frames per second.
-      gop_size: Group of pictures size (keyframe interval).
-      container: Container format (e.g., "mov", "avi").
+    Notes
+    -----
+    `_get_video_encoding_info` returns a `VideoEncodingInfo`
+    object with the following attributes:
+    - codec: Video codec name (e.g., "h264", "hevc").
+    - codec_profile: Codec profile (e.g., "Main", "High").
+    - pixel_format: Pixel format (e.g., "yuv420p").
+    - bitrate_kbps: Bitrate in kilobits per second.
+    - fps: Frames per second.
+    - gop_size: Group of pictures size (keyframe interval).
+    - container: Container format (e.g., "mov", "avi").
 
     """
     info = _get_video_encoding_info(input_video_path)
