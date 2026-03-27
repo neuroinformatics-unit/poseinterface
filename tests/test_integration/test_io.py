@@ -1,6 +1,6 @@
 import pytest
 
-from poseinterface.io import annotations_to_coco
+from poseinterface.io import annotations_to_poseinterface
 
 
 @pytest.mark.parametrize(
@@ -18,6 +18,6 @@ def test_annotations_to_coco(input_path, tmp_path, request):
     input_path = request.getfixturevalue(input_path)
     output_json_path = tmp_path / "output.json"
 
-    annotations_to_coco(input_path, output_json_path)
+    annotations_to_poseinterface(input_path, output_json_path, **test_ids)
 
     assert output_json_path.exists()

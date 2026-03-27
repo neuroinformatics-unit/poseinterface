@@ -8,7 +8,7 @@ from poseinterface.io import (
     POSEINTERFACE_FRAME_REGEXP,
     _extract_frame_number,
     _update_image_ids,
-    annotations_to_coco,
+    annotations_to_poseinterface,
 )
 
 
@@ -18,6 +18,7 @@ def test_annotations_to_coco(
     mock_load_file,
     mock_convert_labels,
     tmp_path,
+    test_ids,
 ):
     """Test that the relevant subfunctions are called."""
     # Mock return value of load_file
@@ -30,7 +31,11 @@ def test_annotations_to_coco(
     # Run function to test
     input_csv = tmp_path / "input.csv"
     output_path = tmp_path / "output.json"
-    result = annotations_to_coco(input_csv, output_path)
+    result = annotations_to_poseinterface(
+        input_csv,
+        output_path,
+        **test_ids,
+    )
 
     # Check subfunctions are all called
     mock_load_file.assert_called_once_with(input_csv)
@@ -71,7 +76,7 @@ def test_annotations_to_coco_invalid(
     with pytest.raises(
         ValueError, match=_EMPTY_LABELS_ERROR_MSG[error_message]
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             input_file,
             tmp_path / "output.json",
         )
@@ -96,7 +101,7 @@ def test_annotations_to_coco_not_single_video(
         ValueError,
         match=(r"The annotations refer to multiple videos.*Please check .*"),
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             tmp_path / "input.csv",
             tmp_path / "output.json",
         )

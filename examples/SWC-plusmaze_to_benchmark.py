@@ -15,7 +15,7 @@ from pathlib import Path
 
 import sleap_io as sio
 
-from poseinterface.io import annotations_to_coco
+from poseinterface.io import annotations_to_poseinterface
 
 # %%
 # Background
@@ -131,7 +131,7 @@ for lf in labels.labeled_frames:
 # which wraps around `sleap_io` functionality to perform the conversion.
 # We pass the new filenames so the JSON references the renamed frames.
 
-annotations_to_coco(
+annotations_to_poseinterface(
     input_path=source_annotations_path,
     output_json_path=target_annotations_path,
     coco_image_filenames=coco_image_filenames,

@@ -1,10 +1,13 @@
 import copy
 import json
+import logging
 import re
+import shutil
 from pathlib import Path
 
 import sleap_io as sio
 from sleap_io.io import coco
+from sleap_io.io.cli import _get_video_encoding_info, _is_ffmpeg_available
 from sleap_io.io.dlc import is_dlc_file
 
 _EMPTY_LABELS_ERROR_MSG = {
@@ -23,8 +26,21 @@ _EMPTY_LABELS_ERROR_MSG = {
 
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
 
+# We support sleap's MediaVideo files
+EXPECTED_SUFFIX = ".mp4"
+EXPECTED_ENCODING = {
+    "pixelformat": "yuv420p",
+    "codec": "h264",  # codec name
+}
+REENCODING_PARAMS = {
+    **EXPECTED_ENCODING,
+    "codec": "libx264",  # overwrite with encoder to use
+    "crf": 25,
+    "preset": "superfast",
+}
 
-def annotations_to_coco(
+
+def annotations_to_poseinterface(
     input_path: Path,
     output_json_path: Path,
     *,
@@ -158,3 +174,180 @@ def _extract_frame_number(
             rf"'{frame_regexp}'."
         )
     return int(match.group(1))
+
+
+def _generate_poseinterface_filenames(
+    labels: sio.Labels,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    include_file_extension: bool = False,
+) -> list[str]:
+    """Generate PoseInterface image filenames an input annotations file.
+
+    The generated filenames are in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
+
+    If `include_file_extension` is True, the generated filenames will include
+    the file extension of the original frame files, in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}.{file_extension}
+
+    Parameters
+    ----------
+    input_path
+        Path to the input annotations file.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+    include_file_extension
+        Whether to include the file extension of the original frame files
+        in the generated filenames. Default is False.
+
+    Returns
+    -------
+    list[str]
+        List of generated COCO image filenames corresponding to each
+        labeled frame.
+
+    Raises
+    ------
+    ValueError
+        If no labeled frames could be extracted from the input file.
+    """
+    video_filenames = labels.videos[0].filename
+    if isinstance(video_filenames, list):  # Sequence of frame images
+        frame_numbers = [
+            _extract_frame_number(Path(fn).stem, frame_regexp=r"(\d+)")
+            for fn in video_filenames
+        ]
+        file_extensions = (
+            [Path(fn).suffix for fn in video_filenames]
+            if include_file_extension
+            else []
+        )
+    else:  # Video file
+        frame_numbers = [lf.frame_idx for lf in labels.labeled_frames]
+        file_extensions = (
+            [".png"] * len(frame_numbers) if include_file_extension else []
+        )
+    # Pad frame_numbers to the same width
+    padded_frame_numbers = _pad_integers_to_same_width(frame_numbers)
+    # Build filenames
+    prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-"
+    if include_file_extension:
+        return [
+            prefix + frame_id + ext
+            for frame_id, ext in zip(padded_frame_numbers, file_extensions)
+        ]
+    else:
+        return [prefix + frame_id for frame_id in padded_frame_numbers]
+
+
+def _pad_integers_to_same_width(input: list[int]) -> list[str]:
+    """Pad a list of integers to the same width with leading zeros."""
+    width = len(str(max(input)))
+    padded_numbers = [str(number).zfill(width) for number in input]
+    return padded_numbers
+
+
+def video_to_poseinterface(
+    input_video: Path | str,
+    output_video_dir: Path | str,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+) -> Path:
+    """Reencode and rename video."""
+    # Check if ffmpeg is available
+    _check_ffmpeg()
+
+    # Compute output_video_path
+    output_video = (
+        Path(output_video_dir) / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.mp4"
+    )
+    # Ensure parent directories exist
+    Path(output_video_dir).mkdir(parents=True, exist_ok=True)
+
+    # Check if reencoding is required
+    if not _needs_reencoding(input_video):
+        # If not, copy file and rename
+        shutil.copy(input_video, output_video)
+    else:
+        # Else, reencode video and rename
+        _reencode_video(input_video, output_video)
+
+    return output_video
+
+
+def _check_ffmpeg():
+    "Check FFMPEG availability"
+    sio.set_default_video_plugin("ffmpeg")
+    if not _is_ffmpeg_available():
+        raise RuntimeError("ffmpeg is required but not found")
+
+
+def _needs_reencoding(input_video_path: str | Path) -> bool:
+    """Check if reencoding is required."""
+    input_video_path = Path(input_video_path)
+    logging.info(f"Input video: {input_video_path}")
+
+    # Check if suffix is mp4
+    if input_video_path.suffix.lower() != EXPECTED_SUFFIX:
+        return True
+
+    # Check codec and pixelformat
+    encoding = _get_codec_pixelformat(input_video_path)
+    if encoding != EXPECTED_ENCODING:
+        logging.warning(
+            f"Video encoding {encoding} does not match "
+            f"expected {EXPECTED_ENCODING}. Please reencode "
+            "using the `reencode_video()` function."
+        )
+        return True
+    return False
+
+
+def _get_codec_pixelformat(input_video_path: str | Path) -> dict:
+    """Get video encoding parameters as dictionary.
+
+    It wraps sleap-io's _get_video_encoding_info, which
+    uses `ffmpeg -i` to extract metadata without requiring ffprobe in PATH.
+
+    `_get_video_encoding_info` returns a VideoEncodingInfo object
+    with attributes:
+      codec: Video codec name (e.g., "h264", "hevc").
+      codec_profile: Codec profile (e.g., "Main", "High").
+      pixel_format: Pixel format (e.g., "yuv420p").
+      bitrate_kbps: Bitrate in kilobits per second.
+      fps: Frames per second.
+      gop_size: Group of pictures size (keyframe interval).
+      container: Container format (e.g., "mov", "avi").
+
+    """
+    info = _get_video_encoding_info(input_video_path)
+    return {
+        "codec": info.codec,
+        "pixelformat": info.pixel_format,
+    }
+
+
+def _reencode_video(
+    input_video_path: str | Path,
+    output_video_path: str | Path,
+) -> Path:
+    """Reencode video to default format."""
+    # Read and save reencoded video
+    video = sio.load_video(Path(input_video_path))
+    reencoded_video_path = sio.save_video(
+        video,
+        filename=output_video_path,
+        fps=video.fps,
+        **REENCODING_PARAMS,
+    )
+    logging.info(f"Re-encoded video saved to {reencoded_video_path}")
+    return reencoded_video_path
