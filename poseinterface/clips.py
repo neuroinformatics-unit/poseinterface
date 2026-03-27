@@ -38,6 +38,14 @@ def extract_clip(
         f"filename: {video_path.name}, fps: {video.fps}, shape: {video.shape}"
     )
 
+    # Clamp duration if it exceeds the video length
+    if start_frame + duration > video.shape[0]:
+        duration = video.shape[0] - start_frame
+        logging.warning(
+            "Clip exceeds video length. "
+            f"Clamping duration to {duration} frames."
+        )
+
     # Slice clip and save as mp4
     clip = video[start_frame : start_frame + duration]
     clip_path = (
