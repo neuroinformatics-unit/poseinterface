@@ -27,8 +27,12 @@ def extract_clip(
     - `start_frame` is 0-based index,
     - `duration` is len(clip).
     """
-    # Read video as array
+    # Create "Clips" directory if it doesn't exist
     video_path = Path(video_path)
+    clips_dir = video_path.parent / "Clips"
+    clips_dir.mkdir(parents=True, exist_ok=True)
+
+    # Read video as array
     video = sio.load_video(video_path)
     logging.info(
         f"filename: {video_path.name}, fps: {video.fps}, shape: {video.shape}"
@@ -36,16 +40,20 @@ def extract_clip(
 
     # Slice clip and save as mp4
     clip = video[start_frame : start_frame + duration]
-    clip_path = f"{video.filename}_start-{start_frame}_dur-{duration}.mp4"
+    clip_path = (
+        clips_dir / f"{video.stem}_start-{start_frame}_dur-{duration}.mp4"
+    )
     sio.save_video(clip, clip_path, fps=video.fps)
 
     # Generate cliplabels.json from the full video labels
-    clip_json = _extract_cliplabels(video_path, start_frame, duration)
+    clip_json = _extract_cliplabels(
+        video_path, clips_dir, start_frame, duration
+    )
 
     return clip_path, clip_json
 
 
-def _extract_cliplabels(video_path, start_frame, duration):
+def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
     """Extract clip labels from the video cliplabels.json file."""
     # Read file with labels for the whole video
     video_json = video_path.parent / f"{video_path.stem}_cliplabels.json"
@@ -57,25 +65,21 @@ def _extract_cliplabels(video_path, start_frame, duration):
     clip_labels["images"] = [
         img
         for img in video_labels["images"]
-        if (img["id"] >= start_frame | img["id"] < start_frame + duration)
+        if start_frame <= img["id"] < start_frame + duration
     ]
     clip_labels["annotations"] = [
         annot
         for annot in video_labels["annotations"]
-        if (
-            annot["image_id"]
-            >= start_frame | annot["image_id"]
-            < start_frame + duration
-        )
+        if start_frame <= annot["image_id"] < start_frame + duration
     ]
     clip_labels["categories"] = video_labels["categories"]
 
-    # Save json with filtered data
+    # Save json with filtered data to clips directory
     clip_json = (
-        video_path.parent / f"{video_path.stem}_"
+        clips_dir / f"{video_path.stem}_"
         f"start-{start_frame}_dur-{duration}_cliplabels.json"
     )
-    with open(clip_json) as f:
+    with open(clip_json, "w") as f:
         json.dump(clip_labels, f)
 
     return clip_json
@@ -98,7 +102,7 @@ def parse_args(args) -> argparse.Namespace:
     parser.add_argument(
         "--start_frame",
         type=int,
-        require=True,
+        required=True,
         help="Start frame of the clip as a 0-based index.",
     )
     parser.add_argument(
