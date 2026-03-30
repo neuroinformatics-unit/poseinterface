@@ -27,6 +27,14 @@ def extract_clip(
     - `start_frame` is 0-based index,
     - `duration` is len(clip).
     """
+    # Check input values
+    if start_frame < 0:
+        raise ValueError(
+            f"start_frame must be non-negative, got {start_frame}"
+        )
+    if duration <= 0:
+        raise ValueError(f"duration must be positive, got {duration}")
+
     # Create "Clips" directory if it doesn't exist
     video_path = Path(video_path)
     clips_dir = video_path.parent / "Clips"
