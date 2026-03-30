@@ -13,19 +13,44 @@ def extract_clip(
     video_path: str | Path,
     start_frame: int,
     duration: int,
-):
-    """Extract clip and clip labels.
+) -> tuple[Path, Path]:
+    """Extract a video clip and its corresponding clip labels.
 
-    We assume:
-    - the input video filename is in the format
-    `sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4`,
-    - a `sub-<subjectID>_ses-<sessionID>_cam-<camID>_cliplabels.json`
-    file with tracks for the full video exists alongside the input video,
-    where the `id` in `images` corresponds to the global video frame 0-based
-    indices (note that the local frame index and the global frame index is the
-    same if the data refers to the whole video),
-    - `start_frame` is 0-based index,
-    - `duration` is len(clip).
+    Reads the source video and its paired ``_cliplabels.json`` file, and saves
+    to a ``Clips/`` subdirectory next to the source video: a ``.mp4`` clip, and
+    a matching ``_cliplabels.json`` file containing only the annotations that
+    fall within the requested frame range.
+
+    Parameters
+    ----------
+    video_path
+        Path to the input ``.mp4`` video.  The filename is expected to follow
+        the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``
+        and a sibling ``*_cliplabels.json`` file must exist.
+    start_frame
+        Index of the first frame to include in the clip (0-based).
+    duration
+        Number of frames to include in the clip.  If ``start_frame +
+        duration`` exceeds the video length, the duration is clamped to the
+        remaining frames and a warning is logged.
+
+    Returns
+    -------
+    clip_path : Path
+        Path to the output clip file.
+    clip_json : Path
+        Path to the ``_cliplabels.json`` file for the clip.
+
+    Raises
+    ------
+    ValueError
+        If ``start_frame`` is negative or ``duration`` is not positive.
+
+    Notes
+    -----
+    This function assumes that the  ``id`` field in the ``images`` list of the
+    source ``_cliplabels.json`` corresponds to 0-based global frame indices of
+    the full video.
     """
     # Check input values
     if start_frame < 0:
@@ -101,13 +126,33 @@ def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
     return clip_json
 
 
-def main(args: argparse.Namespace):
+def main(args: argparse.Namespace) -> None:
+    """Run clip extraction from parsed command-line arguments.
+
+    Parameters
+    ----------
+    args
+        Parsed arguments containing ``video_path``, ``start_frame``,
+        and ``duration``.
+    """
     # Extract clip
     extract_clip(args.video_path, args.start_frame, args.duration)
 
 
-def parse_args(args) -> argparse.Namespace:
-    """Parse command-line arguments."""
+def parse_args(args: list[str]) -> argparse.Namespace:
+    """Parse command-line arguments for clip extraction.
+
+    Parameters
+    ----------
+    args
+        List of command-line argument strings (e.g. ``sys.argv[1:]``).
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed arguments with attributes ``video_path`` (str),
+        ``start_frame`` (int), and ``duration`` (int).
+    """
     parser = argparse.ArgumentParser(description="Extract clips from video")
     parser.add_argument(
         "--video_path",
@@ -130,7 +175,8 @@ def parse_args(args) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def wrapper():
+def wrapper() -> None:
+    """Entry point for the ``extract-clip`` console script."""
     args = parse_args(sys.argv[1:])
     main(args)
 
