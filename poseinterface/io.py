@@ -361,9 +361,9 @@ def video_to_poseinterface(
 
 def _check_ffmpeg() -> None:
     """Check FFMPEG availability."""
-    sio.set_default_video_plugin("ffmpeg")
     if not _is_ffmpeg_available():
         raise RuntimeError("ffmpeg is required but not found")
+    sio.set_default_video_plugin("ffmpeg")
 
 
 def _needs_reencoding(input_video_path: str | Path) -> bool:
