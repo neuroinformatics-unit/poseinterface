@@ -343,7 +343,37 @@ def video_to_poseinterface(
     ses_id: str,
     cam_id: str,
 ) -> Path:
-    """Reencode and rename video."""
+    """Reencode and rename a video to ``poseinterface`` format.
+
+    Copies the input video to ``output_video_dir`` with the filename
+    ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>.mp4``.  If the video is
+    not already encoded as H.264 + yuv420p in an ``.mp4`` container, it
+    is re-encoded with ffmpeg before saving.
+
+    Parameters
+    ----------
+    input_video
+        Path to the video to convert.
+    output_video_dir
+        Directory where the converted video will be written (created
+        automatically if it does not exist).
+    sub_id
+        Subject ID used to build the output filename.
+    ses_id
+        Session ID used to build the output filename.
+    cam_id
+        Camera ID used to build the output filename.
+
+    Returns
+    -------
+    Path
+        Path to the saved ``.mp4`` file.
+
+    Raises
+    ------
+    RuntimeError
+        If ffmpeg is not available on the system PATH.
+    """
     _check_ffmpeg()
 
     output_video = (
@@ -360,14 +390,14 @@ def video_to_poseinterface(
 
 
 def _check_ffmpeg() -> None:
-    """Check FFMPEG availability."""
+    """Check ffmpeg is available and can be executed."""
     if not _is_ffmpeg_available():
         raise RuntimeError("ffmpeg is required but not found")
     sio.set_default_video_plugin("ffmpeg")
 
 
 def _needs_reencoding(input_video_path: str | Path) -> bool:
-    """Check if reencoding is required."""
+    """Check if reencoding is required for input video."""
     input_video_path = Path(input_video_path)
     logging.info(f"Input video: {input_video_path}")
 
@@ -386,7 +416,7 @@ def _needs_reencoding(input_video_path: str | Path) -> bool:
 
 
 def _get_codec_pixelformat(input_video_path: str | Path) -> dict[str, str]:
-    """Get video encoding parameters as dictionary.
+    """Get relevant video encoding parameters as a dictionary.
 
     It wraps sleap-io's `_get_video_encoding_info`, which
     uses `ffmpeg -i` to extract metadata without requiring
