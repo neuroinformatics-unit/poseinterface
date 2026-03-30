@@ -48,6 +48,7 @@ dev = [
 ]
 docs = [
   "linkify-it-py",
+  "matplotlib",
   "myst-parser",
   "nbsphinx",
   "pydata-sphinx-theme",
