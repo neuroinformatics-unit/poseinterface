@@ -22,6 +22,25 @@ def video_labels():
     }
 
 
+@pytest.fixture
+def video_path(tmp_path, video_labels):
+    """Video path with a corresponding cliplabels.json alongside it."""
+    path = tmp_path / "sub-01_ses-01_cam-01.mp4"
+    json_path = tmp_path / "sub-01_ses-01_cam-01_cliplabels.json"
+    json_path.write_text(json.dumps(video_labels))
+    return path
+
+
+@pytest.fixture
+def mock_video():
+    """Mock Video object with 10 frames, matching video_labels fixture."""
+    video = MagicMock()
+    video.fps = 30
+    video.shape = (10, 480, 640, 3)
+    video.stem = "sub-01_ses-01_cam-01"
+    return video
+
+
 def test_extract_cliplabels(tmp_path, video_labels):
     """Test clip json file is extracted from the video cliplabels.json file."""
     # Set up fake video path and corresponding cliplabels.json
@@ -62,43 +81,28 @@ def test_extract_cliplabels(tmp_path, video_labels):
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
 def test_extract_clip(
-    mock_load_video,
-    mock_save_video,
-    video_labels,
-    tmp_path,
+    mock_load_video, mock_save_video, mock_video, video_path
 ):
     """Test clip video and json are extracted from the input video."""
-    # Create test input video and video cliplabels.json
-    video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
-    json_path = tmp_path / "sub-01_ses-01_cam-01_cliplabels.json"
-    json_path.write_text(json.dumps(video_labels))
-
-    # Mock loaded Video object and relevant attributes
-    # (10 frames, matching video_labels)
-    mock_video = MagicMock()
-    mock_video.fps = 30
-    mock_video.shape = (10, 480, 640, 3)
-    mock_video.stem = "sub-01_ses-01_cam-01"
-
-    # Make mock Video object return value for load_video
+    # Set mock_video as return value from load_video
     mock_load_video.return_value = mock_video
 
-    # Compute clip
+    # Extract clip
     start_frame = 3
     duration = 4
     clip_path, clip_json = extract_clip(video_path, start_frame, duration)
 
-    # Check save video was called
+    # Check save was called with correct range
     # Note: MagicMock caches the return value of __getitem__
     # for the same arguments. So mock_video[3:7] always returns the
-    # same mock object and the assertion works
+    # same mock object and the assertion works.
     mock_save_video.assert_called_once_with(
         mock_video[start_frame : start_frame + duration],
         clip_path,
         fps=mock_video.fps,
     )
 
-    # Check mp4 and json files exist and have expected names
+    # Check output files
     expected_stem = f"sub-01_ses-01_cam-01_start-{start_frame}_dur-{duration}"
     assert clip_path.name == f"{expected_stem}.mp4"
     assert clip_json.name == f"{expected_stem}_cliplabels.json"
@@ -108,46 +112,51 @@ def test_extract_clip(
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
 def test_extract_clip_clamped(
-    mock_load_video, mock_save_video, video_labels, caplog, tmp_path
+    mock_load_video, mock_save_video, mock_video, video_path, caplog
 ):
     """Test clip video and json when duration is clamped."""
-    # Create test input video and video cliplabels.json
-    video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
-    json_path = tmp_path / "sub-01_ses-01_cam-01_cliplabels.json"
-    json_path.write_text(json.dumps(video_labels))
-
-    # Mock loaded Video object and relevant attributes
-    # (10 frames, matching video_labels)
-    mock_video = MagicMock()
-    mock_video.fps = 30
-    mock_video.shape = (10, 480, 640, 3)
-    mock_video.stem = "sub-01_ses-01_cam-01"
-
-    # Make mock Video object return value for load_video
+    # Set mock_video as return value from load_video
     mock_load_video.return_value = mock_video
 
-    # Compute clip
+    # Define clipping range
     start_frame = 9
     duration = 4  # exceeds total video length (10 frames)
     clamped_duration = mock_video.shape[0] - start_frame
 
+    # Extract clip
     with caplog.at_level(logging.WARNING):
         clip_path, clip_json = extract_clip(video_path, start_frame, duration)
 
-    # Check warning
+    # Check warning is thrown
     assert f"Clamping duration to {clamped_duration} frames" in caplog.text
 
-    # Check save video is called with clamped duration
+    # Check save_video is called with clamped duration
     mock_save_video.assert_called_once_with(
         mock_video[start_frame : start_frame + clamped_duration],
         clip_path,
         fps=mock_video.fps,
     )
 
-    # Check mp4 and json files exist and have expected names
+    # Check output files reference clamped duration
     expected_stem = (
         f"sub-01_ses-01_cam-01_start-{start_frame}_dur-{clamped_duration}"
     )
     assert clip_path.name == f"{expected_stem}.mp4"
     assert clip_json.name == f"{expected_stem}_cliplabels.json"
     assert clip_json.exists()
+
+
+@pytest.mark.parametrize(
+    "start_frame, duration, expected_exception, expected_message",
+    [
+        (-3, 10, ValueError, "start_frame must be non-negative"),
+        (10, -3, ValueError, "duration must be positive"),
+        (10, 0, ValueError, "duration must be positive"),
+    ],
+)
+def test_extract_clip_invalid(
+    video_path, start_frame, duration, expected_exception, expected_message
+):
+    """Test extract_clip with invalid start_frame or duration."""
+    with pytest.raises(expected_exception, match=expected_message):
+        extract_clip(video_path, start_frame, duration)
