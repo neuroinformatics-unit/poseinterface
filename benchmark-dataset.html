@@ -386,6 +386,45 @@
 </section>
 <section id="folder-structure">
 <h2>Folder structure<a class="headerlink" href="#folder-structure" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This specification describes both the <strong>contributed</strong> and the <strong>published</strong> versions of the dataset. Data contributors <em>must</em> provide full keypoint annotations (frame labels and clip labels) for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits. During the upload process, labels for the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split are partially withheld to support evaluation. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for details.</p>
+</div>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Contributed</label><div class="sd-tab-content docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── Train/
+│   └── &lt;ProjectName&gt;/
+│       └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;/
+│           ├── Frames/
+│           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_frame-&lt;frameID&gt;.png
+│           │   ├── ...
+│           │   └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json
+│           ├── Clips/    (optional)
+│           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;.mp4
+│           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json
+│           │   └── ...
+│           └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4
+└── Test/
+    └── &lt;ProjectName&gt;/
+        └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;/
+            ├── Frames/
+            │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_frame-&lt;frameID&gt;.png
+            │   ├── ...
+            │   └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json
+            ├── Clips/    (optional)
+            │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;.mp4
+            │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json
+            │   └── ...
+            └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Published</label><div class="sd-tab-content docutils">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── &lt;ProjectName&gt;/
@@ -412,9 +451,7 @@
             └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split follows the same structure as <code class="docutils literal notranslate"><span class="pre">Train</span></code>, but includes different label files (see <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for details).</p>
+</div>
 </div>
 <section id="train-test">
 <h3>Train / Test<a class="headerlink" href="#train-test" title="Link to this heading">#</a></h3>
@@ -459,20 +496,20 @@
 <section id="session-video">
 <h3>Session video<a class="headerlink" href="#session-video" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>All video files (session videos and clips) <em>should</em> be in MP4 format (H.264 codec, yuv420p pixel format). Contributors <em>should</em> re-encode their videos to this format before submission (see <a class="reference external" href="https://docs.sleap.ai/latest/help/#usage">SLEAP documentation</a> for guidance).</p></li>
+<li><p>All video files (session videos and clips) <em>should</em> be in MP4 format (H.264 codec, yuv420p pixel format). Data contributors <em>should</em> re-encode their videos to this format before submission (see <a class="reference external" href="https://docs.sleap.ai/latest/help/#usage">SLEAP documentation</a> for guidance).</p></li>
 <li><p>Session video filenames <em>must</em> follow the pattern: <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4</span></code>.</p></li>
 </ul>
 </section>
 <section id="frames">
 <h3>Frames<a class="headerlink" href="#frames" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder contains individually sampled images. In the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split, it also contains a label file with keypoint annotations.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder contains individually sampled images and their label files.</p>
 <ul class="simple">
 <li><p>Frames <em>must</em> be extracted from the session video.</p></li>
 <li><p>Frame images <em>should</em> be in PNG format (<code class="docutils literal notranslate"><span class="pre">.png</span></code>). JPEG format (<code class="docutils literal notranslate"><span class="pre">.jpg</span></code> or <code class="docutils literal notranslate"><span class="pre">.jpeg</span></code>) <em>may</em> also be used.</p></li>
 <li><p>Frame image filenames <em>must</em> follow the pattern: <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_frame-&lt;frameID&gt;.&lt;ext&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;ext&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">.png</span></code>, <code class="docutils literal notranslate"><span class="pre">.jpg</span></code>, or <code class="docutils literal notranslate"><span class="pre">.jpeg</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> <em>must</em> be the 0-based index of the frame in the session video.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> <em>must</em> be padded to a consistent width across all frame files within a session (e.g. <code class="docutils literal notranslate"><span class="pre">0000</span></code>, <code class="docutils literal notranslate"><span class="pre">1000</span></code>).</p></li>
-<li><p>In the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split, a single label file <em>must</em> be provided per camera view, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json</span></code>. At present, only one camera view is included, so the split contains exactly one such label file. See <a class="reference internal" href="#target-framelabels"><span class="std std-ref">Frame labels</span></a> for details.</p></li>
+<li><p>One frame label file (named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json</span></code>) <em>must</em> be provided per camera view. At present, only one camera view is included, so each split contains exactly one such file. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for differences between contributed and published versions.</p></li>
 </ul>
 </section>
 <section id="clips">
@@ -483,12 +520,7 @@
 <li><p>Clip filenames <em>must</em> follow the pattern: <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;.mp4</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the <code class="docutils literal notranslate"><span class="pre">start</span></code> field <em>must</em> be the 0-based index of the first frame of the clip in the session video, padded to a consistent width (e.g. <code class="docutils literal notranslate"><span class="pre">0500</span></code>, <code class="docutils literal notranslate"><span class="pre">1000</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;nFrames&gt;</span></code> in the <code class="docutils literal notranslate"><span class="pre">dur</span></code> field <em>must</em> be the duration of the clip in number of frames (e.g. <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">30</span></code>).</p></li>
-<li><p>A single label file <em>must</em> be provided per clip:</p>
-<ul>
-<li><p>In the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split, the file is named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json</span></code> and contains keypoint annotations for every frame in the clip. See <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">Clip labels</span></a> for details.</p></li>
-<li><p>In the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split, the file is named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_startlabels.json</span></code> and contains keypoint annotations only for the first frame of the clip. See <a class="reference internal" href="#target-startlabels"><span class="std std-ref">Clip start labels</span></a> for details.</p></li>
-</ul>
-</li>
+<li><p>One clip label file (named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json</span></code>) <em>must</em> be provided per clip. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for differences between contributed and published versions.</p></li>
 </ul>
 </section>
 </section>
@@ -513,32 +545,39 @@
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Value format</p></th>
 <th class="head"><p>Examples</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sub</span></code></p></td>
 <td><p>Subject identifier</p></td>
+<td><p>alphanumeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">sub-001</span></code>, <code class="docutils literal notranslate"><span class="pre">sub-M708149</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ses</span></code></p></td>
 <td><p>Session identifier</p></td>
+<td><p>alphanumeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ses-02</span></code>, <code class="docutils literal notranslate"><span class="pre">ses-25</span></code>, <code class="docutils literal notranslate"><span class="pre">ses-20200317</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cam</span></code></p></td>
 <td><p>Camera identifier</p></td>
+<td><p>alphanumeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cam-topdown</span></code>, <code class="docutils literal notranslate"><span class="pre">cam-side2</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">frame</span></code></p></td>
 <td><p>0-based frame index in the session video</p></td>
+<td><p>numeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">frame-0000</span></code>, <code class="docutils literal notranslate"><span class="pre">frame-0500</span></code>, <code class="docutils literal notranslate"><span class="pre">frame-1000</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start</span></code></p></td>
 <td><p>0-based frame index of the first frame of a clip in the session video</p></td>
+<td><p>numeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">start-0000</span></code>, <code class="docutils literal notranslate"><span class="pre">start-0500</span></code>, <code class="docutils literal notranslate"><span class="pre">start-1000</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dur</span></code></p></td>
 <td><p>Clip duration in number of frames</p></td>
+<td><p>numeric</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">dur-5</span></code>, <code class="docutils literal notranslate"><span class="pre">dur-30</span></code></p></td>
 </tr>
 </tbody>
@@ -546,28 +585,27 @@
 </div>
 </li>
 <li><p>The keys <code class="docutils literal notranslate"><span class="pre">sub</span></code>, <code class="docutils literal notranslate"><span class="pre">ses</span></code>, and <code class="docutils literal notranslate"><span class="pre">cam</span></code> <em>must</em> appear in every filename, in that order.</p></li>
-<li><p>Key values <em>must</em> be strictly alphanumeric for <code class="docutils literal notranslate"><span class="pre">sub</span></code>, <code class="docutils literal notranslate"><span class="pre">ses</span></code> and <code class="docutils literal notranslate"><span class="pre">cam</span></code> (i.e. only <code class="docutils literal notranslate"><span class="pre">A-Z</span></code>, <code class="docutils literal notranslate"><span class="pre">a-z</span></code>, <code class="docutils literal notranslate"><span class="pre">0-9</span></code>).</p></li>
-<li><p>Key values <em>must</em> be strictly numeric for <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">dur</span></code> (i.e. only <code class="docutils literal notranslate"><span class="pre">0-9</span></code>).</p></li>
 <li><p>Filenames <em>must</em> not contain spaces.</p></li>
 </ul>
 </section>
 <section id="label-format">
 <h2>Label format<a class="headerlink" href="#label-format" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Train</span></code> split includes ground-truth keypoint annotations both for the sampled frames (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) and for entire clips (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>), if present.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split includes keypoint annotations only for the first frame of each clip (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>), if clips are present. Labels for frames and entire clips are withheld to support evaluation of pose estimation and point tracking methods.</p></li>
+<li><p>Data contributors <em>must</em> provide ground-truth keypoint annotations for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits: frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) for sampled frames, and clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>) for entire clips, if present.</p></li>
+<li><p>In the published dataset, the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split includes all submitted labels. The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split withholds frame labels and full clip labels to support evaluation; only clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>), derived from the first frame of each clip’s annotations, are published.</p></li>
 <li><p>Labels <em>must</em> be stored in the same folder as the corresponding frames or clips.</p></li>
 <li><p>Labels <em>must</em> be stored in <a class="reference external" href="https://cocodataset.org/#format-data">COCO keypoints format</a>, with additional requirements described below. Each label file is a JSON file with <code class="docutils literal notranslate"><span class="pre">images</span></code>, <code class="docutils literal notranslate"><span class="pre">annotations</span></code>, and <code class="docutils literal notranslate"><span class="pre">categories</span></code> arrays. Image, annotation and category <code class="docutils literal notranslate"><span class="pre">id</span></code> values <em>must</em> be unique integers within a label file.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> field in each <code class="docutils literal notranslate"><span class="pre">categories</span></code> entry <em>should</em> be the common English name of the species in lowercase (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mouse&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;rat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;zebrafish&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;macaque&quot;</span></code>).</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Annotation and category <code class="docutils literal notranslate"><span class="pre">id</span></code> values <em>should</em> be 1-indexed. This convention follows sleap-io’s <a class="reference external" href="https://io.sleap.ai/latest/reference/sleap_io/io/coco/"><code class="docutils literal notranslate"><span class="pre">save_coco</span></code></a> function and avoids conflicts with models that treat category <code class="docutils literal notranslate"><span class="pre">0</span></code> as background.</p>
 <p>Image <code class="docutils literal notranslate"><span class="pre">id</span></code> values are always 0-indexed. The indexing origin differs for frame labels and clip labels, and clip start labels follow the same conventions as clip labels. Details are provided below.</p>
+<p>Complete examples of label files are available in the repository under <a class="reference external" href="https://github.com/neuroinformatics-unit/poseinterface/tree/main/tests/data/Train#">tests/data/Train</a>.</p>
 </div>
 <section id="frame-labels-framelabels-json">
 <span id="target-framelabels"></span><h3>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)<a class="headerlink" href="#frame-labels-framelabels-json" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Frame labels <em>must</em> only exist in the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split.</p></li>
 <li><p>Within the <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder, there <em>must</em> be one frame label file per camera view, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json</span></code>.</p></li>
 <li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have an <code class="docutils literal notranslate"><span class="pre">id</span></code> equal to the 0-based frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the corresponding image filename).</p></li>
 <li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have a <code class="docutils literal notranslate"><span class="pre">file_name</span></code> that exactly matches the name of an existing <a class="reference internal" href="#frames"><span class="std std-ref">frame image</span></a> in the <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder (including the extension).</p></li>
@@ -590,7 +628,6 @@
 <section id="clip-labels-cliplabels-json">
 <span id="target-cliplabels"></span><h3>Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)<a class="headerlink" href="#clip-labels-cliplabels-json" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Clip labels <em>must</em> only exist in the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split.</p></li>
 <li><p>If a <code class="docutils literal notranslate"><span class="pre">Clips</span></code> folder is present, there <em>must</em> be one clip label file per clip, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json</span></code>.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain an entry for every frame in the clip, in consecutive, monotonically increasing order (covering the entire clip duration).</p></li>
 <li><p>Clip labels follow the same COCO keypoints format as frame labels, but with different conventions for image <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">file_name</span></code> values:</p>
@@ -619,10 +656,8 @@
 <section id="clip-start-labels-startlabels-json">
 <span id="target-startlabels"></span><h3>Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)<a class="headerlink" href="#clip-start-labels-startlabels-json" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Clip start labels <em>must</em> only exist in the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split.</p></li>
-<li><p>If a <code class="docutils literal notranslate"><span class="pre">Clips</span></code> folder is present, there <em>must</em> be one clip start label file per clip, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_startlabels.json</span></code>.</p></li>
-<li><p>Clip start labels provide keypoint annotations for the <strong>first frame of the clip only</strong>. They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.</p></li>
-<li><p>Clip start labels are identical to <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">Clip labels</span></a>, except that the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain exactly one entry corresponding to the first frame of the clip, and therefore must have <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code>.</p></li>
+<li><p>Clip start labels only exist in the published <code class="docutils literal notranslate"><span class="pre">Test</span></code> split and are derived automatically from the contributed <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a> during the upload process.</p></li>
+<li><p>They are identical to <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a>, except that the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain exactly one entry (the first frame of the clip, with <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code>). They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.</p></li>
 </ul>
 <div class="tip admonition">
 <p class="admonition-title">Example</p>
@@ -649,7 +684,46 @@
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
-<p>Below is a concrete example project structure:</p>
+<p>Below is a concrete example. A matching example dataset (with label files) is available in the repository under <a class="reference external" href="https://github.com/neuroinformatics-unit/poseinterface/tree/main/tests/data/Train#">tests/data/Train</a>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Contributed</label><div class="sd-tab-content docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── Train/
+│   └── SWC-plusmaze/
+│       └── sub-M708149_ses-20200317/
+│           ├── Frames/
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-01000.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-02300.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-03500.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-07200.png
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_frame-19800.png
+│           │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
+│           ├── Clips/
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
+│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           └── sub-M708149_ses-20200317_cam-topdown.mp4
+└── Test/
+    └── SWC-plusmaze/
+        └── sub-M235678_ses-20210415/
+            ├── Frames/
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-00500.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-01200.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-04800.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-09100.png
+            │   ├── sub-M235678_ses-20210415_cam-topdown_frame-15300.png
+            │   └── sub-M235678_ses-20210415_cam-topdown_framelabels.json
+            ├── Clips/
+            │   ├── sub-M235678_ses-20210415_cam-topdown_start-0500_dur-5.mp4
+            │   └── sub-M235678_ses-20210415_cam-topdown_start-0500_dur-5_cliplabels.json
+            └── sub-M235678_ses-20210415_cam-topdown.mp4
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Published</label><div class="sd-tab-content docutils">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── SWC-plusmaze/
@@ -679,6 +753,8 @@
             │   └── sub-M235678_ses-20210415_cam-topdown_start-0500_dur-5_startlabels.json
             └── sub-M235678_ses-20210415_cam-topdown.mp4
 </pre></div>
+</div>
+</div>
 </div>
 </section>
 </section>
