@@ -179,6 +179,7 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 * In the published dataset, the `Train` split includes all submitted labels. The `Test` split withholds frame labels and full clip labels to support evaluation; only clip start labels (`startlabels.json`), derived from the first frame of each clip's annotations, are published.
 * Labels *must* be stored in the same folder as the corresponding frames or clips.
 * Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
+* The `name` field in each `categories` entry *should* be the common English name of the species in lowercase (e.g. `"mouse"`, `"rat"`, `"zebrafish"`, `"macaque"`).
 
 :::{note}
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/) function and avoids conflicts with models that treat category `0` as background.
