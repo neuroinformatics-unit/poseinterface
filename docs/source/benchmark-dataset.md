@@ -184,6 +184,8 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 Annotation and category `id` values *should* be 1-indexed. This convention follows sleap-io's [`save_coco`](https://io.sleap.ai/latest/reference/sleap_io/io/coco/) function and avoids conflicts with models that treat category `0` as background.
 
 Image `id` values are always 0-indexed. The indexing origin differs for frame labels and clip labels, and clip start labels follow the same conventions as clip labels. Details are provided below.
+
+Complete examples of label files are available in the repository under [tests/data/Train](repo:tree/main/tests/data/Train).
 :::
 
 (target-framelabels)=
@@ -267,7 +269,7 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 
 ## Example
 
-Below is a concrete example:
+Below is a concrete example. A matching example dataset (with label files) is available in the repository under [tests/data/Train](repo:tree/main/tests/data/Train).
 
 :::: {tab-set}
 
