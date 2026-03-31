@@ -176,6 +176,10 @@ myst_url_schemes = {
     "https": None,
     "ftp": None,
     "mailto": None,
+    "repo": (
+        "https://github.com/neuroinformatics-unit/poseinterface/"
+        "{{path}}#{{fragment}}"
+    ),
     "github-docs": (
         "https://docs.github.com/en/"
         "{{path}}#{{fragment}}"
