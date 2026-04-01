@@ -1,8 +1,8 @@
-import json
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+import sleap_io as sio
 from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
@@ -11,13 +11,11 @@ from poseinterface.io import (
     REENCODING_PARAMS,
     _check_ffmpeg,
     _extract_frame_number,
-    _generate_poseinterface_filenames,
     _get_codec_pixelformat,
     _needs_reencoding,
-    _pad_integers_to_same_width,
     _reencode_video,
     _update_image_ids,
-    annotations_to_poseinterface,
+    annotations_to_coco,
     video_to_poseinterface,
 )
 
@@ -28,7 +26,6 @@ def test_annotations_to_coco(
     mock_load_file,
     mock_convert_labels,
     tmp_path,
-    test_ids,
 ):
     """Test that the relevant subfunctions are called."""
     # Mock return value of load_file
@@ -41,11 +38,7 @@ def test_annotations_to_coco(
     # Run function to test
     input_csv = tmp_path / "input.csv"
     output_path = tmp_path / "output.json"
-    result = annotations_to_poseinterface(
-        input_csv,
-        output_path,
-        **test_ids,
-    )
+    result = annotations_to_coco(input_csv, output_path)
 
     # Check subfunctions are all called
     mock_load_file.assert_called_once_with(input_csv)
@@ -86,7 +79,7 @@ def test_annotations_to_coco_invalid(
     with pytest.raises(
         ValueError, match=_EMPTY_LABELS_ERROR_MSG[error_message]
     ):
-        annotations_to_poseinterface(
+        annotations_to_coco(
             input_file,
             tmp_path / "output.json",
         )
@@ -111,7 +104,7 @@ def test_annotations_to_coco_not_single_video(
         ValueError,
         match=(r"The annotations refer to multiple videos.*Please check .*"),
     ):
-        annotations_to_poseinterface(
+        annotations_to_coco(
             tmp_path / "input.csv",
             tmp_path / "output.json",
         )
@@ -220,41 +213,6 @@ def test_extract_frame_number_invalid(filename, frame_regexp):
         _extract_frame_number(filename, frame_regexp)
 
 
-@pytest.mark.parametrize(
-    "input_file, include_file_extension, expected_json",
-    [
-        (lf("sleap_h5_file"), False, lf("sleap_h5_file_cliplabels_json")),
-        (
-            lf("dlc_multi_index_in_video_folder"),
-            True,
-            lf("dlc_multi_index_framelabels_json"),
-        ),
-    ],
-)
-def test_generate_poseinterface_filenames(
-    input_file, include_file_extension, expected_json, test_ids
-):
-    generated_filenames = _generate_poseinterface_filenames(
-        sio.load_file(input_file),
-        **test_ids,
-        include_file_extension=include_file_extension,
-    )
-    # Load expected filenames from labels JSON file
-    with open(expected_json) as f:
-        frames_data = json.load(f)
-    expected_frames_filenames = [
-        img["file_name"] for img in frames_data["images"]
-    ]
-    assert generated_filenames == expected_frames_filenames
-
-
-def test_pad_integers_to_same_width():
-    """Test that integers are padded to the same width with leading zeros."""
-    input = [0, 1, 10, 100]
-    expected = ["000", "001", "010", "100"]
-    assert _pad_integers_to_same_width(input) == expected
-
-
 # ---------- Video to poseinterface ----------------
 
 
@@ -272,7 +230,7 @@ def test_video_to_poseinterface(
     mock_copy,
     mock_reencode,
     video_needs_reencoding,
-    test_ids,
+    sub_ses_cam_ids,
     tmp_path,
 ):
     """Test that video is copied or reencoded with correct output path."""
@@ -286,7 +244,9 @@ def test_video_to_poseinterface(
 
     # Run conversion function
     output_video_path = video_to_poseinterface(
-        input_video, output_dir, **test_ids
+        input_video,
+        output_dir,
+        **sub_ses_cam_ids,
     )
 
     # Check output video path
