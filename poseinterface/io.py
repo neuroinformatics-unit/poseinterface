@@ -199,7 +199,7 @@ def _extract_frame_number(
 def predictions_to_poseinterface(
     predictions_path: Path | str,
     video_path: Path | str,
-    output_json_path: Path | str,
+    output_json_parent_dir: Path | str,
     *,
     sub_id: str,
     ses_id: str,
@@ -207,9 +207,8 @@ def predictions_to_poseinterface(
 ) -> Path:
     """Convert a prediction file to ``poseinterface`` COCO JSON format.
 
-    Reads a predictions file and writes a
-    COCO-format JSON with ``poseinterface``-style filenames suitable
-    for clip-level labels (``_cliplabels.json``).
+    Reads a predictions file and writes a JSON with ``poseinterface``-style
+    filenames suitable for clip-level labels (``_cliplabels.json``).
 
     Parameters
     ----------
@@ -218,8 +217,8 @@ def predictions_to_poseinterface(
     video_path
         Path to the corresponding video file.  Used to attach video
         metadata (resolution) to the COCO output.
-    output_json_path
-        Path to save the output COCO JSON file.
+    output_json_parent_dir
+        Path to the directory where to save the output JSON file.
     sub_id
         Subject ID to include in the generated filenames.
     ses_id
@@ -334,8 +333,11 @@ def predictions_to_poseinterface(
             annot_id += 1
 
     # Assemble and write COCO JSON
-    output_json_path = Path(output_json_path)
-    with open(output_json_path, "w") as f:
+    output_json_parent_dir = (
+        Path(output_json_parent_dir)
+        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.json"
+    )
+    with open(output_json_parent_dir, "w") as f:
         json.dump(
             {
                 "images": images,
@@ -345,7 +347,7 @@ def predictions_to_poseinterface(
             f,
         )
 
-    return output_json_path
+    return output_json_parent_dir
 
 
 def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
