@@ -4,8 +4,10 @@ import re
 from pathlib import Path
 from typing import Literal, TypeAlias
 
+import numpy as np
 import sleap_io as sio
-from movement.io import _build_suffix_map, _validate_file, load_dataset
+from movement.io import load_dataset
+from movement.io.load import _build_suffix_map, _validate_file
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
@@ -244,79 +246,109 @@ def predictions_to_poseinterface(
 
     # Get video image width and height
     video = sio.load_video(video_path)
-    img_h, img_w = video.shape
+    _, img_h, img_w, _ = video.shape
 
-    # Export movement dataset as cliplabels.json
-    # named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_cliplabels.json` with
-    # the following format:
-    # ```json
-    # {
-    # images = [
-    #   {"id": 0, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0000", "width": 1300, "height": 1028},
-    #   {"id": 1, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0001", "width": 1300, "height": 1028},
-    #   {"id": 2, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0002", "width": 1300, "height": 1028},
-    #   {"id": 3, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0003", "width": 1300, "height": 1028},
-    #   {"id": 4, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0004", "width": 1300, "height": 1028}
-    #  ],
-    # annotations = [
-    #  {
-    #   "id": 1,
-    #   "image_id": 0,
-    #   "category_id": 1,
-    #   "keypoints": [
-    #     922.9367676,
-    #     537.1152344,
-    #     2,
-    #     901.0643920898438,
-    #     555.0507813,
-    #     2,
-    #     947.4334106445312,
-    #     526.1047363,
-    #     2,
-    #     959.3913574,
-    #     589.8626708984375,
-    #     2,
-    #     939.0410766601562,
-    #     595.8991088867188,
-    #     2,
-    #     952.0695801,
-    #     613.3984985351562,
-    #     2,
-    #     836.614502,
-    #     472.44915771484375,
-    #     2,
-    #   ],
-    #   "num_keypoints": 7,
-    #   "bbox": [
-    #     836.614502,
-    #     472.44915771484375,
-    #     122.77685539999993,
-    #     140.9493408203125
-    #   ],
-    #   "area": 17305.316836620816,
-    #   "iscrowd": 0
-    # },
-    # ],
-    # categories = [
-    #    {
-    #     "id": 1,
-    #     "name": "individual_1",
-    #     "keypoints": [
-    #         "Nose",
-    #         "EarLeft",
-    #         "EarRight",
-    #         "Neck",
-    #         "BodyUpper",
-    #         "BodyLower",
-    #         "TailBase",
-    #     ],
-    #     "skeleton": []
-    #     }
-    # ],
-    # ```
+    # Extract position array and coordinates from dataset
+    positions = ds["position"].values  # (time, space, keypoints, individuals)
+    n_frames = positions.shape[0]
+
+    keypoint_names = ds.coords["keypoints"].values.tolist()
+    individual_names = ds.coords["individuals"].values.tolist()
+
+    # Build categories list (one entry per individual)
+    # NOTE: categories are 1-indexed to avoid conflicts
+    # with models that treat category 0 as background.
+    categories = [
+        {
+            "id": i + 1,
+            "name": name,
+            "keypoints": keypoint_names,
+            "skeleton": [],
+        }
+        for i, name in enumerate(individual_names)
+    ]
+
+    # Build images list (one entry per frame)
+    # NOTE: image id values are always 0-indexed
+    images = [
+        {
+            "id": t,
+            "file_name": (
+                f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{t:04d}"
+            ),
+            "width": img_w,
+            "height": img_h,
+        }
+        for t in range(n_frames)
+    ]
+
+    # Build annotations list (one entry per frame per individual)
+    annotations = []
+    annot_id = 1
+    for t in range(n_frames):
+        for i in range(len(individual_names)):
+            # Get position data for this frame and individual
+            xy = positions[t, :, :, i]  # (2, n_keypoints)
+
+            # Determine kpt visibility:
+            # 0: not labeled
+            # 1: labeled but not visible (occluded)
+            # 2: labeled and visible
+            # NOTE: The current code only assigns 0 or 2 because the movement
+            # dataset doesn't carry occlusion information
+            visible_array = ~np.isnan(xy[0]) & ~np.isnan(xy[1])
+            n_visible = int(visible_array.sum())
+
+            # Get list of flattened keypoints
+            # [x1, y1, v1, x2, y2, v2, ...]
+            x = np.where(visible_array, xy[0], 0.0)
+            y = np.where(visible_array, xy[1], 0.0)
+            v = np.where(visible_array, 2, 0)
+            list_xyv_kpts = np.stack([x, y, v], axis=1).ravel().tolist()
+
+            # Compute bbox from visible keypoints
+            # (zeros if no keypoints are visible)
+            if n_visible > 0:
+                x_visible = xy[0, visible_array]
+                y_visible = xy[1, visible_array]
+                x_min = float(x_visible.min())
+                y_min = float(y_visible.min())
+                bbox_w = float(x_visible.max()) - x_min
+                bbox_h = float(y_visible.max()) - y_min
+            else:
+                x_min, y_min, bbox_w, bbox_h = 0.0, 0.0, 0.0, 0.0
+
+            # Append results to list of annotations
+            annotations.append(
+                {
+                    "id": annot_id,
+                    "image_id": t,
+                    "category_id": i + 1,
+                    "keypoints": list_xyv_kpts,
+                    "num_keypoints": n_visible,
+                    "bbox": [x_min, y_min, bbox_w, bbox_h],
+                    "area": bbox_w * bbox_h,
+                    "iscrowd": 0,
+                }
+            )
+            annot_id += 1
+
+    # Assemble and write COCO JSON
+    output_json_path = Path(output_json_path)
+    with open(output_json_path, "w") as f:
+        json.dump(
+            {
+                "images": images,
+                "annotations": annotations,
+                "categories": categories,
+            },
+            f,
+        )
+
+    return output_json_path
 
 
-def _guess_source_software(file: Path | str) -> SourceSoftware:
+def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
     """Guess the source software based on file validation.
 
     Tries each known file validator against the given file and returns
