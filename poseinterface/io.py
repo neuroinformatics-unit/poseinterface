@@ -49,7 +49,7 @@ def annotations_to_coco(
     cam_id
         Camera ID to include in the generated filenames.
     mode
-        Whether to generate framelabels.json or cliplabels.json.
+        Whether to generate framelabels.json, cliplabels.json, or startlabels.json.
         If "frame", the image filenames will include the file
         extension of frame files. If "clip", the image filenames
         will not include the file extension as these frame files
@@ -59,7 +59,7 @@ def annotations_to_coco(
     Returns
     -------
     Path
-        Path to the saved COCO JSON file.
+        Path to the saved ``poseinterface`` COCO JSON file. 
 
     Raises
     ------
