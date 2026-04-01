@@ -224,7 +224,7 @@ def _generate_poseinterface_filenames(
     cam_id: str,
     include_file_extension: bool = False,
 ) -> list[str]:
-    """Generate PoseInterface image filenames an input annotations file.
+    """Generate PoseInterface image filenames for frames in the input labels.
 
     The generated filenames are in the format:
     {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
