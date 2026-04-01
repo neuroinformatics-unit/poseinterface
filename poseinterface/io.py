@@ -27,12 +27,12 @@ POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
 
 def annotations_to_poseinterface(
     input_path: Path,
-    output_json_path: Path,
+    output_dir: Path,
     *,
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    format: Literal["clip", "frame"] = "frame",
+    format: Literal["clip", "frame", "start"] = "frame",
 ) -> Path:
     """Export annotations file from a single video to ``poseinterface`` format.
 
@@ -40,8 +40,9 @@ def annotations_to_poseinterface(
     ----------
     input_path
         Path to the input annotations file.
-    output_json_path
-        Path to save the output ``poseinterface`` COCO JSON file.
+    output_dir
+        Directory where the output ``poseinterface`` COCO JSON file
+        will be saved.
     sub_id
         Subject ID to include in the generated filenames.
     ses_id
@@ -49,8 +50,8 @@ def annotations_to_poseinterface(
     cam_id
         Camera ID to include in the generated filenames.
     format
-        Whether to generate framelabels.json, cliplabels.json, or
-        startlabels.json.
+        Whether to generate ``framelabels.json``, ``cliplabels.json``,
+        or ``startlabels.json``.
         If "frame", the image filenames will include the file
         extension of frame files. If "clip", the image filenames
         will not include the file extension as these frame files
@@ -59,7 +60,7 @@ def annotations_to_poseinterface(
 
     Returns
     -------
-    Path
+    pathlib.Path
         Path to the saved ``poseinterface`` COCO JSON file.
 
     Raises
@@ -85,7 +86,10 @@ def annotations_to_poseinterface(
     >>> from poseinterface.io import annotations_to_poseinterface
     >>> coco_json_path = annotations_to_poseinterface(
     ...     input_path=Path("path/to/annotations.slp"),
-    ...     output_json_path=Path("path/to/annotations_coco.json"),
+    ...     output_dir=Path("path/to/output_directory"),
+    ...     sub_id="testSub123",
+    ...     ses_id="testSes123",
+    ...     cam_id="testCam123",
     ... )
     """
     labels = sio.load_file(input_path)
@@ -114,8 +118,17 @@ def annotations_to_poseinterface(
     )
     # Generate COCO dict
     coco_data = coco.convert_labels(labels, image_filenames=image_filenames)
-    # Update image IDs in coco_data to match the frame IDs in the filenames
+    # Update image IDs in coco_data to match the frame numbers in the filenames
     coco_data = _update_image_ids(coco_data)
+
+    output_json_path = _build_output_json_path(
+        output_dir=output_dir,
+        coco_data=coco_data,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        format=format,
+    )
 
     with open(output_json_path, "w") as f:
         json.dump(coco_data, f)
@@ -123,10 +136,41 @@ def annotations_to_poseinterface(
     return output_json_path
 
 
-def _update_image_ids(input_data: dict) -> dict:
-    """Assigns new image IDs based on the frame number in the filename."""
+def _build_output_json_path(
+    *,
+    output_dir: Path,
+    coco_data: dict,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    format: Literal["clip", "frame", "start"],
+) -> Path:
+    """Build output JSON path using poseinterface naming conventions."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}"
+
+    if format == "frame":
+        return output_dir / f"{prefix}_framelabels.json"
+
+    label_suffix = "cliplabels" if format == "clip" else "startlabels"
+    image_ids = [img["id"] for img in coco_data["images"]]
+    if len(image_ids) == 0:
+        raise ValueError(
+            "No image IDs were found in the COCO data. "
+            f"Cannot infer start frame and duration for {label_suffix} format."
+        )
+    start_frame = min(image_ids)
+    n_frames = len(image_ids)
+    return (
+        output_dir
+        / f"{prefix}_start-{start_frame}_dur-{n_frames}_{label_suffix}.json"
+    )
+
+
+def _update_image_ids(coco_data: dict) -> dict:
+    """Assign new image IDs based on the frame number in the filename."""
     # Create new dict
-    data = copy.deepcopy(input_data)
+    data = copy.deepcopy(coco_data)
 
     # Build map old-to-new image IDs and update image id in images list
     old_to_new_id = {}

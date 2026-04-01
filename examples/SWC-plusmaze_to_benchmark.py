@@ -13,6 +13,8 @@ organised in the pose benchmarks dataset structure.
 import shutil
 from pathlib import Path
 
+from poseinterface.io import annotations_to_poseinterface
+
 # %%
 # Background
 # ----------
@@ -91,23 +93,21 @@ source_annotations_path = source_labels_dir / "CollectedData_Loukia.csv"
 target_frames_dir = target_session_dir / "Frames"
 target_frames_dir.mkdir(parents=True, exist_ok=True)
 
-# Save COCO annotations inside the Frames directory
-target_annotations_path = target_frames_dir / f"{video_id}_framelabels.json"
-
 # %%
 # Convert DLC annotations to COCO format
 # --------------------------------------
-# Here we use the :func:`annotations_to_poseinterface` function from `poseinterface.io`
+# Here we use the :func:`annotations_to_poseinterface`
+# function from `poseinterface.io`
 # which wraps around `sleap_io` functionality to perform the conversion.
 
-annotations_to_poseinterface(
+output_annotations_path = annotations_to_poseinterface(
     input_path=source_annotations_path,
-    output_json_path=target_annotations_path,
+    output_dir=target_frames_dir,
     sub_id=subject_id,
     ses_id=session_id,
     cam_id=view_id,
 )
-print(f"Saved COCO annotations to: {target_annotations_path}")
+print(f"Saved COCO annotations to: {output_annotations_path}")
 
 # %%
 # Copy labeled frames to target directory
