@@ -42,7 +42,7 @@ REENCODING_PARAMS = {
 }
 
 
-def annotations_to_poseinterface(
+def annotations_to_coco(
     input_path: Path,
     output_json_path: Path,
     *,
