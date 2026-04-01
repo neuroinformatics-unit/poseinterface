@@ -60,7 +60,7 @@ docs = [
 ]
 
 [project.scripts]
-extract-clip = "poseinterface.video:wrapper"
+extract-clip = "poseinterface.clips:wrapper"
 
 [build-system]
 requires = [
