@@ -50,13 +50,9 @@ def annotations_to_poseinterface(
     cam_id
         Camera ID to include in the generated filenames.
     format
-        Whether to generate ``framelabels.json``, ``cliplabels.json``,
-        or ``startlabels.json``.
-        If "frame", the image filenames will include the file
-        extension of frame files. If "clip", the image filenames
-        will not include the file extension as these frame files
-        may not exist (e.g. if the frames files have not been
-        extracted from the clip).
+        Whether to generate :ref:`frame labels<target-framelabels>`,
+        :ref:`clip labels<target-cliplabels>`, or :ref:`clip start labels\
+        <target-startlabels>`. Default is "frame".
 
     Returns
     -------
@@ -77,6 +73,9 @@ def annotations_to_poseinterface(
 
     See Also
     --------
+    sleap_io.io.main.load_file
+        The underlying function used to load the input annotations file as
+        a SLEAP labels object.
     sleap_io.io.coco.convert_labels
         The underlying function used to convert SLEAP labels to COCO format.
 
@@ -234,8 +233,8 @@ def _generate_poseinterface_filenames(
 
     Parameters
     ----------
-    input_path
-        Path to the input annotations file.
+    labels
+        SLEAP labels object containing the annotations and video information.
     sub_id
         Subject ID to include in the generated filenames.
     ses_id
@@ -256,6 +255,13 @@ def _generate_poseinterface_filenames(
     ------
     ValueError
         If no labeled frames could be extracted from the input file.
+
+    Notes
+    -----
+    When the SLEAP labels video object is a video file, per-frame file
+    extensions are not available. Therefore, when ``include_file_extension``
+    is True, the generated filenames assume a ``.png`` extension.
+
     """
     video_filenames = labels.videos[0].filename
     if isinstance(video_filenames, list):  # Sequence of frame images
