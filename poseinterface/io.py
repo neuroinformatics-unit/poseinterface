@@ -23,6 +23,7 @@ _EMPTY_LABELS_ERROR_MSG = {
 }
 
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
+DLC_FRAME_REGEXP = r"(\d+)"
 
 
 def annotations_to_poseinterface(
@@ -266,7 +267,7 @@ def _generate_poseinterface_filenames(
     video_filenames = labels.videos[0].filename
     if isinstance(video_filenames, list):  # Sequence of frame images
         frame_numbers = [
-            _extract_frame_number(Path(fn).stem, frame_regexp=r"(\d+)")
+            _extract_frame_number(Path(fn).stem, frame_regexp=DLC_FRAME_REGEXP)
             for fn in video_filenames
         ]
         file_extensions = (
