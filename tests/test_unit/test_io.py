@@ -12,13 +12,13 @@ from poseinterface.io import (
     _generate_poseinterface_filenames,
     _pad_integers_to_same_width,
     _update_image_ids,
-    annotations_to_coco,
+    annotations_to_poseinterface,
 )
 
 
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
-def test_annotations_to_coco(
+def test_annotations_to_poseinterface(
     mock_load_file,
     mock_convert_labels,
     tmp_path,
@@ -35,7 +35,7 @@ def test_annotations_to_coco(
     # Run function to test
     input_csv = tmp_path / "input.csv"
     output_path = tmp_path / "output.json"
-    result = annotations_to_coco(
+    result = annotations_to_poseinterface(
         input_csv,
         output_path,
         **test_ids,
@@ -65,7 +65,7 @@ def test_annotations_to_coco(
         (lf("dlc_multi_index_in_project_root"), "dlc"),
     ],
 )
-def test_annotations_to_coco_invalid(
+def test_annotations_to_poseinterface_invalid(
     mock_load_file,
     mock_is_dlc_file,
     input_file,
@@ -83,7 +83,7 @@ def test_annotations_to_coco_invalid(
     with pytest.raises(
         ValueError, match=_EMPTY_LABELS_ERROR_MSG[error_message]
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             input_file,
             tmp_path / "output.json",
             **test_ids,
@@ -94,7 +94,7 @@ def test_annotations_to_coco_invalid(
 
 
 @patch("poseinterface.io.sio.load_file")
-def test_annotations_to_coco_not_single_video(
+def test_annotations_to_poseinterface_not_single_video(
     mock_load_file,
     tmp_path,
     test_ids,
@@ -111,7 +111,7 @@ def test_annotations_to_coco_not_single_video(
         ValueError,
         match=(r"The annotations refer to multiple videos.*Please check .*"),
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             tmp_path / "input.csv",
             tmp_path / "output.json",
             **test_ids,
