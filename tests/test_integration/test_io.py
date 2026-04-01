@@ -16,8 +16,11 @@ def test_annotations_to_poseinterface(input_path, tmp_path, test_ids, request):
     """Test that annotations in different project structures are converted."""
 
     input_path = request.getfixturevalue(input_path)
-    output_json_path = tmp_path / "output.json"
+    output_json_path = (
+        tmp_path
+        / "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json"
+    )
 
-    annotations_to_poseinterface(input_path, output_json_path, **test_ids)
+    annotations_to_poseinterface(input_path, tmp_path, **test_ids)
 
     assert output_json_path.exists()

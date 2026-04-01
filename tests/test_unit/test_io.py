@@ -1,4 +1,5 @@
 import json
+from contextlib import nullcontext
 from unittest.mock import Mock, patch
 
 import pytest
@@ -8,6 +9,7 @@ from pytest_lazy_fixtures import lf
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
     POSEINTERFACE_FRAME_REGEXP,
+    _build_output_json_path,
     _extract_frame_number,
     _generate_poseinterface_filenames,
     _pad_integers_to_same_width,
@@ -18,41 +20,70 @@ from poseinterface.io import (
 
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
+@pytest.mark.parametrize(
+    "format, output_filename, image_filename",
+    [
+        (
+            "frame",
+            "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json",
+            "sub-testSub123_ses-testSes123_cam-testCam123_frame-3.png",
+        ),
+        (
+            "clip",
+            "sub-testSub123_ses-testSes123_cam-testCam123_"
+            "start-3_dur-1_cliplabels.json",
+            "sub-testSub123_ses-testSes123_cam-testCam123_frame-3",
+        ),
+    ],
+)
 def test_annotations_to_poseinterface(
     mock_load_file,
     mock_convert_labels,
+    format,
+    output_filename,
+    image_filename,
     tmp_path,
     test_ids,
 ):
-    """Test that the relevant subfunctions are called."""
-    # Mock return value of load_file
+    """Test that annotations are converted and saved to the expected location
+    and with the expected content."""
     mock_labels = mock_load_file.return_value
-    # Create mock labeled frames with single mock frame (frame_idx=0)
-    mock_labels.labeled_frames = [Mock(frame_idx=0)]
-    # Mock return value of convert_labels
-    mock_convert_labels.return_value = {"images": [], "annotations": []}
+    mock_labels.labeled_frames = [Mock(frame_idx=3)]
+    mock_labels.videos = [Mock(filename="dummy.mp4")]
+    mock_convert_labels.return_value = {
+        "images": [
+            {
+                "id": 0,
+                "file_name": image_filename,
+            }
+        ],
+        "annotations": [{"id": 1, "image_id": 0}],
+    }
 
-    # Run function to test
     input_csv = tmp_path / "input.csv"
-    output_path = tmp_path / "output.json"
+    output_path = tmp_path / output_filename
     result = annotations_to_poseinterface(
         input_csv,
-        output_path,
+        tmp_path,
+        format=format,
         **test_ids,
     )
 
-    # Check subfunctions are all called
-    mock_load_file.assert_called_once_with(input_csv)
-    mock_convert_labels.assert_called_once_with(
-        mock_labels,
-        image_filenames=[
-            "sub-testSub123_ses-testSes123_cam-testCam123_frame-0.png"
-        ],
-    )
-
-    # Check output file path is as expected
     assert result == output_path
     assert output_path.exists()
+
+    with open(output_path) as f:
+        saved_data = json.load(f)
+
+    assert saved_data == {
+        "images": [
+            {
+                "id": 3,
+                "file_name": image_filename,
+            }
+        ],
+        "annotations": [{"id": 1, "image_id": 3}],
+    }
 
 
 @patch("poseinterface.io.sio.load_file")
@@ -85,7 +116,7 @@ def test_annotations_to_poseinterface_invalid(
     ):
         annotations_to_poseinterface(
             input_file,
-            tmp_path / "output.json",
+            tmp_path,
             **test_ids,
         )
 
@@ -113,9 +144,62 @@ def test_annotations_to_poseinterface_not_single_video(
     ):
         annotations_to_poseinterface(
             tmp_path / "input.csv",
-            tmp_path / "output.json",
+            tmp_path,
             **test_ids,
         )
+
+
+@pytest.mark.parametrize(
+    "format, frame_idxs, expected_context",
+    [
+        (
+            "frame",
+            [1000, 1001, 1004],
+            nullcontext("sub-a_ses-b_cam-c_framelabels.json"),
+        ),
+        (
+            "clip",
+            [1000, 1001, 1004],
+            nullcontext("sub-a_ses-b_cam-c_start-1000_dur-3_cliplabels.json"),
+        ),
+        (
+            "start",
+            [100, 101],
+            nullcontext("sub-a_ses-b_cam-c_start-100_dur-2_startlabels.json"),
+        ),
+        (
+            "clip",
+            [],
+            pytest.raises(ValueError, match="No image IDs were found"),
+        ),
+    ],
+)
+def test_build_output_json_path(
+    format, frame_idxs, expected_context, tmp_path
+):
+    """Test output JSON filename conventions for all formats."""
+    coco_data = {
+        "images": [
+            {
+                "id": frame_idx,
+                "file_name": f"sub-a_ses-b_cam-c_frame-{frame_idx:05d}.png",
+            }
+            for frame_idx in frame_idxs
+        ],
+        "annotations": [],
+    }
+    with expected_context as expected_filename:
+        output_path = _build_output_json_path(
+            output_dir=tmp_path / "nested" / "out",
+            coco_data=coco_data,
+            sub_id="a",
+            ses_id="b",
+            cam_id="c",
+            format=format,
+        )
+
+        assert output_path == tmp_path / "nested" / "out" / expected_filename
+        assert output_path.parent.exists()
 
 
 def test_update_image_ids():
