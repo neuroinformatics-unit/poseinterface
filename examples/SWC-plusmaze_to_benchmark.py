@@ -13,8 +13,6 @@ organised in the pose benchmarks dataset structure.
 import shutil
 from pathlib import Path
 
-from poseinterface.io import annotations_to_coco
-
 # %%
 # Background
 # ----------
@@ -99,10 +97,10 @@ target_annotations_path = target_frames_dir / f"{video_id}_framelabels.json"
 # %%
 # Convert DLC annotations to COCO format
 # --------------------------------------
-# Here we use the :func:`annotations_to_coco` function from `poseinterface.io`
+# Here we use the :func:`annotations_to_poseinterface` function from `poseinterface.io`
 # which wraps around `sleap_io` functionality to perform the conversion.
 
-annotations_to_coco(
+annotations_to_poseinterface(
     input_path=source_annotations_path,
     output_json_path=target_annotations_path,
     sub_id=subject_id,

@@ -25,7 +25,7 @@ _EMPTY_LABELS_ERROR_MSG = {
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
 
 
-def annotations_to_coco(
+def annotations_to_poseinterface(
     input_path: Path,
     output_json_path: Path,
     *,
@@ -59,7 +59,7 @@ def annotations_to_coco(
     Returns
     -------
     Path
-        Path to the saved ``poseinterface`` COCO JSON file. 
+        Path to the saved ``poseinterface`` COCO JSON file.
 
     Raises
     ------
@@ -81,8 +81,8 @@ def annotations_to_coco(
     Example
     -------
     >>> from pathlib import Path
-    >>> from poseinterface.io import annotations_to_coco
-    >>> coco_json_path = annotations_to_coco(
+    >>> from poseinterface.io import annotations_to_poseinterface
+    >>> coco_json_path = annotations_to_poseinterface(
     ...     input_path=Path("path/to/annotations.slp"),
     ...     output_json_path=Path("path/to/annotations_coco.json"),
     ... )
