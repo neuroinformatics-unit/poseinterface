@@ -12,6 +12,7 @@ dynamic = ["version"]
 
 dependencies = [
   "sleap-io>=0.6.4",
+  "movement"
 ]
 
 license = {text = "BSD-3-Clause"}

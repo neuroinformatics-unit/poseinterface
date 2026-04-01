@@ -2,8 +2,20 @@ import copy
 import json
 import re
 from pathlib import Path
+from typing import Literal, TypeAlias
 
 import sleap_io as sio
+from movement.io import _build_suffix_map, _validate_file, load_dataset
+from movement.validators.files import (
+    ValidAniposeCSV,
+    ValidDeepLabCutCSV,
+    ValidDeepLabCutH5,
+    ValidFile,
+    ValidNWBFile,
+    ValidSleapAnalysis,
+    ValidSleapLabels,
+    ValidVIATracksCSV,
+)
 from sleap_io.io import coco
 from sleap_io.io.dlc import is_dlc_file
 
@@ -22,6 +34,28 @@ _EMPTY_LABELS_ERROR_MSG = {
 }
 
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
+
+
+# Guessing source software for movement
+SourceSoftware: TypeAlias = Literal[
+    "DeepLabCut",
+    "SLEAP",
+    "LightningPose",
+    "Anipose",
+    "NWB",
+    "VIA-tracks",
+]
+
+_SOURCE_SOFTWARE_VALIDATORS: dict[SourceSoftware, list[type[ValidFile]]] = {
+    "SLEAP": [ValidSleapLabels, ValidSleapAnalysis],
+    "DeepLabCut": [ValidDeepLabCutH5, ValidDeepLabCutCSV],
+    "Anipose": [ValidAniposeCSV],
+    "VIA-tracks": [ValidVIATracksCSV],
+    "NWB": [ValidNWBFile],
+}
+# Note: LightningPose is excluded because it uses the same file
+# format (and validator) as DeepLabCut. A LightningPose file
+# loaded as "DeepLabCut" will work correctly.
 
 
 def annotations_to_coco(
@@ -158,3 +192,172 @@ def _extract_frame_number(
             rf"'{frame_regexp}'."
         )
     return int(match.group(1))
+
+
+def predictions_to_poseinterface(
+    predictions_path: Path | str,
+    video_path: Path | str,
+    output_json_path: Path | str,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+) -> Path:
+    """Convert a prediction file to ``poseinterface`` COCO JSON format.
+
+    Reads a predictions file and writes a
+    COCO-format JSON with ``poseinterface``-style filenames suitable
+    for clip-level labels (``_cliplabels.json``).
+
+    Parameters
+    ----------
+    predictions_path
+        Path to the DLC predictions CSV file.
+    video_path
+        Path to the corresponding video file.  Used to attach video
+        metadata (resolution) to the COCO output.
+    output_json_path
+        Path to save the output COCO JSON file.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+
+    Returns
+    -------
+    Path
+        Path to the saved COCO JSON file.
+    """
+    # Guess source software using movement validators
+    # (take first guess)
+    source_software = _guess_source_software(predictions_path)[0]
+
+    # Read input file as movement dataset
+    # NOTE: fps=None is ignore with NWB files
+    ds = load_dataset(
+        file=predictions_path,
+        source_software=source_software,
+        fps=None,
+    )
+
+    # Get video image width and height
+    video = sio.load_video(video_path)
+    img_h, img_w = video.shape
+
+    # Export movement dataset as cliplabels.json
+    # named `sub-<subjectID>_ses-<sessionID>_cam-<camID>_cliplabels.json` with
+    # the following format:
+    # ```json
+    # {
+    # images = [
+    #   {"id": 0, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0000", "width": 1300, "height": 1028},
+    #   {"id": 1, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0001", "width": 1300, "height": 1028},
+    #   {"id": 2, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0002", "width": 1300, "height": 1028},
+    #   {"id": 3, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0003", "width": 1300, "height": 1028},
+    #   {"id": 4, "file_name": f"sub-{sub}_ses-{ses}_cam-{cam}_frame-0004", "width": 1300, "height": 1028}
+    #  ],
+    # annotations = [
+    #  {
+    #   "id": 1,
+    #   "image_id": 0,
+    #   "category_id": 1,
+    #   "keypoints": [
+    #     922.9367676,
+    #     537.1152344,
+    #     2,
+    #     901.0643920898438,
+    #     555.0507813,
+    #     2,
+    #     947.4334106445312,
+    #     526.1047363,
+    #     2,
+    #     959.3913574,
+    #     589.8626708984375,
+    #     2,
+    #     939.0410766601562,
+    #     595.8991088867188,
+    #     2,
+    #     952.0695801,
+    #     613.3984985351562,
+    #     2,
+    #     836.614502,
+    #     472.44915771484375,
+    #     2,
+    #   ],
+    #   "num_keypoints": 7,
+    #   "bbox": [
+    #     836.614502,
+    #     472.44915771484375,
+    #     122.77685539999993,
+    #     140.9493408203125
+    #   ],
+    #   "area": 17305.316836620816,
+    #   "iscrowd": 0
+    # },
+    # ],
+    # categories = [
+    #    {
+    #     "id": 1,
+    #     "name": "individual_1",
+    #     "keypoints": [
+    #         "Nose",
+    #         "EarLeft",
+    #         "EarRight",
+    #         "Neck",
+    #         "BodyUpper",
+    #         "BodyLower",
+    #         "TailBase",
+    #     ],
+    #     "skeleton": []
+    #     }
+    # ],
+    # ```
+
+
+def _guess_source_software(file: Path | str) -> SourceSoftware:
+    """Guess the source software based on file validation.
+
+    Tries each known file validator against the given file and returns
+    the source software names whose validators accept the file.
+
+    Parameters
+    ----------
+    file
+        Path to the file to identify.
+
+    Returns
+    -------
+    list[SourceSoftware]
+        List of source software names whose validators matched.
+
+    Examples
+    --------
+    >>> from movement.io.load import guess_source_software
+    >>> guess_source_software("path/to/predictions.h5")
+    ['DeepLabCut']
+
+    """
+    file = Path(file)
+    suffix = file.suffix
+    matches: list[SourceSoftware] = []
+
+    for (
+        source_software,
+        validator_classes,
+    ) in _SOURCE_SOFTWARE_VALIDATORS.items():
+        map_suffix_to_validators = _build_suffix_map(validator_classes)
+        # If input suffix not associated to this set of validators, continue
+        if suffix not in map_suffix_to_validators:
+            continue
+
+        # If suffix is covered by these validators, use them to
+        # validate the input file
+        try:
+            _validate_file(file, map_suffix_to_validators, source_software)
+            matches.append(source_software)
+        except Exception:
+            continue
+
+    return matches
