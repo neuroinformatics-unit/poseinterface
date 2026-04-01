@@ -43,7 +43,7 @@ def test_annotations_to_poseinterface(
     output_filename,
     image_filename,
     tmp_path,
-    test_ids,
+    sub_ses_cam_ids,
 ):
     """Test that annotations are converted and saved to the expected location
     and with the expected content."""
@@ -66,7 +66,7 @@ def test_annotations_to_poseinterface(
         input_csv,
         tmp_path,
         format=format,
-        **test_ids,
+        **sub_ses_cam_ids,
     )
 
     assert result == output_path
@@ -102,7 +102,7 @@ def test_annotations_to_poseinterface_invalid(
     input_file,
     error_message,
     tmp_path,
-    test_ids,
+    sub_ses_cam_ids,
 ):
     # Mock return value of load_file to have empty
     # labeled frames
@@ -117,7 +117,7 @@ def test_annotations_to_poseinterface_invalid(
         annotations_to_poseinterface(
             input_file,
             tmp_path,
-            **test_ids,
+            **sub_ses_cam_ids,
         )
 
     # Check is_dlc_file was called
@@ -128,7 +128,7 @@ def test_annotations_to_poseinterface_invalid(
 def test_annotations_to_poseinterface_not_single_video(
     mock_load_file,
     tmp_path,
-    test_ids,
+    sub_ses_cam_ids,
 ):
     """Test that error is raised when labels object contains >1 videos."""
     # Mock return value of load_file
@@ -145,7 +145,7 @@ def test_annotations_to_poseinterface_not_single_video(
         annotations_to_poseinterface(
             tmp_path / "input.csv",
             tmp_path,
-            **test_ids,
+            **sub_ses_cam_ids,
         )
 
 
@@ -317,11 +317,11 @@ def test_extract_frame_number_invalid(filename, frame_regexp):
     ],
 )
 def test_generate_poseinterface_filenames(
-    input_file, include_file_extension, expected_json, test_ids
+    input_file, include_file_extension, expected_json, sub_ses_cam_ids
 ):
     generated_filenames = _generate_poseinterface_filenames(
         sio.load_file(input_file),
-        **test_ids,
+        **sub_ses_cam_ids,
         include_file_extension=include_file_extension,
     )
     # Load expected filenames from labels JSON file
