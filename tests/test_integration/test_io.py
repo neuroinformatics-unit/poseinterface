@@ -12,7 +12,9 @@ from poseinterface.io import annotations_to_poseinterface
         "dlc_multi_index_in_project_root",
     ],
 )
-def test_annotations_to_poseinterface(input_path, tmp_path, test_ids, request):
+def test_annotations_to_poseinterface(
+    input_path, tmp_path, sub_ses_cam_ids, request
+):
     """Test that annotations in different project structures are converted."""
 
     input_path = request.getfixturevalue(input_path)
@@ -21,6 +23,6 @@ def test_annotations_to_poseinterface(input_path, tmp_path, test_ids, request):
         / "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json"
     )
 
-    annotations_to_poseinterface(input_path, tmp_path, **test_ids)
+    annotations_to_poseinterface(input_path, tmp_path, **sub_ses_cam_ids)
 
     assert output_json_path.exists()

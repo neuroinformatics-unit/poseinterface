@@ -13,7 +13,7 @@ TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
 
 
 @pytest.fixture
-def test_ids():
+def sub_ses_cam_ids():
     """Test subject, session, and camera IDs."""
     return {
         "sub_id": "testSub123",
