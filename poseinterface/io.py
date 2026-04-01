@@ -2,11 +2,13 @@ import copy
 import json
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypeAlias
 
 import sleap_io as sio
 from sleap_io.io import coco
 from sleap_io.io.dlc import is_dlc_file
+
+PoseInterfaceFormat: TypeAlias = Literal["clip", "frame", "start"]
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
@@ -21,7 +23,6 @@ _EMPTY_LABELS_ERROR_MSG = {
         "and that the frames files exist."
     ),
 }
-
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
 DLC_FRAME_REGEXP = r"(\d+)"
 
@@ -33,7 +34,7 @@ def annotations_to_poseinterface(
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    format: Literal["clip", "frame", "start"] = "frame",
+    format: PoseInterfaceFormat = "frame",
 ) -> Path:
     """Export annotations file from a single video to ``poseinterface`` format.
 
@@ -143,7 +144,7 @@ def _build_output_json_path(
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    format: Literal["clip", "frame", "start"],
+    format: PoseInterfaceFormat,
 ) -> Path:
     """Build output JSON path using poseinterface naming conventions."""
     output_dir.mkdir(parents=True, exist_ok=True)
