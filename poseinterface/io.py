@@ -6,6 +6,7 @@ from typing import Literal, TypeAlias
 
 import numpy as np
 import sleap_io as sio
+import xarray as xr
 from movement.io import load_dataset
 from movement.io.load import _build_suffix_map, _validate_file
 from movement.validators.files import (
@@ -247,6 +248,84 @@ def predictions_to_poseinterface(
     video = sio.load_video(video_path)
     _, img_h, img_w, _ = video.shape
 
+    # Convert movement dataset to cliplabels dict
+    coco_data = _convert_movement_ds_to_cliplabels(
+        ds,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        img_h=img_h,
+        img_w=img_w,
+    )
+
+    # Export dict as JSON
+    output_json_parent_dir = (
+        Path(output_json_parent_dir)
+        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.json"
+    )
+    with open(output_json_parent_dir, "w") as f:
+        json.dump(coco_data, f)
+
+    return output_json_parent_dir
+
+
+def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
+    """Guess the source software based on file validation.
+
+    Tries each known file validator against the given file and returns
+    the source software names whose validators accept the file.
+
+    Parameters
+    ----------
+    file
+        Path to the file to identify.
+
+    Returns
+    -------
+    list[SourceSoftware]
+        List of source software names whose validators matched.
+
+    Examples
+    --------
+    >>> from movement.io.load import guess_source_software
+    >>> guess_source_software("path/to/predictions.h5")
+    ['DeepLabCut']
+
+    """
+    file = Path(file)
+    suffix = file.suffix
+    matches: list[SourceSoftware] = []
+
+    for (
+        source_software,
+        validator_classes,
+    ) in _SOURCE_SOFTWARE_VALIDATORS.items():
+        map_suffix_to_validators = _build_suffix_map(validator_classes)
+        # If input suffix not associated to this set of validators, continue
+        if suffix not in map_suffix_to_validators:
+            continue
+
+        # If suffix is covered by these validators, use them to
+        # validate the input file
+        try:
+            _validate_file(file, map_suffix_to_validators, source_software)
+            matches.append(source_software)
+        except Exception:
+            continue
+
+    return matches
+
+
+def _convert_movement_ds_to_cliplabels(
+    ds: xr.Dataset,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    img_w: int,
+    img_h: int,
+) -> dict[str, list[dict]]:
+    """Convert predictions in movement dataset to cliplabels.json"""
     # Extract position array and coordinates from dataset
     positions = ds["position"].values  # (time, space, keypoints, individuals)
     n_frames = positions.shape[0]
@@ -332,66 +411,8 @@ def predictions_to_poseinterface(
             )
             annot_id += 1
 
-    # Assemble and write COCO JSON
-    output_json_parent_dir = (
-        Path(output_json_parent_dir)
-        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.json"
-    )
-    with open(output_json_parent_dir, "w") as f:
-        json.dump(
-            {
-                "images": images,
-                "annotations": annotations,
-                "categories": categories,
-            },
-            f,
-        )
-
-    return output_json_parent_dir
-
-
-def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
-    """Guess the source software based on file validation.
-
-    Tries each known file validator against the given file and returns
-    the source software names whose validators accept the file.
-
-    Parameters
-    ----------
-    file
-        Path to the file to identify.
-
-    Returns
-    -------
-    list[SourceSoftware]
-        List of source software names whose validators matched.
-
-    Examples
-    --------
-    >>> from movement.io.load import guess_source_software
-    >>> guess_source_software("path/to/predictions.h5")
-    ['DeepLabCut']
-
-    """
-    file = Path(file)
-    suffix = file.suffix
-    matches: list[SourceSoftware] = []
-
-    for (
-        source_software,
-        validator_classes,
-    ) in _SOURCE_SOFTWARE_VALIDATORS.items():
-        map_suffix_to_validators = _build_suffix_map(validator_classes)
-        # If input suffix not associated to this set of validators, continue
-        if suffix not in map_suffix_to_validators:
-            continue
-
-        # If suffix is covered by these validators, use them to
-        # validate the input file
-        try:
-            _validate_file(file, map_suffix_to_validators, source_software)
-            matches.append(source_software)
-        except Exception:
-            continue
-
-    return matches
+    return {
+        "images": images,
+        "annotations": annotations,
+        "categories": categories,
+    }
