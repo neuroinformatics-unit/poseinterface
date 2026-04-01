@@ -314,9 +314,7 @@ def _generate_poseinterface_filenames(
         file_extensions = (
             [".png"] * len(frame_numbers) if include_file_extension else []
         )
-    # Pad frame_numbers to the same width
     padded_frame_numbers = _pad_integers_to_same_width(frame_numbers)
-    # Build filenames
     prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-"
     if include_file_extension:
         return [

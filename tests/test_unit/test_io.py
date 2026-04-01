@@ -364,7 +364,6 @@ def test_generate_poseinterface_filenames(
         **sub_ses_cam_ids,
         include_file_extension=include_file_extension,
     )
-    # Load expected filenames from labels JSON file
     with open(expected_json) as f:
         frames_data = json.load(f)
     expected_frames_filenames = [
