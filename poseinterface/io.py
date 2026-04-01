@@ -32,7 +32,7 @@ def annotations_to_poseinterface(
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    mode: Literal["clip", "frame"] = "frame",
+    format: Literal["clip", "frame"] = "frame",
 ) -> Path:
     """Export annotations file from a single video to ``poseinterface`` format.
 
@@ -48,8 +48,9 @@ def annotations_to_poseinterface(
         Session ID to include in the generated filenames.
     cam_id
         Camera ID to include in the generated filenames.
-    mode
-        Whether to generate framelabels.json, cliplabels.json, or startlabels.json.
+    format
+        Whether to generate framelabels.json, cliplabels.json, or
+        startlabels.json.
         If "frame", the image filenames will include the file
         extension of frame files. If "clip", the image filenames
         will not include the file extension as these frame files
@@ -109,7 +110,7 @@ def annotations_to_poseinterface(
         sub_id=sub_id,
         ses_id=ses_id,
         cam_id=cam_id,
-        include_file_extension=(mode == "frame"),
+        include_file_extension=(format == "frame"),
     )
     # Generate COCO dict
     coco_data = coco.convert_labels(labels, image_filenames=image_filenames)
