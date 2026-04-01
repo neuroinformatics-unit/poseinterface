@@ -325,7 +325,7 @@ def _convert_movement_ds_to_cliplabels(
     img_w: int,
     img_h: int,
 ) -> dict[str, list[dict]]:
-    """Convert predictions in movement dataset to cliplabels.json"""
+    """Convert predictions in movement dataset to cliplabels dict."""
     # Extract position array and coordinates from dataset
     positions = ds["position"].values  # (time, space, keypoints, individuals)
     n_frames = positions.shape[0]
