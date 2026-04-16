@@ -1,5 +1,7 @@
+import json
+from contextlib import nullcontext
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import sleap_io as sio
@@ -9,48 +11,86 @@ from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
     POSEINTERFACE_FRAME_REGEXP,
     REENCODING_PARAMS,
+    _build_output_json_path,
     _check_ffmpeg,
     _extract_frame_number,
+    _generate_poseinterface_filenames,
     _get_codec_pixelformat,
     _needs_reencoding,
+    _pad_integers_to_same_width,
     _reencode_video,
     _update_image_ids,
-    annotations_to_coco,
+    annotations_to_poseinterface,
     video_to_poseinterface,
 )
 
 
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
-def test_annotations_to_coco(
+@pytest.mark.parametrize(
+    "format, output_filename, image_filename",
+    [
+        (
+            "frame",
+            "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json",
+            "sub-testSub123_ses-testSes123_cam-testCam123_frame-3.png",
+        ),
+        (
+            "clip",
+            "sub-testSub123_ses-testSes123_cam-testCam123_"
+            "start-3_dur-1_cliplabels.json",
+            "sub-testSub123_ses-testSes123_cam-testCam123_frame-3",
+        ),
+    ],
+)
+def test_annotations_to_poseinterface(
     mock_load_file,
     mock_convert_labels,
+    format,
+    output_filename,
+    image_filename,
     tmp_path,
+    sub_ses_cam_ids,
 ):
-    """Test that the relevant subfunctions are called."""
-    # Mock return value of load_file
+    """Test that annotations are converted and saved to the expected location
+    and with the expected content."""
     mock_labels = mock_load_file.return_value
-    mock_labels.labeled_frames = [1]  # non-empty
+    mock_labels.labeled_frames = [Mock(frame_idx=3)]
+    mock_labels.videos = [Mock(filename="dummy.mp4")]
+    mock_convert_labels.return_value = {
+        "images": [
+            {
+                "id": 0,
+                "file_name": image_filename,
+            }
+        ],
+        "annotations": [{"id": 1, "image_id": 0}],
+    }
 
-    # Mock return value of convert_labels
-    mock_convert_labels.return_value = {"images": [], "annotations": []}
-
-    # Run function to test
     input_csv = tmp_path / "input.csv"
-    output_path = tmp_path / "output.json"
-    result = annotations_to_coco(input_csv, output_path)
-
-    # Check subfunctions are all called
-    mock_load_file.assert_called_once_with(input_csv)
-    mock_convert_labels.assert_called_once_with(
-        mock_labels,
-        image_filenames=None,
-        visibility_encoding="ternary",
+    output_path = tmp_path / output_filename
+    result = annotations_to_poseinterface(
+        input_csv,
+        tmp_path,
+        format=format,
+        **sub_ses_cam_ids,
     )
 
-    # Check output file path is as expected
     assert result == output_path
     assert output_path.exists()
+
+    with open(output_path) as f:
+        saved_data = json.load(f)
+
+    assert saved_data == {
+        "images": [
+            {
+                "id": 3,
+                "file_name": image_filename,
+            }
+        ],
+        "annotations": [{"id": 1, "image_id": 3}],
+    }
 
 
 @patch("poseinterface.io.sio.load_file")
@@ -63,25 +103,28 @@ def test_annotations_to_coco(
         (lf("dlc_multi_index_in_project_root"), "dlc"),
     ],
 )
-def test_annotations_to_coco_invalid(
+def test_annotations_to_poseinterface_invalid(
     mock_load_file,
     mock_is_dlc_file,
     input_file,
     error_message,
     tmp_path,
+    sub_ses_cam_ids,
 ):
     # Mock return value of load_file to have empty
     # labeled frames
     mock_labels = mock_load_file.return_value
     mock_labels.labeled_frames = []  # empty
+    mock_labels.videos = []  # empty videos
 
     # Check error is raised
     with pytest.raises(
         ValueError, match=_EMPTY_LABELS_ERROR_MSG[error_message]
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             input_file,
-            tmp_path / "output.json",
+            tmp_path,
+            **sub_ses_cam_ids,
         )
 
     # Check is_dlc_file was called
@@ -89,14 +132,16 @@ def test_annotations_to_coco_invalid(
 
 
 @patch("poseinterface.io.sio.load_file")
-def test_annotations_to_coco_not_single_video(
+def test_annotations_to_poseinterface_not_single_video(
     mock_load_file,
     tmp_path,
+    sub_ses_cam_ids,
 ):
     """Test that error is raised when labels object contains >1 videos."""
     # Mock return value of load_file
     mock_labels = mock_load_file.return_value
-    mock_labels.labeled_frames = [1]  # there are labelled frames
+    mock_frame = type("MockFrame", (), {"frame_idx": 0})()
+    mock_labels.labeled_frames = [mock_frame]  # there are labelled frames
     mock_labels.videos = [1, 2]  # from multiple videos
 
     # Check error is raised
@@ -104,10 +149,64 @@ def test_annotations_to_coco_not_single_video(
         ValueError,
         match=(r"The annotations refer to multiple videos.*Please check .*"),
     ):
-        annotations_to_coco(
+        annotations_to_poseinterface(
             tmp_path / "input.csv",
-            tmp_path / "output.json",
+            tmp_path,
+            **sub_ses_cam_ids,
         )
+
+
+@pytest.mark.parametrize(
+    "format, frame_idxs, expected_context",
+    [
+        (
+            "frame",
+            [1000, 1001, 1004],
+            nullcontext("sub-a_ses-b_cam-c_framelabels.json"),
+        ),
+        (
+            "clip",
+            [1000, 1001, 1004],
+            nullcontext("sub-a_ses-b_cam-c_start-1000_dur-3_cliplabels.json"),
+        ),
+        (
+            "start",
+            [100, 101],
+            nullcontext("sub-a_ses-b_cam-c_start-100_dur-2_startlabels.json"),
+        ),
+        (
+            "clip",
+            [],
+            pytest.raises(ValueError, match="No image IDs were found"),
+        ),
+    ],
+)
+def test_build_output_json_path(
+    format, frame_idxs, expected_context, tmp_path
+):
+    """Test output JSON filename conventions for all formats."""
+    coco_data = {
+        "images": [
+            {
+                "id": frame_idx,
+                "file_name": f"sub-a_ses-b_cam-c_frame-{frame_idx:05d}.png",
+            }
+            for frame_idx in frame_idxs
+        ],
+        "annotations": [],
+    }
+    with expected_context as expected_filename:
+        output_path = _build_output_json_path(
+            output_dir=tmp_path / "nested" / "out",
+            coco_data=coco_data,
+            sub_id="a",
+            ses_id="b",
+            cam_id="c",
+            format=format,
+        )
+
+        assert output_path == tmp_path / "nested" / "out" / expected_filename
+        assert output_path.parent.exists()
 
 
 def test_update_image_ids():
@@ -385,3 +484,38 @@ def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
         fps=video_fps,
         **REENCODING_PARAMS,
     )
+
+
+@pytest.mark.parametrize(
+    "input_file, include_file_extension, expected_json",
+    [
+        (lf("sleap_h5_file"), False, lf("sleap_h5_file_cliplabels_json")),
+        (
+            lf("dlc_multi_index_in_video_folder"),
+            True,
+            lf("dlc_multi_index_framelabels_json"),
+        ),
+    ],
+)
+def test_generate_poseinterface_filenames(
+    input_file, include_file_extension, expected_json, sub_ses_cam_ids
+):
+    generated_filenames = _generate_poseinterface_filenames(
+        sio.load_file(input_file),
+        **sub_ses_cam_ids,
+        include_file_extension=include_file_extension,
+    )
+    # Load expected filenames from labels JSON file
+    with open(expected_json) as f:
+        frames_data = json.load(f)
+    expected_frames_filenames = [
+        img["file_name"] for img in frames_data["images"]
+    ]
+    assert generated_filenames == expected_frames_filenames
+
+
+def test_pad_integers_to_same_width():
+    """Test that integers are padded to the same width with leading zeros."""
+    input = [0, 1, 10, 100]
+    expected = ["000", "001", "010", "100"]
+    assert _pad_integers_to_same_width(input) == expected

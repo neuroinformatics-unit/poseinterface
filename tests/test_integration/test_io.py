@@ -1,23 +1,51 @@
 import pytest
+from pytest_lazy_fixtures import lf
 
-from poseinterface.io import annotations_to_coco
+from poseinterface.io import annotations_to_poseinterface
+
+EXPECTED_FILENAME_BY_FORMAT = {
+    "frame": "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json",
+    "clip": (
+        "sub-testSub123_ses-testSes123_cam-testCam123_"
+        "start-{start_frame}_dur-5_cliplabels.json"
+    ),
+    "start": (
+        "sub-testSub123_ses-testSes123_cam-testCam123_"
+        "start-{start_frame}_dur-5_startlabels.json"
+    ),
+}
 
 
 @pytest.mark.parametrize(
-    "input_path",
+    "input_path, expected_start_frame",
     [
-        "dlc_single_index_in_video_folder",
-        "dlc_multi_index_in_video_folder",
-        "dlc_single_index_in_project_root",
-        "dlc_multi_index_in_project_root",
+        (lf("dlc_single_index_in_video_folder"), 0),
+        (lf("dlc_multi_index_in_video_folder"), 6825),
+        (lf("dlc_single_index_in_project_root"), 0),
+        (lf("dlc_multi_index_in_project_root"), 6825),
     ],
 )
-def test_annotations_to_coco(input_path, tmp_path, request):
+@pytest.mark.parametrize("format", ["frame", "clip", "start"])
+def test_annotations_to_poseinterface(
+    input_path,
+    expected_start_frame,
+    format,
+    tmp_path,
+    sub_ses_cam_ids,
+):
     """Test that annotations in different project structures are converted."""
 
-    input_path = request.getfixturevalue(input_path)
-    output_json_path = tmp_path / "output.json"
+    expected_filename = EXPECTED_FILENAME_BY_FORMAT[format].format(
+        start_frame=expected_start_frame
+    )
 
-    annotations_to_coco(input_path, output_json_path)
+    output_json_path = tmp_path / expected_filename
+    result = annotations_to_poseinterface(
+        input_path,
+        tmp_path,
+        format=format,
+        **sub_ses_cam_ids,
+    )
 
+    assert result == output_json_path
     assert output_json_path.exists()
