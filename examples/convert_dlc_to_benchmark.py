@@ -15,6 +15,7 @@ from pathlib import Path
 from poseinterface.io import (
     annotations_to_poseinterface,
     frames_to_poseinterface,
+    video_to_poseinterface,
 )
 from poseinterface.utils import tree
 
@@ -56,26 +57,14 @@ print(tree(source_project_dir, level=1, exclude_hidden=True))
 #
 # Let's peek at both.
 
-print(
-    tree(
-        source_project_dir / "videos",
-        level=1,
-        exclude_hidden=True,
-    )
-)
+print(tree(source_project_dir / "videos", level=1, exclude_hidden=True))
 
 # %%
 # Each video (ending in ``converted.mp4``) has a companion .csv prediction
 # file. In real projects you will also find predictions in .h5 format,
 # filtered versions of the predictions, and other files.
 
-print(
-    tree(
-        source_project_dir / "labeled-data",
-        level=2,
-        exclude_hidden=True,
-    )
-)
+print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 
 # %%
 # The ``labeled-data`` sub-directories mirror video names (without ``.mp4``)
@@ -97,18 +86,19 @@ sessions = [
     {
         "split": "Train",
         "source_video": ("M727755_EPM_20200317_170544999-converted.mp4"),
-        "subject_id": "M727755",
-        "session_id": "20200317",
+        "sub_id": "M727755",
+        "ses_id": "20200317",
+        "cam_id": "topdown",
     },
     {
         "split": "Test",
         "source_video": ("M708154_EPM_20200317_185651629-converted.mp4"),
-        "subject_id": "M708154",
-        "session_id": "20200317",
+        "sub_id": "M708154",
+        "ses_id": "20200317",
+        "cam_id": "topdown",
     },
 ]
 
-camera_id = "topdown"
 project_name = "SWC-plusmaze"
 
 # Replace this with the path where you want to save your benchmark dataset.
@@ -123,8 +113,7 @@ benchmark_base_dir = Path(tempfile.mkdtemp())
 
 for session in sessions:
     split = session["split"]
-    subject_id = session["subject_id"]
-    session_id = session["session_id"]
+    ids = {k: session[k] for k in ["sub_id", "ses_id", "cam_id"]}
 
     # Derive source paths
     source_video_path = source_project_dir / "videos" / session["source_video"]
@@ -133,27 +122,28 @@ for session in sessions:
     )
 
     # Derive target paths
-    session_prefix = f"sub-{subject_id}_ses-{session_id}"
-    video_prefix = f"{session_prefix}_cam-{camera_id}"
+    session_prefix = f"sub-{ids['sub_id']}_ses-{ids['ses_id']}"
+    video_prefix = session_prefix + f"_cam-{ids['cam_id']}"
     target_session_dir = (
         benchmark_base_dir / split / project_name / session_prefix
     )
     target_frames_dir = target_session_dir / "Frames"
     target_frames_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy the session video
-    target_video_path = target_session_dir / f"{video_prefix}.mp4"
-    if not target_video_path.exists():
-        shutil.copy2(source_video_path, target_video_path)
+    # Copy the session video, with re-encoding if necessary
+    video_to_poseinterface(
+        input_video=source_video_path,
+        output_video_dir=target_session_dir,
+        **ids,
+    )
 
     # Convert annotations from DLC CSV to COCO JSON
     framelabels_path = target_frames_dir / f"{video_prefix}_framelabels.json"
     annotations_to_poseinterface(
         input_path=(source_frames_dir / "CollectedData_Loukia.csv"),
         output_dir=target_frames_dir,
-        sub_id=subject_id,
-        ses_id=session_id,
-        cam_id=camera_id,
+        format="frame",
+        **ids,
     )
 
     # Copy frames, renaming per the COCO JSON filenames.
@@ -183,3 +173,5 @@ print(tree(benchmark_base_dir, level=5))
 # Clean up the temporary directory.
 
 shutil.rmtree(benchmark_base_dir)
+
+# %%
