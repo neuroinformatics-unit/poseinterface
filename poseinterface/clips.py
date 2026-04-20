@@ -82,7 +82,7 @@ def extract_clip(
     # Slice clip and save as mp4
     clip = video[start_frame : start_frame + duration]
     clip_path = (
-        clips_dir / f"{video.stem}_start-{start_frame}_dur-{duration}.mp4"
+        clips_dir / f"{video_path.stem}_start-{start_frame}_dur-{duration}.mp4"
     )
     sio.save_video(clip, clip_path, fps=video.fps)
 
