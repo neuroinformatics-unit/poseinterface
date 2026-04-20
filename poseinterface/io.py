@@ -601,7 +601,7 @@ def predictions_to_poseinterface(
     # Export dict as JSON
     output_json_parent_dir = (
         Path(output_json_parent_dir)
-        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.json"
+        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_cliplabels.json"
     )
     with open(output_json_parent_dir, "w") as f:
         json.dump(coco_data, f)
