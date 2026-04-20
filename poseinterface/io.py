@@ -13,6 +13,7 @@ import sleap_io as sio
 import xarray as xr
 from movement.io import load_dataset
 from movement.io.load import _build_suffix_map, _validate_file
+from movement.utils.logging import logger as _movement_logger
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
@@ -648,7 +649,11 @@ def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
         # If suffix is covered by these validators, use them to
         # validate the input file
         try:
-            _validate_file(file, map_suffix_to_validators, source_software)
+            try:
+                _movement_logger.disable("movement")
+                _validate_file(file, map_suffix_to_validators, source_software)
+            finally:
+                _movement_logger.enable("movement")
             matches.append(source_software)
         except Exception:
             continue
