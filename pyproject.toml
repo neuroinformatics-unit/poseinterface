@@ -34,7 +34,7 @@ classifiers = [
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
@@ -127,7 +127,7 @@ python =
     3.13: py313
 
 [testenv]
-extras =
+dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=poseinterface --cov-report=xml
