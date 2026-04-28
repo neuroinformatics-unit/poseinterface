@@ -10,8 +10,8 @@ See the [corresponding section of the movement contributing guide](https://movem
 We use [uv](https://docs.astral.sh/uv/) for dependency management. To set up a development environment:
 
 ```bash
-# Create dev environment with all extras
-uv sync --all-extras
+# Create dev environment with all dependency groups
+uv sync --all-groups
 
 # Activate the environment
 source .venv/bin/activate  # On macOS and Linux

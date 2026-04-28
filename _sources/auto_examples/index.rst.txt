@@ -6,6 +6,10 @@ Examples
 A gallery of examples demonstrating ``poseinterface`` usage.
 
 
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
 
 .. raw:: html
 
