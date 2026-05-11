@@ -86,14 +86,19 @@ def test_annotations_to_poseinterface(
     }
 
 
-@patch("poseinterface.io.sio.load_file")
+# Decorators are applied bottom-up, so the bottom-most @patch corresponds
+# to the first mock argument and the top-most to the second.
+# The order here is therefore deliberately:
+#   bottom: sio.load_file  -> mock_load_file  (1st arg)
+#   top:    is_dlc_file    -> mock_is_dlc_file (2nd arg)
 @patch("poseinterface.io.is_dlc_file")
+@patch("poseinterface.io.sio.load_file")
 @pytest.mark.parametrize(
-    "input_file, error_message",
+    "input_file, error_message, is_dlc",
     [
-        ("foo.csv", "default"),
-        (lf("dlc_single_index_in_project_root"), "dlc"),
-        (lf("dlc_multi_index_in_project_root"), "dlc"),
+        ("foo.csv", "default", False),
+        (lf("dlc_single_index_in_project_root"), "dlc", True),
+        (lf("dlc_multi_index_in_project_root"), "dlc", True),
     ],
 )
 def test_annotations_to_poseinterface_invalid(
@@ -101,14 +106,16 @@ def test_annotations_to_poseinterface_invalid(
     mock_is_dlc_file,
     input_file,
     error_message,
+    is_dlc,
     tmp_path,
     sub_ses_cam_ids,
 ):
-    # Mock return value of load_file to have empty
-    # labeled frames
-    mock_labels = mock_load_file.return_value
-    mock_labels.labeled_frames = []  # empty
-    mock_labels.videos = []  # empty videos
+    # Configure sio.load_file to return empty labeled frames
+    mock_load_file.return_value.labeled_frames = []  # empty
+    mock_load_file.return_value.videos = []  # empty videos
+    # Control whether is_dlc_file identifies the input as a DLC file,
+    # so we can verify the correct error message is raised in each case
+    mock_is_dlc_file.return_value = is_dlc
 
     # Check error is raised
     with pytest.raises(
