@@ -8,7 +8,7 @@ import sleap_io as sio
 from sleap_io.io import coco
 from sleap_io.io.dlc import is_dlc_file
 
-PoseInterfaceFormat: TypeAlias = Literal["clip", "frame", "start"]
+PoseInterfaceFormat: TypeAlias = Literal["clip", "frame"]
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
@@ -52,9 +52,8 @@ def annotations_to_poseinterface(
     cam_id
         Camera ID to include in the generated filenames.
     format
-        Whether to generate :ref:`frame labels<target-framelabels>`,
-        :ref:`clip labels<target-cliplabels>`, or :ref:`clip start labels\
-        <target-startlabels>`. Default is "frame".
+        Whether to generate :ref:`frame labels<target-framelabels>` or
+        :ref:`clip labels<target-cliplabels>`. Default is "frame".
 
     Returns
     -------
@@ -153,11 +152,10 @@ def _build_output_json_path(
     if format == "frame":
         return output_dir / f"{prefix}_framelabels.json"
 
-    label_suffix = "cliplabels" if format == "clip" else "startlabels"
     if len(coco_data["images"]) == 0:
         raise ValueError(
             "No images were found in the COCO data. "
-            f"Cannot infer start frame and duration for {label_suffix} format."
+            "Cannot infer start frame and duration for cliplabels format."
         )
     frame_numbers = [
         _extract_frame_number(img["file_name"]) for img in coco_data["images"]
@@ -167,7 +165,7 @@ def _build_output_json_path(
     padded_start = str(start_frame).zfill(len(str(max(frame_numbers))))
     return (
         output_dir
-        / f"{prefix}_start-{padded_start}_dur-{n_frames}_{label_suffix}.json"
+        / f"{prefix}_start-{padded_start}_dur-{n_frames}_cliplabels.json"
     )
 
 
@@ -177,8 +175,8 @@ def _update_image_ids(
     """Assign new image IDs based on the format.
 
     For frame format, each image ID is set to the session-video frame number
-    extracted from the filename. For clip/start formats, images are sorted by
-    frame number and assigned 0-based indices within the clip.
+    extracted from the filename. For clip format, images are sorted by frame
+    number and assigned 0-based indices within the clip.
     """
     data = copy.deepcopy(coco_data)
 

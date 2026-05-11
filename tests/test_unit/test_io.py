@@ -175,12 +175,6 @@ def test_annotations_to_poseinterface_not_single_video(
             nullcontext("sub-a_ses-b_cam-c_start-1000_dur-3_cliplabels.json"),
         ),
         (
-            "start",
-            [0, 1],
-            [100, 101],
-            nullcontext("sub-a_ses-b_cam-c_start-100_dur-2_startlabels.json"),
-        ),
-        (
             "clip",
             [0, 1, 2],
             [500, 1001, 1004],

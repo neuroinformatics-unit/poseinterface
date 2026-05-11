@@ -9,10 +9,6 @@ EXPECTED_FILENAME_BY_FORMAT = {
         "sub-testSub123_ses-testSes123_cam-testCam123_"
         "start-{start_frame}_dur-5_cliplabels.json"
     ),
-    "start": (
-        "sub-testSub123_ses-testSes123_cam-testCam123_"
-        "start-{start_frame}_dur-5_startlabels.json"
-    ),
 }
 
 
@@ -25,7 +21,7 @@ EXPECTED_FILENAME_BY_FORMAT = {
         (lf("dlc_multi_index_in_project_root"), "06825"),
     ],
 )
-@pytest.mark.parametrize("format", ["frame", "clip", "start"])
+@pytest.mark.parametrize("format", ["frame", "clip"])
 def test_annotations_to_poseinterface(
     input_path,
     expected_start_frame,
