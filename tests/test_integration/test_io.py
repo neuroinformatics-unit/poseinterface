@@ -19,10 +19,10 @@ EXPECTED_FILENAME_BY_FORMAT = {
 @pytest.mark.parametrize(
     "input_path, expected_start_frame",
     [
-        (lf("dlc_single_index_in_video_folder"), 0),
-        (lf("dlc_multi_index_in_video_folder"), 6825),
-        (lf("dlc_single_index_in_project_root"), 0),
-        (lf("dlc_multi_index_in_project_root"), 6825),
+        (lf("dlc_single_index_in_video_folder"), "0"),
+        (lf("dlc_multi_index_in_video_folder"), "06825"),
+        (lf("dlc_single_index_in_project_root"), "0"),
+        (lf("dlc_multi_index_in_project_root"), "06825"),
     ],
 )
 @pytest.mark.parametrize("format", ["frame", "clip", "start"])

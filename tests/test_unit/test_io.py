@@ -21,18 +21,20 @@ from poseinterface.io import (
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
 @pytest.mark.parametrize(
-    "format, output_filename, image_filename",
+    "format, output_filename, image_filename, expected_image_id",
     [
         (
             "frame",
             "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json",
             "sub-testSub123_ses-testSes123_cam-testCam123_frame-3.png",
+            3,
         ),
         (
             "clip",
             "sub-testSub123_ses-testSes123_cam-testCam123_"
             "start-3_dur-1_cliplabels.json",
             "sub-testSub123_ses-testSes123_cam-testCam123_frame-3",
+            0,
         ),
     ],
 )
@@ -42,6 +44,7 @@ def test_annotations_to_poseinterface(
     format,
     output_filename,
     image_filename,
+    expected_image_id,
     tmp_path,
     sub_ses_cam_ids,
 ):
@@ -78,11 +81,11 @@ def test_annotations_to_poseinterface(
     assert saved_data == {
         "images": [
             {
-                "id": 3,
+                "id": expected_image_id,
                 "file_name": image_filename,
             }
         ],
-        "annotations": [{"id": 1, "image_id": 3}],
+        "annotations": [{"id": 1, "image_id": expected_image_id}],
     }
 
 
@@ -157,41 +160,51 @@ def test_annotations_to_poseinterface_not_single_video(
 
 
 @pytest.mark.parametrize(
-    "format, frame_idxs, expected_context",
+    "format, image_ids, frame_numbers, expected_context",
     [
         (
             "frame",
+            [1000, 1001, 1004],
             [1000, 1001, 1004],
             nullcontext("sub-a_ses-b_cam-c_framelabels.json"),
         ),
         (
             "clip",
+            [0, 1, 2],
             [1000, 1001, 1004],
             nullcontext("sub-a_ses-b_cam-c_start-1000_dur-3_cliplabels.json"),
         ),
         (
             "start",
+            [0, 1],
             [100, 101],
             nullcontext("sub-a_ses-b_cam-c_start-100_dur-2_startlabels.json"),
         ),
         (
             "clip",
+            [0, 1, 2],
+            [500, 1001, 1004],
+            nullcontext("sub-a_ses-b_cam-c_start-0500_dur-3_cliplabels.json"),
+        ),
+        (
+            "clip",
             [],
-            pytest.raises(ValueError, match="No image IDs were found"),
+            [],
+            pytest.raises(ValueError, match="No images were found"),
         ),
     ],
 )
 def test_build_output_json_path(
-    format, frame_idxs, expected_context, tmp_path
+    format, image_ids, frame_numbers, expected_context, tmp_path
 ):
     """Test output JSON filename conventions for all formats."""
     coco_data = {
         "images": [
             {
-                "id": frame_idx,
-                "file_name": f"sub-a_ses-b_cam-c_frame-{frame_idx:05d}.png",
+                "id": img_id,
+                "file_name": f"sub-a_ses-b_cam-c_frame-{frame_num:05d}.png",
             }
-            for frame_idx in frame_idxs
+            for img_id, frame_num in zip(image_ids, frame_numbers)
         ],
         "annotations": [],
     }
@@ -209,9 +222,8 @@ def test_build_output_json_path(
         assert output_path.parent.exists()
 
 
-def test_update_image_ids():
-    """Test that image ids are updated based on frame number."""
-    # Define a COCO data dict with minimal info
+def test_update_image_ids_frame_format():
+    """Test that frame-format IDs match session-video frame numbers."""
     input_data = {
         "images": [
             {"id": 234, "file_name": "frame-00011.png"},
@@ -223,47 +235,52 @@ def test_update_image_ids():
         ],
     }
 
-    # New image IDs are derived from filename
-    expected_old_to_new_image_ids = {
-        img["id"]: _extract_frame_number(
-            img["file_name"],
-            POSEINTERFACE_FRAME_REGEXP,
-        )
-        for img in input_data["images"]
+    data = _update_image_ids(input_data, format="frame")
+
+    assert [img["id"] for img in data["images"]] == [11, 12]
+    assert [a["image_id"] for a in data["annotations"]] == [12, 11]
+
+
+def test_update_image_ids_clip_format():
+    """Test that clip-format IDs are 0-based, sorted by frame."""
+    input_data = {
+        "images": [
+            {"id": 5, "file_name": "frame-01002"},
+            {"id": 3, "file_name": "frame-01000"},
+            {"id": 4, "file_name": "frame-01001"},
+        ],
+        "annotations": [
+            {"id": 1, "image_id": 3},
+            {"id": 2, "image_id": 5},
+            {"id": 3, "image_id": 4},
+        ],
     }
 
-    # Update image IDs
-    data = _update_image_ids(input_data)
+    data = _update_image_ids(input_data, format="clip")
 
-    # Check image IDs in list of images
-    list_ids = [img["id"] for img in data["images"]]
-    expected_list_ids = [
-        expected_old_to_new_image_ids[img["id"]]
-        for img in input_data["images"]
+    # Images should be sorted by frame number with 0-based IDs
+    assert [img["file_name"] for img in data["images"]] == [
+        "frame-01000",
+        "frame-01001",
+        "frame-01002",
     ]
-    assert expected_list_ids == list_ids
-
-    # Check image IDs in list of annotations
-    list_image_ids = [annot["image_id"] for annot in data["annotations"]]
-    expected_list_image_ids = [
-        expected_old_to_new_image_ids[annot["image_id"]]
-        for annot in input_data["annotations"]
-    ]
-    assert expected_list_image_ids == list_image_ids
+    assert [img["id"] for img in data["images"]] == [0, 1, 2]
+    # Annotations should reference the new 0-based IDs
+    assert [a["image_id"] for a in data["annotations"]] == [0, 2, 1]
 
 
-def test_update_image_ids_duplicate_ids():
-    """Test that duplicate frame numbers raise ValueError."""
+def test_update_image_ids_duplicate_frame_numbers():
+    """Test that duplicate frame numbers raise ValueError in frame format."""
     data = {
         "images": [
             {"id": 1, "file_name": "frame-0005.png"},
-            {"id": 2, "file_name": "frame-0005.png"},  # duplicate!
+            {"id": 2, "file_name": "frame-0005.png"},
         ],
         "annotations": [],
     }
 
     with pytest.raises(ValueError, match="Extracted image IDs are not unique"):
-        _update_image_ids(data)
+        _update_image_ids(data, format="frame")
 
 
 @pytest.mark.parametrize(

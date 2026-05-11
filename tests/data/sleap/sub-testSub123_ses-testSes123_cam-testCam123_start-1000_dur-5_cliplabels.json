@@ -1,31 +1,31 @@
 {
     "images": [
         {
-            "id": 1000,
+            "id": 0,
             "file_name": "sub-testSub123_ses-testSes123_cam-testCam123_frame-1000",
             "width": 0,
             "height": 0
         },
         {
-            "id": 1001,
+            "id": 1,
             "file_name": "sub-testSub123_ses-testSes123_cam-testCam123_frame-1001",
             "width": 0,
             "height": 0
         },
         {
-            "id": 1002,
+            "id": 2,
             "file_name": "sub-testSub123_ses-testSes123_cam-testCam123_frame-1002",
             "width": 0,
             "height": 0
         },
         {
-            "id": 1003,
+            "id": 3,
             "file_name": "sub-testSub123_ses-testSes123_cam-testCam123_frame-1003",
             "width": 0,
             "height": 0
         },
         {
-            "id": 1004,
+            "id": 4,
             "file_name": "sub-testSub123_ses-testSes123_cam-testCam123_frame-1004",
             "width": 0,
             "height": 0
@@ -34,7 +34,7 @@
     "annotations": [
         {
             "id": 1,
-            "image_id": 1000,
+            "image_id": 0,
             "category_id": 1,
             "keypoints": [
                 0.0,
@@ -68,7 +68,7 @@
         },
         {
             "id": 2,
-            "image_id": 1001,
+            "image_id": 1,
             "category_id": 1,
             "keypoints": [
                 0.0,
@@ -102,7 +102,7 @@
         },
         {
             "id": 3,
-            "image_id": 1002,
+            "image_id": 2,
             "category_id": 1,
             "keypoints": [
                 0.0,
@@ -136,7 +136,7 @@
         },
         {
             "id": 4,
-            "image_id": 1003,
+            "image_id": 3,
             "category_id": 1,
             "keypoints": [
                 0.0,
@@ -170,7 +170,7 @@
         },
         {
             "id": 5,
-            "image_id": 1004,
+            "image_id": 4,
             "category_id": 1,
             "keypoints": [
                 0.0,

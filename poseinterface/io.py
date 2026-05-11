@@ -119,8 +119,8 @@ def annotations_to_poseinterface(
     )
     # Generate COCO dict
     coco_data = coco.convert_labels(labels, image_filenames=image_filenames)
-    # Update image IDs in coco_data to match the frame numbers in the filenames
-    coco_data = _update_image_ids(coco_data)
+    # Update image IDs in coco_data
+    coco_data = _update_image_ids(coco_data, format=format)
 
     output_json_path = _build_output_json_path(
         output_dir=output_dir,
@@ -154,44 +154,55 @@ def _build_output_json_path(
         return output_dir / f"{prefix}_framelabels.json"
 
     label_suffix = "cliplabels" if format == "clip" else "startlabels"
-    image_ids = [img["id"] for img in coco_data["images"]]
-    if len(image_ids) == 0:
+    if len(coco_data["images"]) == 0:
         raise ValueError(
-            "No image IDs were found in the COCO data. "
+            "No images were found in the COCO data. "
             f"Cannot infer start frame and duration for {label_suffix} format."
         )
-    start_frame = min(image_ids)
-    n_frames = len(image_ids)
+    frame_numbers = [
+        _extract_frame_number(img["file_name"]) for img in coco_data["images"]
+    ]
+    start_frame = min(frame_numbers)
+    n_frames = len(frame_numbers)
+    padded_start = str(start_frame).zfill(len(str(max(frame_numbers))))
     return (
         output_dir
-        / f"{prefix}_start-{start_frame}_dur-{n_frames}_{label_suffix}.json"
+        / f"{prefix}_start-{padded_start}_dur-{n_frames}_{label_suffix}.json"
     )
 
 
-def _update_image_ids(coco_data: dict) -> dict:
-    """Assign new image IDs based on the frame number in the filename."""
-    # Create new dict
+def _update_image_ids(
+    coco_data: dict, format: PoseInterfaceFormat = "frame"
+) -> dict:
+    """Assign new image IDs based on the format.
+
+    For frame format, each image ID is set to the session-video frame number
+    extracted from the filename. For clip/start formats, images are sorted by
+    frame number and assigned 0-based indices within the clip.
+    """
     data = copy.deepcopy(coco_data)
 
-    # Build map old-to-new image IDs and update image id in images list
     old_to_new_id = {}
-    for img in data["images"]:
-        # map old image_id to new image_id
-        old_img_id = img["id"]
-        new_img_id = _extract_frame_number(img["file_name"])
-        old_to_new_id[old_img_id] = new_img_id
+    if format == "frame":
+        for img in data["images"]:
+            old_img_id = img["id"]
+            new_img_id = _extract_frame_number(img["file_name"])
+            old_to_new_id[old_img_id] = new_img_id
+    else:
+        data["images"].sort(
+            key=lambda img: _extract_frame_number(img["file_name"])
+        )
+        for idx, img in enumerate(data["images"]):
+            old_to_new_id[img["id"]] = idx
 
-        # update image_id in images list
-        img["id"] = new_img_id
-
-    # Check new image IDs are unique
     if len(old_to_new_id) != len(set(old_to_new_id.values())):
         raise ValueError(
             "Extracted image IDs are not unique. Please check that the frame "
             "numbers as specified in the filename are unique."
         )
 
-    # Update image_id in annotations list
+    for img in data["images"]:
+        img["id"] = old_to_new_id[img["id"]]
     for annot in data["annotations"]:
         annot["image_id"] = old_to_new_id[annot["image_id"]]
 
