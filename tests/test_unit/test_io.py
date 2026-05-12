@@ -263,12 +263,28 @@ def test_update_image_ids_clip_format():
     assert [a["image_id"] for a in data["annotations"]] == [0, 2, 1]
 
 
-def test_update_image_ids_duplicate_frame_numbers():
-    """Test that duplicate frame numbers raise ValueError in frame format."""
+@pytest.mark.parametrize("format", ["frame", "clip"])
+def test_update_image_ids_duplicate_filenames(format):
+    """Test that duplicate filenames raise ValueError for both formats."""
     data = {
         "images": [
             {"id": 1, "file_name": "frame-0005.png"},
             {"id": 2, "file_name": "frame-0005.png"},
+        ],
+        "annotations": [],
+    }
+
+    with pytest.raises(ValueError, match="Duplicate image filenames"):
+        _update_image_ids(data, format=format)
+
+
+def test_update_image_ids_duplicate_frame_numbers():
+    """Test that distinct filenames mapping to the same frame number raise
+    ValueError in frame format."""
+    data = {
+        "images": [
+            {"id": 1, "file_name": "frame-0005.png"},
+            {"id": 2, "file_name": "frame-5.png"},
         ],
         "annotations": [],
     }

@@ -178,6 +178,13 @@ def _update_image_ids(
     extracted from the filename. For clip format, images are sorted by frame
     number and assigned 0-based indices within the clip.
     """
+    file_names = [img["file_name"] for img in coco_data["images"]]
+    if len(file_names) != len(set(file_names)):
+        raise ValueError(
+            "Duplicate image filenames were found. Please check that the "
+            "input annotations do not contain duplicate frames."
+        )
+
     data = copy.deepcopy(coco_data)
 
     old_to_new_id = {}
