@@ -1,0 +1,6 @@
+scorer,,,Loukia,Loukia,Loukia,Loukia,Loukia,Loukia,Loukia,Loukia
+bodyparts,,,snout,snout,left_ear,left_ear,right_ear,right_ear,tailbase,tailbase
+coords,,,x,y,x,y,x,y,x,y
+labeled-data,M708154_EPM_20200317_185651629-converted,img01841.png,10.0,20.0,15.0,25.0,20.0,30.0,25.0,35.0
+labeled-data,M708154_EPM_20200317_185651629-converted,img08489.png,10.0,20.0,15.0,25.0,20.0,30.0,25.0,35.0
+labeled-data,M708154_EPM_20200317_185651629-converted,img09286.png,10.0,20.0,15.0,25.0,20.0,30.0,25.0,35.0
