@@ -121,7 +121,9 @@ def extract_clip(
     return clip_path, clip_json
 
 
-def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
+def _extract_cliplabels(
+    video_path: Path, clips_dir: Path, start_frame: int, duration: int
+) -> Path:
     """Extract clip labels from the sibling *_videolabels.json file."""
     # Read file with labels for the whole video
     video_json = video_path.parent / f"{video_path.stem}_videolabels.json"
