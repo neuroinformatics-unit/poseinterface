@@ -660,6 +660,19 @@ Published</label><div class="sd-tab-content docutils">
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">4</span></code> are the local clip indices, while <code class="docutils literal notranslate"><span class="pre">frame-1000</span></code> through <code class="docutils literal notranslate"><span class="pre">frame-1004</span></code> in the <code class="docutils literal notranslate"><span class="pre">file_name</span></code> values refer to the original frame positions in the session video.</p>
 </div>
+<section id="intermediate-file-videolabels-json">
+<span id="target-videolabels"></span><h4>Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code><a class="headerlink" href="#intermediate-file-videolabels-json" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This file is <strong>not a required part of a benchmark dataset</strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clip</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clip.html#poseinterface.clips.extract_clip" title="poseinterface.clips.extract_clip"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clip()</span></code></a> function.</p>
+</div>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> file uses the <strong>same schema as <a class="reference internal" href="#target-cliplabels"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code></span></a></strong>, but it refers to a full video rather than to a clip of it.</p></li>
+<li><p>It is produced once per video (e.g. by converting model predictions for the entire video into the <code class="docutils literal notranslate"><span class="pre">cliplabels</span></code> schema) and reused to extract any number of clip label files from that video.</p></li>
+<li><p>When present alongside a session video as <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json</span></code>, the <code class="docutils literal notranslate"><span class="pre">extract-clip</span></code> command will slice it into per-clip <code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files matching the requested frame ranges.</p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> file, each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> list uses the <strong>0-based frame index in the video</strong> as its <code class="docutils literal notranslate"><span class="pre">id</span></code> (same convention as <a class="reference internal" href="#target-framelabels"><span class="std std-ref">frame labels</span></a>).</p></li>
+</ul>
+</section>
 </section>
 <section id="clip-start-labels-startlabels-json">
 <span id="target-startlabels"></span><h3>Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)<a class="headerlink" href="#clip-start-labels-startlabels-json" title="Link to this heading">#</a></h3>
@@ -827,7 +840,10 @@ Published</label><div class="sd-tab-content docutils">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-naming">File naming</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#label-format">Label format</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-labels-framelabels-json">Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clip-labels-cliplabels-json">Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clip-labels-cliplabels-json">Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#intermediate-file-videolabels-json">Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clip-start-labels-startlabels-json">Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visibility-encoding">Visibility encoding</a></li>
 </ul>

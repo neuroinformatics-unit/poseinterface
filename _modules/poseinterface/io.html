@@ -373,14 +373,19 @@
                 <article class="bd-article">
                   
   <h1>Source code for poseinterface.io</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span></span><span class="sd">&quot;&quot;&quot;Functions to convert annotations and videos to ``poseinterface`` format.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">coco</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_video_encoding_info</span><span class="p">,</span> <span class="n">_is_ffmpeg_available</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.dlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_dlc_file</span>
 
 <span class="n">PoseInterfaceFormat</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;clip&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">]</span>
@@ -400,6 +405,19 @@
 <span class="p">}</span>
 <span class="n">POSEINTERFACE_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;frame-(\d+)&quot;</span>
 <span class="n">DLC_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)&quot;</span>
+
+<span class="c1"># We support sleap&#39;s MediaVideo files</span>
+<span class="n">EXPECTED_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;.mp4&quot;</span>
+<span class="n">EXPECTED_ENCODING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;pixelformat&quot;</span><span class="p">:</span> <span class="s2">&quot;yuv420p&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;codec&quot;</span><span class="p">:</span> <span class="s2">&quot;h264&quot;</span><span class="p">,</span>  <span class="c1"># codec name</span>
+<span class="p">}</span>
+<span class="n">REENCODING_PARAMS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">EXPECTED_ENCODING</span><span class="p">,</span>
+    <span class="s2">&quot;codec&quot;</span><span class="p">:</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span>  <span class="c1"># overwrite with encoder to use</span>
+    <span class="s2">&quot;crf&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="s2">&quot;preset&quot;</span><span class="p">:</span> <span class="s2">&quot;superfast&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="annotations_to_poseinterface">
@@ -675,9 +693,7 @@
         <span class="n">file_extensions</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;.png&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span> <span class="k">if</span> <span class="n">include_file_extension</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="p">)</span>
-    <span class="c1"># Pad frame_numbers to the same width</span>
     <span class="n">padded_frame_numbers</span> <span class="o">=</span> <span class="n">_pad_integers_to_same_width</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span>
-    <span class="c1"># Build filenames</span>
     <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">_frame-&quot;</span>
     <span class="k">if</span> <span class="n">include_file_extension</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span>
@@ -693,6 +709,139 @@
     <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">input</span><span class="p">)))</span>
     <span class="n">padded_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">padded_numbers</span>
+
+
+<div class="viewcode-block" id="video_to_poseinterface">
+<a class="viewcode-back" href="../../api_generated/poseinterface.io.video_to_poseinterface.html#poseinterface.io.video_to_poseinterface">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">video_to_poseinterface</span><span class="p">(</span>
+    <span class="n">input_video</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_video_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reencode and rename a video to ``poseinterface`` format.</span>
+
+<span class="sd">    Copies the input video to ``output_video_dir`` with the filename</span>
+<span class="sd">    ``sub-&lt;sub_id&gt;_ses-&lt;ses_id&gt;_cam-&lt;cam_id&gt;.mp4``.  If the video is</span>
+<span class="sd">    not already encoded as H.264 + yuv420p in an ``.mp4`` container, it</span>
+<span class="sd">    is re-encoded with ffmpeg before saving.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_video</span>
+<span class="sd">        Path to the video to convert.</span>
+<span class="sd">    output_video_dir</span>
+<span class="sd">        Directory where the converted video will be written (created</span>
+<span class="sd">        automatically if it does not exist).</span>
+<span class="sd">    sub_id</span>
+<span class="sd">        Subject ID used to build the output filename.</span>
+<span class="sd">    ses_id</span>
+<span class="sd">        Session ID used to build the output filename.</span>
+<span class="sd">    cam_id</span>
+<span class="sd">        Camera ID used to build the output filename.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to the saved ``.mp4`` file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If ffmpeg is not available on the system PATH.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_check_ffmpeg</span><span class="p">()</span>
+
+    <span class="n">output_video</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">output_video_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">.mp4&quot;</span>
+    <span class="p">)</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">output_video_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_needs_reencoding</span><span class="p">(</span><span class="n">input_video</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">input_video</span><span class="p">,</span> <span class="n">output_video</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_reencode_video</span><span class="p">(</span><span class="n">input_video</span><span class="p">,</span> <span class="n">output_video</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_video</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_ffmpeg</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check ffmpeg is available and can be executed.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ffmpeg_available</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ffmpeg is required but not found&quot;</span><span class="p">)</span>
+    <span class="n">sio</span><span class="o">.</span><span class="n">set_default_video_plugin</span><span class="p">(</span><span class="s2">&quot;ffmpeg&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_needs_reencoding</span><span class="p">(</span><span class="n">input_video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if reencoding is required for input video.&quot;&quot;&quot;</span>
+    <span class="n">input_video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_video_path</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input video: </span><span class="si">{</span><span class="n">input_video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_video_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">EXPECTED_SUFFIX</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">encoding</span> <span class="o">=</span> <span class="n">_get_codec_pixelformat</span><span class="p">(</span><span class="n">input_video_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">encoding</span> <span class="o">!=</span> <span class="n">EXPECTED_ENCODING</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Video encoding (</span><span class="si">{</span><span class="n">encoding</span><span class="si">}</span><span class="s2">) does not match &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;the expected values (</span><span class="si">{</span><span class="n">EXPECTED_ENCODING</span><span class="si">}</span><span class="s2">). &quot;</span>
+            <span class="s2">&quot;The video will be reencoded.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_codec_pixelformat</span><span class="p">(</span>
+    <span class="n">input_video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get relevant video encoding parameters as a dictionary.</span>
+
+<span class="sd">    It wraps sleap-io&#39;s `_get_video_encoding_info`, which</span>
+<span class="sd">    uses `ffmpeg -i` to extract metadata without requiring</span>
+<span class="sd">    `ffprobe` to be in PATH.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    `_get_video_encoding_info` returns a `VideoEncodingInfo`</span>
+<span class="sd">    object with the following attributes:</span>
+<span class="sd">    - codec: Video codec name (e.g., &quot;h264&quot;, &quot;hevc&quot;).</span>
+<span class="sd">    - codec_profile: Codec profile (e.g., &quot;Main&quot;, &quot;High&quot;).</span>
+<span class="sd">    - pixel_format: Pixel format (e.g., &quot;yuv420p&quot;).</span>
+<span class="sd">    - bitrate_kbps: Bitrate in kilobits per second.</span>
+<span class="sd">    - fps: Frames per second.</span>
+<span class="sd">    - gop_size: Group of pictures size (keyframe interval).</span>
+<span class="sd">    - container: Container format (e.g., &quot;mov&quot;, &quot;avi&quot;).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">_get_video_encoding_info</span><span class="p">(</span><span class="n">input_video_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not read encoding info from </span><span class="si">{</span><span class="n">input_video_path</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Ensure ffmpeg is installed and the file is a valid video.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;codec&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">codec</span><span class="p">,</span>
+        <span class="s2">&quot;pixelformat&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">pixel_format</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reencode_video</span><span class="p">(</span>
+    <span class="n">input_video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reencode video to default format.&quot;&quot;&quot;</span>
+    <span class="n">video</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_video</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">input_video_path</span><span class="p">))</span>
+    <span class="n">reencoded_video_path</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">save_video</span><span class="p">(</span>
+        <span class="n">video</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">output_video_path</span><span class="p">,</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">video</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">REENCODING_PARAMS</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Re-encoded video saved to </span><span class="si">{</span><span class="n">reencoded_video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reencoded_video_path</span>
 </pre></div>
 
                 </article>
