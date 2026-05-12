@@ -68,17 +68,19 @@ def test_extract_cliplabels(tmp_path, video_labels):
     # Load results
     clip_labels = json.loads(clip_json.read_text())
 
-    # Check image IDs in results
-    selected_img_ids = list(range(start_frame, start_frame + duration))
-    assert [img["id"] for img in clip_labels["images"]] == selected_img_ids
+    # Check image IDs in resulting "images" are local and 0-based
+    assert [img["id"] for img in clip_labels["images"]] == list(
+        range(duration)
+    )
+    # Check image IDs in "annotations" are local and 0-based
+    assert set(
+        annot["image_id"] for annot in clip_labels["annotations"]
+    ) == set(range(duration))
 
-    # Check annotations are unchanged for the selected image_id
-    expected_annotations = [
-        ann
-        for ann in video_labels["annotations"]
-        if ann["image_id"] in selected_img_ids
-    ]
-    assert clip_labels["annotations"] == expected_annotations
+    # Check annotation IDs in "annotations" start with 1
+    assert [annot["id"] for annot in clip_labels["annotations"]] == list(
+        range(1, len(clip_labels["annotations"]) + 1)
+    )
 
     # Check categories are unchanged
     assert clip_labels["categories"] == video_labels["categories"]
