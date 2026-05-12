@@ -1,6 +1,6 @@
 import json
 from contextlib import nullcontext
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import sleap_io as sio
@@ -9,12 +9,18 @@ from pytest_lazy_fixtures import lf
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
     POSEINTERFACE_FRAME_REGEXP,
+    REENCODING_PARAMS,
     _build_output_json_path,
+    _check_ffmpeg,
     _extract_frame_number,
     _generate_poseinterface_filenames,
+    _get_codec_pixelformat,
+    _needs_reencoding,
     _pad_integers_to_same_width,
+    _reencode_video,
     _update_image_ids,
     annotations_to_poseinterface,
+    video_to_poseinterface,
 )
 
 
@@ -358,7 +364,6 @@ def test_generate_poseinterface_filenames(
         **sub_ses_cam_ids,
         include_file_extension=include_file_extension,
     )
-    # Load expected filenames from labels JSON file
     with open(expected_json) as f:
         frames_data = json.load(f)
     expected_frames_filenames = [
@@ -372,3 +377,156 @@ def test_pad_integers_to_same_width():
     input = [0, 1, 10, 100]
     expected = ["000", "001", "010", "100"]
     assert _pad_integers_to_same_width(input) == expected
+
+
+# ---------- Video to poseinterface ----------------
+
+
+@pytest.mark.parametrize(
+    "video_needs_reencoding",
+    [False, True],
+)
+@patch("poseinterface.io._reencode_video")
+@patch("poseinterface.io.shutil.copy")
+@patch("poseinterface.io._needs_reencoding")
+@patch("poseinterface.io._check_ffmpeg")
+def test_video_to_poseinterface(
+    mock_check_ffmpeg,
+    mock_needs_reencoding,
+    mock_copy,
+    mock_reencode,
+    video_needs_reencoding,
+    sub_ses_cam_ids,
+    tmp_path,
+):
+    """Test that video is copied or reencoded with correct output path."""
+    input_video = tmp_path / "raw_video.mp4"
+    input_video.touch()
+    output_dir = tmp_path / "output"
+
+    mock_needs_reencoding.return_value = video_needs_reencoding
+
+    output_video_path = video_to_poseinterface(
+        input_video, output_dir, **sub_ses_cam_ids
+    )
+
+    expected = output_dir / "sub-testSub123_ses-testSes123_cam-testCam123.mp4"
+    assert output_video_path == expected
+
+    mock_check_ffmpeg.assert_called_once()
+
+    if video_needs_reencoding:
+        mock_reencode.assert_called_once_with(input_video, expected)
+        mock_copy.assert_not_called()
+    else:
+        mock_copy.assert_called_once_with(input_video, expected)
+        mock_reencode.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "ffmpeg_available, expected_exception",
+    [
+        (True, nullcontext()),
+        (False, pytest.raises(RuntimeError, match="ffmpeg is required")),
+    ],
+)
+@patch("poseinterface.io._is_ffmpeg_available")
+def test_check_ffmpeg(
+    mock_is_ffmpeg_available,
+    ffmpeg_available,
+    expected_exception,
+):
+    """Test ffmpeg check.
+
+    RuntimeError is raised when ffmpeg is not available,
+    otherwise ffmpeg is set as the default video plugin.
+    """
+    mock_is_ffmpeg_available.return_value = ffmpeg_available
+
+    with expected_exception:
+        _check_ffmpeg()
+
+    if ffmpeg_available:
+        assert sio.get_default_video_plugin().lower() == "ffmpeg"
+
+
+@pytest.mark.parametrize(
+    "extension, codec_pixelformat, expected_needs_reencoding",
+    [
+        (
+            ".avi",
+            None,
+            True,
+        ),  # wrong suffix, skip encoding check
+        (
+            ".mp4",
+            {"codec": "foo", "pixelformat": "yuv420p"},
+            True,
+        ),  # wrong codec
+        (
+            ".mp4",
+            {"codec": "h264", "pixelformat": "foo"},
+            True,
+        ),  # wrong pixelformat
+        (
+            ".mp4",
+            {"codec": "h264", "pixelformat": "yuv420p"},
+            False,
+        ),  # all good
+    ],
+)
+@patch("poseinterface.io._get_codec_pixelformat")
+def test_needs_reencoding(
+    mock_get_codec_pixelformat,
+    extension,
+    codec_pixelformat,
+    expected_needs_reencoding,
+    tmp_path,
+):
+    """Test function that determines if video needs reencoding."""
+    input_video = tmp_path / f"raw_video.{extension}"
+    input_video.touch()
+
+    mock_get_codec_pixelformat.return_value = codec_pixelformat
+
+    assert _needs_reencoding(input_video) == expected_needs_reencoding
+
+    if extension != ".mp4":
+        mock_get_codec_pixelformat.assert_not_called()
+    else:
+        mock_get_codec_pixelformat.assert_called_once_with(input_video)
+
+
+@patch("poseinterface.io._get_video_encoding_info")
+def test_get_codec_pixelformat(mock_get_encoding_info, tmp_path):
+    """Test that codec and pixel_format are correctly extracted and renamed."""
+    mock_get_encoding_info.return_value = MagicMock(
+        codec="h264", pixel_format="yuv420p"
+    )
+
+    result = _get_codec_pixelformat(tmp_path / "video.mp4")
+
+    assert result == {"codec": "h264", "pixelformat": "yuv420p"}
+
+
+@patch("poseinterface.io.sio.save_video")
+@patch("poseinterface.io.sio.load_video")
+def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
+    """Test that video is loaded and saved with correct parameters."""
+    video_fps = 100
+
+    input_path = tmp_path / "input.mp4"
+    output_path = tmp_path / "output.mp4"
+
+    mock_video = MagicMock(fps=video_fps)
+    mock_load_video.return_value = mock_video
+
+    _reencode_video(input_path, output_path)
+
+    mock_load_video.assert_called_once_with(input_path)
+    mock_save_video.assert_called_once_with(
+        mock_video,
+        filename=output_path,
+        fps=video_fps,
+        **REENCODING_PARAMS,
+    )

@@ -7,6 +7,7 @@ from typing import Literal, TypedDict
 import pytest
 from PIL import Image
 
+# Path to the directory containing the test data
 TEST_DATA_DIR = Path(__file__).parent / "data"
 TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
 TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
