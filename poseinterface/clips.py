@@ -91,6 +91,11 @@ def extract_clip(
         video_path, clips_dir, start_frame, duration
     )
 
+    logging.info(
+        f"Extracted clip {clip_path.name} with labels {clip_json.name}"
+        f"({duration} frames from start_frame={start_frame}) ."
+    )
+
     return clip_path, clip_json
 
 
