@@ -205,7 +205,7 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Extract clips from video (and corresponding"
+            "Extract clips from video (and corresponding "
             "clip labels if available)."
         )
     )
