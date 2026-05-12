@@ -244,7 +244,7 @@ Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` thro
 :::
 
 (target-videolabels)=
-### Intermediate file `videolabels.json`
+#### Intermediate file `videolabels.json`
 
 :::{note}
 This file is **not a required part of a benchmark dataset**. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the `extract_clip` tool.
