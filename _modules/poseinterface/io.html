@@ -377,10 +377,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">coco</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.dlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_dlc_file</span>
+
+<span class="n">PoseInterfaceFormat</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;clip&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">]</span>
 
 <span class="n">_EMPTY_LABELS_ERROR_MSG</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -395,43 +398,50 @@
         <span class="s2">&quot;and that the frames files exist.&quot;</span>
     <span class="p">),</span>
 <span class="p">}</span>
-
 <span class="n">POSEINTERFACE_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;frame-(\d+)&quot;</span>
+<span class="n">DLC_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)&quot;</span>
 
 
-<div class="viewcode-block" id="annotations_to_coco">
-<a class="viewcode-back" href="../../api_generated/poseinterface.io.annotations_to_coco.html#poseinterface.io.annotations_to_coco">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">annotations_to_coco</span><span class="p">(</span>
+<div class="viewcode-block" id="annotations_to_poseinterface">
+<a class="viewcode-back" href="../../api_generated/poseinterface.io.annotations_to_poseinterface.html#poseinterface.io.annotations_to_poseinterface">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">annotations_to_poseinterface</span><span class="p">(</span>
     <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">output_json_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">coco_image_filenames</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">coco_visibility_encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ternary&quot;</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="n">PoseInterfaceFormat</span> <span class="o">=</span> <span class="s2">&quot;frame&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Export annotations file from a single video to ``poseinterface`` format.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    input_path : pathlib.Path</span>
+<span class="sd">    input_path</span>
 <span class="sd">        Path to the input annotations file.</span>
-<span class="sd">    output_json_path : pathlib.Path</span>
-<span class="sd">        Path to save the output ``poseinterface`` COCO JSON file.</span>
-<span class="sd">    coco_image_filenames : str | list[str] | None, optional</span>
-<span class="sd">        Optional image filenames to use in the ``poseinterface`` COCO JSON.</span>
-<span class="sd">        If provided, must be a single string (for single-frame videos)</span>
-<span class="sd">        or a list of strings matching the number of labeled frames.</span>
-<span class="sd">        If None (default), generates filenames from video filenames</span>
-<span class="sd">        and frame indices.</span>
-<span class="sd">    coco_visibility_encoding : str, optional</span>
-<span class="sd">        Encoding scheme for keypoint visibility in the ``poseinterface`` COCO</span>
-<span class="sd">        JSON file. Options are &quot;ternary&quot; (0: not labeled, 1: labeled</span>
-<span class="sd">        but not visible, 2: labeled and visible) or &quot;binary&quot; (0: not</span>
-<span class="sd">        visible, 1: visible). Default is &quot;ternary&quot;.</span>
+<span class="sd">    output_dir</span>
+<span class="sd">        Directory where the output ``poseinterface`` COCO JSON file</span>
+<span class="sd">        will be saved.</span>
+<span class="sd">    sub_id</span>
+<span class="sd">        Subject ID to include in the generated filenames.</span>
+<span class="sd">    ses_id</span>
+<span class="sd">        Session ID to include in the generated filenames.</span>
+<span class="sd">    cam_id</span>
+<span class="sd">        Camera ID to include in the generated filenames.</span>
+<span class="sd">    format</span>
+<span class="sd">        Whether to generate :ref:`frame labels&lt;target-framelabels&gt;` or</span>
+<span class="sd">        :ref:`clip labels&lt;target-cliplabels&gt;`. Default is &quot;frame&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pathlib.Path</span>
 <span class="sd">        Path to the saved ``poseinterface`` COCO JSON file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no labeled frames could be extracted from the input file,</span>
+<span class="sd">        or if the annotations refer to multiple videos.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -441,28 +451,32 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
+<span class="sd">    sleap_io.io.main.load_file</span>
+<span class="sd">        The underlying function used to load the input annotations file as</span>
+<span class="sd">        a SLEAP labels object.</span>
 <span class="sd">    sleap_io.io.coco.convert_labels</span>
 <span class="sd">        The underlying function used to convert SLEAP labels to COCO format.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
-<span class="sd">    &gt;&gt;&gt; from poseinterface.io import annotations_to_coco</span>
-<span class="sd">    &gt;&gt;&gt; coco_json_path = annotations_to_coco(</span>
+<span class="sd">    &gt;&gt;&gt; from poseinterface.io import annotations_to_poseinterface</span>
+<span class="sd">    &gt;&gt;&gt; coco_json_path = annotations_to_poseinterface(</span>
 <span class="sd">    ...     input_path=Path(&quot;path/to/annotations.slp&quot;),</span>
-<span class="sd">    ...     output_json_path=Path(&quot;path/to/annotations_coco.json&quot;),</span>
+<span class="sd">    ...     output_dir=Path(&quot;path/to/output_directory&quot;),</span>
+<span class="sd">    ...     sub_id=&quot;testSub123&quot;,</span>
+<span class="sd">    ...     ses_id=&quot;testSes123&quot;,</span>
+<span class="sd">    ...     cam_id=&quot;testCam123&quot;,</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
 
-    <span class="c1"># Check if labels object is empty</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">labeled_frames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_EMPTY_LABELS_ERROR_MSG</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">is_dlc_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">):</span>
             <span class="n">error_msg</span> <span class="o">+=</span> <span class="n">_EMPTY_LABELS_ERROR_MSG</span><span class="p">[</span><span class="s2">&quot;dlc&quot;</span><span class="p">]</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
 
-    <span class="c1"># Check single video</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">videos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;The annotations refer to multiple videos &quot;</span>
@@ -471,18 +485,28 @@
             <span class="s2">&quot;for a single video only.&quot;</span>
         <span class="p">)</span>
 
-    <span class="c1"># Generate COCO dict from sleap-io</span>
-    <span class="n">coco_data</span> <span class="o">=</span> <span class="n">coco</span><span class="o">.</span><span class="n">convert_labels</span><span class="p">(</span>
+    <span class="c1"># Generate image filenames in the poseinterface format</span>
+    <span class="n">image_filenames</span> <span class="o">=</span> <span class="n">_generate_poseinterface_filenames</span><span class="p">(</span>
         <span class="n">labels</span><span class="p">,</span>
-        <span class="n">image_filenames</span><span class="o">=</span><span class="n">coco_image_filenames</span><span class="p">,</span>
-        <span class="n">visibility_encoding</span><span class="o">=</span><span class="n">coco_visibility_encoding</span><span class="p">,</span>
+        <span class="n">sub_id</span><span class="o">=</span><span class="n">sub_id</span><span class="p">,</span>
+        <span class="n">ses_id</span><span class="o">=</span><span class="n">ses_id</span><span class="p">,</span>
+        <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">,</span>
+        <span class="n">include_file_extension</span><span class="o">=</span><span class="p">(</span><span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># Generate COCO dict</span>
+    <span class="n">coco_data</span> <span class="o">=</span> <span class="n">coco</span><span class="o">.</span><span class="n">convert_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">image_filenames</span><span class="o">=</span><span class="n">image_filenames</span><span class="p">)</span>
+    <span class="c1"># Update image IDs in coco_data</span>
+    <span class="n">coco_data</span> <span class="o">=</span> <span class="n">_update_image_ids</span><span class="p">(</span><span class="n">coco_data</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+
+    <span class="n">output_json_path</span> <span class="o">=</span> <span class="n">_build_output_json_path</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="n">coco_data</span><span class="o">=</span><span class="n">coco_data</span><span class="p">,</span>
+        <span class="n">sub_id</span><span class="o">=</span><span class="n">sub_id</span><span class="p">,</span>
+        <span class="n">ses_id</span><span class="o">=</span><span class="n">ses_id</span><span class="p">,</span>
+        <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Update image ids to match frame number</span>
-    <span class="c1"># uncomment after PR19</span>
-    <span class="c1"># coco_data = _update_image_ids(coco_data)</span>
-
-    <span class="c1"># Save JSON file</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_json_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">coco_data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
@@ -490,30 +514,78 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_update_image_ids</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assigns new image IDs based on the frame number in the filename.&quot;&quot;&quot;</span>
-    <span class="c1"># Create new dict</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_output_json_path</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">coco_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="n">PoseInterfaceFormat</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build output JSON path using poseinterface naming conventions.&quot;&quot;&quot;</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="c1"># Build map old-to-new image IDs and update image id in images list</span>
+    <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_framelabels.json&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coco_data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No images were found in the COCO data. &quot;</span>
+            <span class="s2">&quot;Cannot infer start frame and duration for cliplabels format.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">frame_numbers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">coco_data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">start_frame</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span>
+    <span class="n">padded_start</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_frame</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">output_dir</span>
+        <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_start-</span><span class="si">{</span><span class="n">padded_start</span><span class="si">}</span><span class="s2">_dur-</span><span class="si">{</span><span class="n">n_frames</span><span class="si">}</span><span class="s2">_cliplabels.json&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_image_ids</span><span class="p">(</span>
+    <span class="n">coco_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="n">PoseInterfaceFormat</span> <span class="o">=</span> <span class="s2">&quot;frame&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assign new image IDs based on the format.</span>
+
+<span class="sd">    For frame format, each image ID is set to the session-video frame number</span>
+<span class="sd">    extracted from the filename. For clip format, images are sorted by frame</span>
+<span class="sd">    number and assigned 0-based indices within the clip.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">coco_data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">file_names</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Duplicate image filenames were found. Please check that the &quot;</span>
+            <span class="s2">&quot;input annotations do not contain duplicate frames.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">coco_data</span><span class="p">)</span>
+
     <span class="n">old_to_new_id</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]:</span>
-        <span class="c1"># map old image_id to new image_id</span>
-        <span class="n">old_img_id</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-        <span class="n">new_img_id</span> <span class="o">=</span> <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>
-        <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">old_img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_img_id</span>
+    <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]:</span>
+            <span class="n">old_img_id</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="n">new_img_id</span> <span class="o">=</span> <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>
+            <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">old_img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_img_id</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">img</span><span class="p">:</span> <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]):</span>
+            <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">idx</span>
 
-        <span class="c1"># update image_id in images list</span>
-        <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_img_id</span>
-
-    <span class="c1"># Check new image IDs are unique</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_to_new_id</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">old_to_new_id</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Extracted image IDs are not unique. Please check that the frame &quot;</span>
             <span class="s2">&quot;numbers as specified in the filename are unique.&quot;</span>
         <span class="p">)</span>
 
-    <span class="c1"># Update image_id in annotations list</span>
+    <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]:</span>
+        <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span>
     <span class="k">for</span> <span class="n">annot</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]:</span>
         <span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_to_new_id</span><span class="p">[</span><span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]]</span>
 
@@ -522,10 +594,10 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_number</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">POSEINTERFACE_FRAME_REGEXP</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the frame number in the input filename.</span>
 
-<span class="sd">    If no frame number is found, returns None.</span>
+<span class="sd">    If no frame number is found, a ValueError is raised.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -536,6 +608,91 @@
             <span class="sa">rf</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_poseinterface_filenames</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">sio</span><span class="o">.</span><span class="n">Labels</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">include_file_extension</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate PoseInterface image filenames for frames in the input labels.</span>
+
+<span class="sd">    The generated filenames are in the format:</span>
+<span class="sd">    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}</span>
+
+<span class="sd">    If `include_file_extension` is True, the generated filenames will include</span>
+<span class="sd">    the file extension of the original frame files, in the format:</span>
+<span class="sd">    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}.{file_extension}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels</span>
+<span class="sd">        SLEAP labels object containing the annotations and video information.</span>
+<span class="sd">    sub_id</span>
+<span class="sd">        Subject ID to include in the generated filenames.</span>
+<span class="sd">    ses_id</span>
+<span class="sd">        Session ID to include in the generated filenames.</span>
+<span class="sd">    cam_id</span>
+<span class="sd">        Camera ID to include in the generated filenames.</span>
+<span class="sd">    include_file_extension</span>
+<span class="sd">        Whether to include the file extension of the original frame files</span>
+<span class="sd">        in the generated filenames. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[str]</span>
+<span class="sd">        List of generated COCO image filenames corresponding to each</span>
+<span class="sd">        labeled frame.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no labeled frames could be extracted from the input file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When the SLEAP labels video object is a video file, per-frame file</span>
+<span class="sd">    extensions are not available. Therefore, when ``include_file_extension``</span>
+<span class="sd">    is True, the generated filenames assume a ``.png`` extension.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">video_filenames</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">videos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video_filenames</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># Sequence of frame images</span>
+        <span class="n">frame_numbers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_extract_frame_number</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="o">=</span><span class="n">DLC_FRAME_REGEXP</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">video_filenames</span>
+        <span class="p">]</span>
+        <span class="n">file_extensions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">video_filenames</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">include_file_extension</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Video file</span>
+        <span class="n">frame_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="n">lf</span><span class="o">.</span><span class="n">frame_idx</span> <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">labeled_frames</span><span class="p">]</span>
+        <span class="n">file_extensions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;.png&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span> <span class="k">if</span> <span class="n">include_file_extension</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+    <span class="c1"># Pad frame_numbers to the same width</span>
+    <span class="n">padded_frame_numbers</span> <span class="o">=</span> <span class="n">_pad_integers_to_same_width</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span>
+    <span class="c1"># Build filenames</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">_frame-&quot;</span>
+    <span class="k">if</span> <span class="n">include_file_extension</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">prefix</span> <span class="o">+</span> <span class="n">frame_id</span> <span class="o">+</span> <span class="n">ext</span>
+            <span class="k">for</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">ext</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">padded_frame_numbers</span><span class="p">,</span> <span class="n">file_extensions</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">frame_id</span> <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="n">padded_frame_numbers</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pad_integers_to_same_width</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pad a list of integers to the same width with leading zeros.&quot;&quot;&quot;</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">input</span><span class="p">)))</span>
+    <span class="n">padded_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">padded_numbers</span>
 </pre></div>
 
                 </article>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>poseinterface.io.annotations_to_coco &#8212; poseinterface</title>
+    <title>poseinterface.io.annotations_to_poseinterface &#8212; poseinterface</title>
   
   
   
@@ -49,9 +49,9 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api_generated/poseinterface.io.annotations_to_coco';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_generated/poseinterface.io.annotations_to_poseinterface';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/api_generated/poseinterface.io.annotations_to_coco.html" />
+    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/api_generated/poseinterface.io.annotations_to_poseinterface.html" />
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -334,7 +334,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">poseinterface.io.annotations_to_coco</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">poseinterface.io.annotations_to_poseinterface</a></li>
 </ul>
 </div>
 </nav></div>
@@ -378,7 +378,7 @@
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">poseinterface.io.annotations_to_coco</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">poseinterface.io.annotations_to_poseinterface</span></li>
   </ul>
 </nav>
 </div>
@@ -395,26 +395,23 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="poseinterface-io-annotations-to-coco">
-<h1>poseinterface.io.annotations_to_coco<a class="headerlink" href="#poseinterface-io-annotations-to-coco" title="Link to this heading">#</a></h1>
+  <section id="poseinterface-io-annotations-to-poseinterface">
+<h1>poseinterface.io.annotations_to_poseinterface<a class="headerlink" href="#poseinterface-io-annotations-to-poseinterface" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="poseinterface.io.annotations_to_coco">
-<span class="sig-prename descclassname"><span class="pre">poseinterface.io.</span></span><span class="sig-name descname"><span class="pre">annotations_to_coco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_json_path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">coco_image_filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coco_visibility_encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ternary'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/poseinterface/io.html#annotations_to_coco"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseinterface.io.annotations_to_coco" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="poseinterface.io.annotations_to_poseinterface">
+<span class="sig-prename descclassname"><span class="pre">poseinterface.io.</span></span><span class="sig-name descname"><span class="pre">annotations_to_poseinterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ses_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cam_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'frame'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/poseinterface/io.html#annotations_to_poseinterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseinterface.io.annotations_to_poseinterface" title="Link to this definition">#</a></dt>
 <dd><p>Export annotations file from a single video to <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to the input annotations file.</p></li>
-<li><p><strong>output_json_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to save the output <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON file.</p></li>
-<li><p><strong>coco_image_filenames</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional image filenames to use in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON.
-If provided, must be a single string (for single-frame videos)
-or a list of strings matching the number of labeled frames.
-If None (default), generates filenames from video filenames
-and frame indices.</p></li>
-<li><p><strong>coco_visibility_encoding</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Encoding scheme for keypoint visibility in the <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO
-JSON file. Options are “ternary” (0: not labeled, 1: labeled
-but not visible, 2: labeled and visible) or “binary” (0: not
-visible, 1: visible). Default is “ternary”.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Directory where the output <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> COCO JSON file
+will be saved.</p></li>
+<li><p><strong>sub_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Subject ID to include in the generated filenames.</p></li>
+<li><p><strong>ses_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Session ID to include in the generated filenames.</p></li>
+<li><p><strong>cam_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Camera ID to include in the generated filenames.</p></li>
+<li><p><strong>format</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'clip'</span></code>, <code class="docutils literal notranslate"><span class="pre">'frame'</span></code>]</span>) – Whether to generate <a class="reference internal" href="../benchmark-dataset.html#target-framelabels"><span class="std std-ref">frame labels</span></a> or
+<a class="reference internal" href="../benchmark-dataset.html#target-cliplabels"><span class="std std-ref">clip labels</span></a>. Default is “frame”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -422,6 +419,10 @@ visible, 1: visible). Default is “ternary”.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If no labeled frames could be extracted from the input file,
+    or if the annotations refer to multiple videos.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -431,16 +432,21 @@ formats.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
+<dt><a class="reference external" href="https://io.sleap.ai/latest/reference/sleap_io/io/main/#sleap_io.io.main.load_file" title="(in sleap-io documentation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sleap_io.io.main.load_file</span></code></a></dt><dd><p>The underlying function used to load the input annotations file as a SLEAP labels object.</p>
+</dd>
 <dt><a class="reference external" href="https://io.sleap.ai/latest/reference/sleap_io/io/coco/#sleap_io.io.coco.convert_labels" title="(in sleap-io documentation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sleap_io.io.coco.convert_labels</span></code></a></dt><dd><p>The underlying function used to convert SLEAP labels to COCO format.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations_to_coco</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coco_json_path</span> <span class="o">=</span> <span class="n">annotations_to_coco</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations_to_poseinterface</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coco_json_path</span> <span class="o">=</span> <span class="n">annotations_to_poseinterface</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">input_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;path/to/annotations.slp&quot;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">output_json_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;path/to/annotations_coco.json&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;path/to/output_directory&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">sub_id</span><span class="o">=</span><span class="s2">&quot;testSub123&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ses_id</span><span class="o">=</span><span class="s2">&quot;testSes123&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cam_id</span><span class="o">=</span><span class="s2">&quot;testCam123&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -486,14 +492,14 @@ formats.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#poseinterface.io.annotations_to_coco"><code class="docutils literal notranslate"><span class="pre">annotations_to_coco()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#poseinterface.io.annotations_to_poseinterface"><code class="docutils literal notranslate"><span class="pre">annotations_to_poseinterface()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api_generated/poseinterface.io.annotations_to_coco.rst.txt">
+    <a href="../_sources/api_generated/poseinterface.io.annotations_to_poseinterface.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

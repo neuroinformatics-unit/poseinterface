@@ -1,6 +1,0 @@
-﻿poseinterface.io.annotations\_to\_coco
-======================================
-
-.. currentmodule:: poseinterface.io
-
-.. autofunction:: annotations_to_coco

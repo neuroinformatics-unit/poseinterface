@@ -1,0 +1,6 @@
+﻿poseinterface.io.annotations\_to\_poseinterface
+===============================================
+
+.. currentmodule:: poseinterface.io
+
+.. autofunction:: annotations_to_poseinterface
