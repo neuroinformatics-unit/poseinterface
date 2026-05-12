@@ -18,9 +18,10 @@ def extract_clip(
 
     Reads the source video and saves a ``.mp4`` clip to a ``Clips/``
     subdirectory next to the source video. If a sibling
-    ``*_cliplabels.json`` file exists, a matching ``_cliplabels.json``
-    containing only the annotations within the requested frame range is
-    also written.
+    ``*_videolabels.json`` file exists (holding labels for the entire
+    session video, using the same schema as ``cliplabels.json``), a
+    matching ``_cliplabels.json`` containing only the annotations within
+    the requested frame range is also written.
 
 
     Parameters
@@ -29,7 +30,7 @@ def extract_clip(
         Path to the input ``.mp4`` video. The filename should follow
         the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``, and
         if a sibling labels file exists, its filename should be
-        ``sub-<subjectID>_ses-<sessionID>_cam-<camID>_cliplabels.json``.
+        ``sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json``.
         Note that this is by convention and not enforced by the function.
     start_frame
         Index of the first frame to include in the clip (0-based).
@@ -54,8 +55,8 @@ def extract_clip(
     Notes
     -----
     This function assumes that the ``id`` field in the ``images`` list of the
-    source ``_cliplabels.json`` corresponds to 0-based global frame indices of
-    the full video.
+    source ``*_videolabels.json`` corresponds to 0-based global frame indices
+    of the full video.
     """
     # Check input values
     if start_frame < 0:
@@ -91,8 +92,8 @@ def extract_clip(
     )
     sio.save_video(clip, clip_path, fps=video.fps)
 
-    # Generate cliplabels.json only if a companion file exists
-    video_json = video_path.parent / f"{video_path.stem}_cliplabels.json"
+    # Generate cliplabels.json only if a companion videolabels.json file exists
+    video_json = video_path.parent / f"{video_path.stem}_videolabels.json"
     if video_json.exists():
         clip_json = _extract_cliplabels(
             video_path, clips_dir, start_frame, duration
@@ -106,16 +107,16 @@ def extract_clip(
         logging.info(
             f"Extracted clip {clip_path.name} "
             f"({duration} frames from start_frame={start_frame}). "
-            "No companion _cliplabels.json found; skipping label extraction."
+            "No companion *_videolabels.json found; skipping label extraction."
         )
 
     return clip_path, clip_json
 
 
 def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
-    """Extract clip labels from the video cliplabels.json file."""
+    """Extract clip labels from the sibling *_videolabels.json file."""
     # Read file with labels for the whole video
-    video_json = video_path.parent / f"{video_path.stem}_cliplabels.json"
+    video_json = video_path.parent / f"{video_path.stem}_videolabels.json"
     with open(video_json) as f:
         video_labels = json.load(f)
 

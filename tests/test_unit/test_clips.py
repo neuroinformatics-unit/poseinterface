@@ -30,9 +30,9 @@ def video_labels():
 
 @pytest.fixture
 def video_path(tmp_path, video_labels):
-    """Video path with a corresponding cliplabels.json alongside it."""
+    """Video path with a corresponding *_videolabels.json alongside it."""
     path = tmp_path / "sub-01_ses-01_cam-01.mp4"
-    json_path = tmp_path / "sub-01_ses-01_cam-01_cliplabels.json"
+    json_path = tmp_path / "sub-01_ses-01_cam-01_videolabels.json"
     json_path.write_text(json.dumps(video_labels))
     return path
 
@@ -48,10 +48,10 @@ def mock_video():
 
 
 def test_extract_cliplabels(tmp_path, video_labels):
-    """Test clip json file is extracted from the video cliplabels.json file."""
-    # Set up fake video path and corresponding cliplabels.json
+    """Test clip json file is extracted from the *_videolabels.json file."""
+    # Set up fake video path and corresponding videolabels.json
     video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
-    json_path = tmp_path / "sub-01_ses-01_cam-01_cliplabels.json"
+    json_path = tmp_path / "sub-01_ses-01_cam-01_videolabels.json"
     json_path.write_text(json.dumps(video_labels))
 
     # Set up a "Clips" destination directory
