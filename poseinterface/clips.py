@@ -56,11 +56,11 @@ def extract_clip(
     This function optionally consumes a ``*_videolabels.json`` file, sibling
     to the input video file and holding labels for the entire video. This
     file is an intermediate cache useful for data contributors: it follows
-    the same schema as ``cliplabels.json`` but is refers to the full video,
+    the same schema as ``cliplabels.json`` but it refers to the full video,
     rather than to a clip of it. The ``*_videolabels.json`` file is not part
     of the published benchmark dataset. For further details, see the
     "Intermediate file: `videolabels.json`" section of the benchmark
-    dataset spec.
+    dataset specification.
 
     This function assumes that the ``id`` field in the ``images`` list of the
     source ``*_videolabels.json`` corresponds to 0-based global frame indices
