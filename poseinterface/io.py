@@ -404,10 +404,10 @@ def _needs_reencoding(input_video_path: str | Path) -> bool:
 
     encoding = _get_codec_pixelformat(input_video_path)
     if encoding != EXPECTED_ENCODING:
-        logging.warning(
-            f"Video encoding {encoding} does not match "
-            f"expected {EXPECTED_ENCODING}. Please reencode "
-            "using the `reencode_video()` function."
+        logging.info(
+            f"Video encoding ({encoding}) does not match "
+            f"the expected values ({EXPECTED_ENCODING}). "
+            "The video will be reencoded."
         )
         return True
     return False
