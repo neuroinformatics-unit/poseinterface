@@ -23,6 +23,7 @@ from poseinterface.io import (
     _reencode_video,
     _update_image_ids,
     annotations_to_poseinterface,
+    frames_to_poseinterface,
     predictions_to_poseinterface,
     video_to_poseinterface,
 )
@@ -437,6 +438,86 @@ def test_pad_integers_to_same_width():
     input = [0, 1, 10, 100]
     expected = ["000", "001", "010", "100"]
     assert _pad_integers_to_same_width(input) == expected
+
+
+# ---------- Frames to poseinterface ----------------
+
+
+@pytest.fixture
+def frames_coco_json(tmp_path):
+    """Create a minimal COCO JSON with 3 image entries."""
+    data = {
+        "images": [
+            {"id": 100, "file_name": "sub-A_ses-1_cam-top_frame-0100.png"},
+            {"id": 200, "file_name": "sub-A_ses-1_cam-top_frame-0200.png"},
+            {"id": 350, "file_name": "sub-A_ses-1_cam-top_frame-0350.png"},
+        ],
+        "annotations": [],
+        "categories": [],
+    }
+    path = tmp_path / "framelabels.json"
+    path.write_text(json.dumps(data))
+    return path
+
+
+@pytest.fixture
+def frames_source_dir(tmp_path):
+    """Create a source directory with DLC-style frame images."""
+    src = tmp_path / "source_frames"
+    src.mkdir()
+    for name in ["img0100.png", "img0200.png", "img0350.png"]:
+        (src / name).write_bytes(b"fake png")
+    return src
+
+
+@pytest.fixture
+def frames_target_dir(tmp_path):
+    """Create an empty target directory."""
+    tgt = tmp_path / "target_frames"
+    tgt.mkdir()
+    return tgt
+
+
+def test_frames_to_poseinterface_copies_and_renames(
+    frames_source_dir, frames_target_dir, frames_coco_json
+):
+    """Test that frames are copied with standardised names."""
+    frames_to_poseinterface(
+        frames_source_dir, frames_target_dir, frames_coco_json
+    )
+
+    expected_names = {
+        "sub-A_ses-1_cam-top_frame-0100.png",
+        "sub-A_ses-1_cam-top_frame-0200.png",
+        "sub-A_ses-1_cam-top_frame-0350.png",
+    }
+    actual_names = {f.name for f in frames_target_dir.glob("*.png")}
+    assert actual_names == expected_names
+
+
+def test_frames_to_poseinterface_skips_existing(
+    frames_source_dir, frames_target_dir, frames_coco_json
+):
+    """Test that existing target files are not overwritten."""
+    existing = frames_target_dir / "sub-A_ses-1_cam-top_frame-0100.png"
+    existing.write_bytes(b"do not overwrite")
+
+    frames_to_poseinterface(
+        frames_source_dir, frames_target_dir, frames_coco_json
+    )
+
+    assert existing.read_bytes() == b"do not overwrite"
+
+
+def test_frames_to_poseinterface_raises_for_missing_source(
+    frames_target_dir, frames_coco_json, tmp_path
+):
+    """Test FileNotFoundError when source frame is missing."""
+    empty_src = tmp_path / "empty_source"
+    empty_src.mkdir()
+
+    with pytest.raises(FileNotFoundError, match="No source frame found"):
+        frames_to_poseinterface(empty_src, frames_target_dir, frames_coco_json)
 
 
 # ---------- Video to poseinterface ----------------
