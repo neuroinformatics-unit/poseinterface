@@ -413,7 +413,9 @@ def _needs_reencoding(input_video_path: str | Path) -> bool:
     return False
 
 
-def _get_codec_pixelformat(input_video_path: str | Path) -> dict[str, str]:
+def _get_codec_pixelformat(
+    input_video_path: str | Path,
+) -> dict[str, str | None]:
     """Get relevant video encoding parameters as a dictionary.
 
     It wraps sleap-io's `_get_video_encoding_info`, which
@@ -434,6 +436,11 @@ def _get_codec_pixelformat(input_video_path: str | Path) -> dict[str, str]:
 
     """
     info = _get_video_encoding_info(input_video_path)
+    if info is None:
+        raise RuntimeError(
+            f"Could not read encoding info from {input_video_path}. "
+            "Ensure ffmpeg is installed and the file is a valid video."
+        )
     return {
         "codec": info.codec,
         "pixelformat": info.pixel_format,
