@@ -13,20 +13,24 @@ def extract_clip(
     video_path: str | Path,
     start_frame: int,
     duration: int,
-) -> tuple[Path, Path]:
-    """Extract a video clip and its corresponding clip labels.
+) -> tuple[Path, Path | None]:
+    """Extract a video clip (and its clip labels if available).
 
-    Reads the source video and its paired ``_cliplabels.json`` file, and saves
-    to a ``Clips/`` subdirectory next to the source video: a ``.mp4`` clip, and
-    a matching ``_cliplabels.json`` file containing only the annotations that
-    fall within the requested frame range.
+    Reads the source video and saves a ``.mp4`` clip to a ``Clips/``
+    subdirectory next to the source video. If a sibling
+    ``*_cliplabels.json`` file exists, a matching ``_cliplabels.json``
+    containing only the annotations within the requested frame range is
+    also written.
+
 
     Parameters
     ----------
     video_path
-        Path to the input ``.mp4`` video.  The filename is expected to follow
-        the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``
-        and a sibling ``*_cliplabels.json`` file must exist.
+        Path to the input ``.mp4`` video. The filename should follow
+        the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``, and
+        if a sibling labels file exists, its filename should be
+        ``sub-<subjectID>_ses-<sessionID>_cam-<camID>_cliplabels.json``.
+        Note that this is by convention and not enforced by the function.
     start_frame
         Index of the first frame to include in the clip (0-based).
     duration
@@ -38,8 +42,9 @@ def extract_clip(
     -------
     clip_path : Path
         Path to the output clip file.
-    clip_json : Path
-        Path to the ``_cliplabels.json`` file for the clip.
+    clip_json : Path | None
+        Path to the ``_cliplabels.json`` file for the clip if extracted,
+        None otherwise.
 
     Raises
     ------
@@ -48,7 +53,7 @@ def extract_clip(
 
     Notes
     -----
-    This function assumes that the  ``id`` field in the ``images`` list of the
+    This function assumes that the ``id`` field in the ``images`` list of the
     source ``_cliplabels.json`` corresponds to 0-based global frame indices of
     the full video.
     """
@@ -86,15 +91,23 @@ def extract_clip(
     )
     sio.save_video(clip, clip_path, fps=video.fps)
 
-    # Generate cliplabels.json from the full video labels
-    clip_json = _extract_cliplabels(
-        video_path, clips_dir, start_frame, duration
-    )
-
-    logging.info(
-        f"Extracted clip {clip_path.name} with labels {clip_json.name}"
-        f"({duration} frames from start_frame={start_frame}) ."
-    )
+    # Generate cliplabels.json only if a companion file exists
+    video_json = video_path.parent / f"{video_path.stem}_cliplabels.json"
+    if video_json.exists():
+        clip_json = _extract_cliplabels(
+            video_path, clips_dir, start_frame, duration
+        )
+        logging.info(
+            f"Extracted clip {clip_path.name} with labels {clip_json.name} "
+            f"({duration} frames from start_frame={start_frame})."
+        )
+    else:
+        clip_json = None
+        logging.info(
+            f"Extracted clip {clip_path.name} "
+            f"({duration} frames from start_frame={start_frame}). "
+            "No companion _cliplabels.json found; skipping label extraction."
+        )
 
     return clip_path, clip_json
 
