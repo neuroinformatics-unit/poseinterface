@@ -13,9 +13,7 @@ organised in the pose benchmarks dataset structure.
 import shutil
 from pathlib import Path
 
-import sleap_io as sio
-
-from poseinterface.io import annotations_to_coco
+from poseinterface.io import annotations_to_poseinterface
 
 # %%
 # Background
@@ -95,49 +93,21 @@ source_annotations_path = source_labels_dir / "CollectedData_Loukia.csv"
 target_frames_dir = target_session_dir / "Frames"
 target_frames_dir.mkdir(parents=True, exist_ok=True)
 
-# Save COCO annotations inside the Frames directory
-target_annotations_path = target_frames_dir / f"{video_id}_framelabels.json"
-
-# %%
-# Build new filenames for COCO annotations
-# ----------------------------------------
-# We need to determine the new filenames before calling annotations_to_coco.
-# This ensures the JSON file references the renamed frame files,
-# not the original source filenames.
-
-# Load annotations to get the order of labeled frames
-labels = sio.load_file(source_annotations_path)
-
-# Build list of new filenames matching the order of labeled frames
-coco_image_filenames = []
-for lf in labels.labeled_frames:
-    # Extract the original image path from the labeled frame
-    # For DLC, video.filename is a list of all image paths;
-    # use frame_idx to get the correct one for this labeled frame
-    filename = lf.video.filename
-    if isinstance(filename, list):
-        filename = filename[lf.frame_idx]
-    original_path = Path(filename)
-    # Extract frame number from filename, e.g. "img0042.png" -> "0042"
-    frame_number = original_path.stem.replace("img", "")
-    # Create new filename following the naming convention
-    new_filename = f"{video_id}_frame-{frame_number}.png"
-    coco_image_filenames.append(new_filename)
-
 # %%
 # Convert DLC annotations to COCO format
 # --------------------------------------
-# Here we use the :func:`annotations_to_coco` function from `poseinterface.io`
+# Here we use the :func:`annotations_to_poseinterface`
+# function from `poseinterface.io`
 # which wraps around `sleap_io` functionality to perform the conversion.
-# We pass the new filenames so the JSON references the renamed frames.
 
-annotations_to_coco(
+output_annotations_path = annotations_to_poseinterface(
     input_path=source_annotations_path,
-    output_json_path=target_annotations_path,
-    coco_image_filenames=coco_image_filenames,
-    coco_visibility_encoding="ternary",
+    output_dir=target_frames_dir,
+    sub_id=subject_id,
+    ses_id=session_id,
+    cam_id=view_id,
 )
-print(f"Saved COCO annotations to: {target_annotations_path}")
+print(f"Saved COCO annotations to: {output_annotations_path}")
 
 # %%
 # Copy labeled frames to target directory

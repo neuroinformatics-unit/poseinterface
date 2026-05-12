@@ -10,4 +10,4 @@ io
     :toctree: api_generated
     :template: function.rst
 
-    annotations_to_coco
+    annotations_to_poseinterface

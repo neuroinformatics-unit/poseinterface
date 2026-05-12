@@ -7,8 +7,19 @@ from typing import Literal, TypedDict
 import pytest
 from PIL import Image
 
-# Path to the directory containing the test data
 TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
+TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
+
+
+@pytest.fixture
+def sub_ses_cam_ids():
+    """Test subject, session, and camera IDs."""
+    return {
+        "sub_id": "testSub123",
+        "ses_id": "testSes123",
+        "cam_id": "testCam123",
+    }
 
 
 class DLCTestFile(TypedDict):
@@ -87,7 +98,7 @@ def create_dlc_project(
     video_dir.mkdir(parents=True)
 
     # Copy CSV from the source (tests/data) to the appropriate location
-    source_csv_path = TEST_DATA_DIR / project_structure["csv"]
+    source_csv_path = TEST_DATA_DLC_DIR / project_structure["csv"]
     if csv_location == "video_folder":
         csv_path_in_project = video_dir / project_structure["csv"]
     else:  # project_root
@@ -146,4 +157,31 @@ def dlc_multi_index_in_project_root(
         tmp_path_factory.mktemp("dlc_multi_root"),
         "multi-index",
         csv_location="project_root",
+    )
+
+
+@pytest.fixture(scope="session")
+def sleap_h5_file():
+    """Path to a single-animal SLEAP .h5 file."""
+    return (
+        TEST_DATA_SLEAP_DIR
+        / "SLEAP_single-mouse_EPM_start-1000_dur-5.predictions.slp"
+    )
+
+
+@pytest.fixture
+def dlc_multi_index_framelabels_json():
+    """Path to the framelabels JSON file for the multi-index DLC project."""
+    return (
+        TEST_DATA_DLC_DIR
+        / "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json"
+    )
+
+
+@pytest.fixture
+def sleap_h5_file_cliplabels_json():
+    """Path to the cliplabels JSON file for the SLEAP .h5 file."""
+    return (
+        TEST_DATA_SLEAP_DIR / "sub-testSub123_ses-testSes123_cam-testCam123_"
+        "start-1000_dur-5_cliplabels.json"
     )

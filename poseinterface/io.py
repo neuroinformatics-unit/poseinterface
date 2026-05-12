@@ -2,10 +2,13 @@ import copy
 import json
 import re
 from pathlib import Path
+from typing import Literal, TypeAlias
 
 import sleap_io as sio
 from sleap_io.io import coco
 from sleap_io.io.dlc import is_dlc_file
+
+PoseInterfaceFormat: TypeAlias = Literal["clip", "frame"]
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
@@ -20,41 +23,48 @@ _EMPTY_LABELS_ERROR_MSG = {
         "and that the frames files exist."
     ),
 }
-
 POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
+DLC_FRAME_REGEXP = r"(\d+)"
 
 
-def annotations_to_coco(
+def annotations_to_poseinterface(
     input_path: Path,
-    output_json_path: Path,
+    output_dir: Path,
     *,
-    coco_image_filenames: str | list[str] | None = None,
-    coco_visibility_encoding: str = "ternary",
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    format: PoseInterfaceFormat = "frame",
 ) -> Path:
     """Export annotations file from a single video to ``poseinterface`` format.
 
     Parameters
     ----------
-    input_path : pathlib.Path
+    input_path
         Path to the input annotations file.
-    output_json_path : pathlib.Path
-        Path to save the output ``poseinterface`` COCO JSON file.
-    coco_image_filenames : str | list[str] | None, optional
-        Optional image filenames to use in the ``poseinterface`` COCO JSON.
-        If provided, must be a single string (for single-frame videos)
-        or a list of strings matching the number of labeled frames.
-        If None (default), generates filenames from video filenames
-        and frame indices.
-    coco_visibility_encoding : str, optional
-        Encoding scheme for keypoint visibility in the ``poseinterface`` COCO
-        JSON file. Options are "ternary" (0: not labeled, 1: labeled
-        but not visible, 2: labeled and visible) or "binary" (0: not
-        visible, 1: visible). Default is "ternary".
+    output_dir
+        Directory where the output ``poseinterface`` COCO JSON file
+        will be saved.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+    format
+        Whether to generate :ref:`frame labels<target-framelabels>` or
+        :ref:`clip labels<target-cliplabels>`. Default is "frame".
 
     Returns
     -------
     pathlib.Path
         Path to the saved ``poseinterface`` COCO JSON file.
+
+    Raises
+    ------
+    ValueError
+        If no labeled frames could be extracted from the input file,
+        or if the annotations refer to multiple videos.
 
     Notes
     -----
@@ -64,28 +74,32 @@ def annotations_to_coco(
 
     See Also
     --------
+    sleap_io.io.main.load_file
+        The underlying function used to load the input annotations file as
+        a SLEAP labels object.
     sleap_io.io.coco.convert_labels
         The underlying function used to convert SLEAP labels to COCO format.
 
     Example
     -------
     >>> from pathlib import Path
-    >>> from poseinterface.io import annotations_to_coco
-    >>> coco_json_path = annotations_to_coco(
+    >>> from poseinterface.io import annotations_to_poseinterface
+    >>> coco_json_path = annotations_to_poseinterface(
     ...     input_path=Path("path/to/annotations.slp"),
-    ...     output_json_path=Path("path/to/annotations_coco.json"),
+    ...     output_dir=Path("path/to/output_directory"),
+    ...     sub_id="testSub123",
+    ...     ses_id="testSes123",
+    ...     cam_id="testCam123",
     ... )
     """
     labels = sio.load_file(input_path)
 
-    # Check if labels object is empty
     if len(labels.labeled_frames) == 0:
         error_msg = _EMPTY_LABELS_ERROR_MSG["default"]
         if is_dlc_file(input_path):
             error_msg += _EMPTY_LABELS_ERROR_MSG["dlc"]
         raise ValueError(error_msg)
 
-    # Check single video
     if len(labels.videos) > 1:
         raise ValueError(
             "The annotations refer to multiple videos "
@@ -94,48 +108,106 @@ def annotations_to_coco(
             "for a single video only."
         )
 
-    # Generate COCO dict from sleap-io
-    coco_data = coco.convert_labels(
+    # Generate image filenames in the poseinterface format
+    image_filenames = _generate_poseinterface_filenames(
         labels,
-        image_filenames=coco_image_filenames,
-        visibility_encoding=coco_visibility_encoding,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        include_file_extension=(format == "frame"),
+    )
+    # Generate COCO dict
+    coco_data = coco.convert_labels(labels, image_filenames=image_filenames)
+    # Update image IDs in coco_data
+    coco_data = _update_image_ids(coco_data, format=format)
+
+    output_json_path = _build_output_json_path(
+        output_dir=output_dir,
+        coco_data=coco_data,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        format=format,
     )
 
-    # Update image ids to match frame number
-    # uncomment after PR19
-    # coco_data = _update_image_ids(coco_data)
-
-    # Save JSON file
     with open(output_json_path, "w") as f:
         json.dump(coco_data, f)
 
     return output_json_path
 
 
-def _update_image_ids(input_data: dict) -> dict:
-    """Assigns new image IDs based on the frame number in the filename."""
-    # Create new dict
-    data = copy.deepcopy(input_data)
+def _build_output_json_path(
+    *,
+    output_dir: Path,
+    coco_data: dict,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    format: PoseInterfaceFormat,
+) -> Path:
+    """Build output JSON path using poseinterface naming conventions."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}"
 
-    # Build map old-to-new image IDs and update image id in images list
+    if format == "frame":
+        return output_dir / f"{prefix}_framelabels.json"
+
+    if len(coco_data["images"]) == 0:
+        raise ValueError(
+            "No images were found in the COCO data. "
+            "Cannot infer start frame and duration for cliplabels format."
+        )
+    frame_numbers = [
+        _extract_frame_number(img["file_name"]) for img in coco_data["images"]
+    ]
+    start_frame = min(frame_numbers)
+    n_frames = len(frame_numbers)
+    padded_start = str(start_frame).zfill(len(str(max(frame_numbers))))
+    return (
+        output_dir
+        / f"{prefix}_start-{padded_start}_dur-{n_frames}_cliplabels.json"
+    )
+
+
+def _update_image_ids(
+    coco_data: dict, format: PoseInterfaceFormat = "frame"
+) -> dict:
+    """Assign new image IDs based on the format.
+
+    For frame format, each image ID is set to the session-video frame number
+    extracted from the filename. For clip format, images are sorted by frame
+    number and assigned 0-based indices within the clip.
+    """
+    file_names = [img["file_name"] for img in coco_data["images"]]
+    if len(file_names) != len(set(file_names)):
+        raise ValueError(
+            "Duplicate image filenames were found. Please check that the "
+            "input annotations do not contain duplicate frames."
+        )
+
+    data = copy.deepcopy(coco_data)
+
     old_to_new_id = {}
-    for img in data["images"]:
-        # map old image_id to new image_id
-        old_img_id = img["id"]
-        new_img_id = _extract_frame_number(img["file_name"])
-        old_to_new_id[old_img_id] = new_img_id
+    if format == "frame":
+        for img in data["images"]:
+            old_img_id = img["id"]
+            new_img_id = _extract_frame_number(img["file_name"])
+            old_to_new_id[old_img_id] = new_img_id
+    else:
+        data["images"].sort(
+            key=lambda img: _extract_frame_number(img["file_name"])
+        )
+        for idx, img in enumerate(data["images"]):
+            old_to_new_id[img["id"]] = idx
 
-        # update image_id in images list
-        img["id"] = new_img_id
-
-    # Check new image IDs are unique
     if len(old_to_new_id) != len(set(old_to_new_id.values())):
         raise ValueError(
             "Extracted image IDs are not unique. Please check that the frame "
             "numbers as specified in the filename are unique."
         )
 
-    # Update image_id in annotations list
+    for img in data["images"]:
+        img["id"] = old_to_new_id[img["id"]]
     for annot in data["annotations"]:
         annot["image_id"] = old_to_new_id[annot["image_id"]]
 
@@ -144,10 +216,10 @@ def _update_image_ids(input_data: dict) -> dict:
 
 def _extract_frame_number(
     filename: str, frame_regexp: str = POSEINTERFACE_FRAME_REGEXP
-) -> int | None:
+) -> int:
     """Extract the frame number in the input filename.
 
-    If no frame number is found, returns None.
+    If no frame number is found, a ValueError is raised.
     """
     match = re.search(frame_regexp, filename)
     if match is None:
@@ -158,3 +230,88 @@ def _extract_frame_number(
             rf"'{frame_regexp}'."
         )
     return int(match.group(1))
+
+
+def _generate_poseinterface_filenames(
+    labels: sio.Labels,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    include_file_extension: bool = False,
+) -> list[str]:
+    """Generate PoseInterface image filenames for frames in the input labels.
+
+    The generated filenames are in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
+
+    If `include_file_extension` is True, the generated filenames will include
+    the file extension of the original frame files, in the format:
+    {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}.{file_extension}
+
+    Parameters
+    ----------
+    labels
+        SLEAP labels object containing the annotations and video information.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+    include_file_extension
+        Whether to include the file extension of the original frame files
+        in the generated filenames. Default is False.
+
+    Returns
+    -------
+    list[str]
+        List of generated COCO image filenames corresponding to each
+        labeled frame.
+
+    Raises
+    ------
+    ValueError
+        If no labeled frames could be extracted from the input file.
+
+    Notes
+    -----
+    When the SLEAP labels video object is a video file, per-frame file
+    extensions are not available. Therefore, when ``include_file_extension``
+    is True, the generated filenames assume a ``.png`` extension.
+
+    """
+    video_filenames = labels.videos[0].filename
+    if isinstance(video_filenames, list):  # Sequence of frame images
+        frame_numbers = [
+            _extract_frame_number(Path(fn).stem, frame_regexp=DLC_FRAME_REGEXP)
+            for fn in video_filenames
+        ]
+        file_extensions = (
+            [Path(fn).suffix for fn in video_filenames]
+            if include_file_extension
+            else []
+        )
+    else:  # Video file
+        frame_numbers = [lf.frame_idx for lf in labels.labeled_frames]
+        file_extensions = (
+            [".png"] * len(frame_numbers) if include_file_extension else []
+        )
+    # Pad frame_numbers to the same width
+    padded_frame_numbers = _pad_integers_to_same_width(frame_numbers)
+    # Build filenames
+    prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-"
+    if include_file_extension:
+        return [
+            prefix + frame_id + ext
+            for frame_id, ext in zip(padded_frame_numbers, file_extensions)
+        ]
+    else:
+        return [prefix + frame_id for frame_id in padded_frame_numbers]
+
+
+def _pad_integers_to_same_width(input: list[int]) -> list[str]:
+    """Pad a list of integers to the same width with leading zeros."""
+    width = len(str(max(input)))
+    padded_numbers = [str(number).zfill(width) for number in input]
+    return padded_numbers
