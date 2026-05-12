@@ -1,4 +1,4 @@
-"""Functions to extract clips from poseinterface videos."""
+"""Functions to extract clips from ``poseinterface`` videos."""
 
 import argparse
 import json

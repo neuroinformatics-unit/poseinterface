@@ -1,4 +1,4 @@
-"""Functions to convert annotations and videos to PoseInterface format."""
+"""Functions to convert annotations and videos to ``poseinterface`` format."""
 
 import copy
 import json
