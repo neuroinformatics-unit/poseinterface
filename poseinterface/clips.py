@@ -119,18 +119,38 @@ def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
     with open(video_json) as f:
         video_labels = json.load(f)
 
-    # Keep only data from the images in the clip
+    # Compute clip end frame
+    end_frame = start_frame + duration
+
+    # Keep only data from the images in the clip, re-indexing ids to be
+    # 0-based within the clip. file_name is left untouched to retain in it
+    # the global (video-based) frame index
     clip_labels = {}
     clip_labels["images"] = [
-        img
+        {
+            **img,
+            "id": img["id"] - start_frame,  # overwrite id
+        }
         for img in video_labels["images"]
-        if start_frame <= img["id"] < start_frame + duration
+        if start_frame <= img["id"] < end_frame
     ]
-    clip_labels["annotations"] = [
-        annot
+
+    # Keep only annotations in the clip, remapping image_id to the local
+    # (clip-based) frame index
+    clip_annotations = [
+        {
+            **annot,
+            "image_id": annot["image_id"] - start_frame,  # overwrite image_id
+        }
         for annot in video_labels["annotations"]
-        if start_frame <= annot["image_id"] < start_frame + duration
+        if start_frame <= annot["image_id"] < end_frame
     ]
+    # renumbering annotation ids to be 1-based within the clip.
+    clip_labels["annotations"] = [
+        {**annot, "id": new_id}
+        for new_id, annot in enumerate(clip_annotations, start=1)
+    ]
+    # pass categories unchanged
     clip_labels["categories"] = video_labels["categories"]
 
     # Save json with filtered data to clips directory
