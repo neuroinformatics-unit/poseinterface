@@ -379,7 +379,6 @@ def test_pad_integers_to_same_width():
     assert _pad_integers_to_same_width(input) == expected
 
 
-
 # ---------- Video to poseinterface ----------------
 
 

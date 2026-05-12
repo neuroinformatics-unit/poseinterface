@@ -44,6 +44,7 @@ REENCODING_PARAMS = {
     "preset": "superfast",
 }
 
+
 def annotations_to_poseinterface(
     input_path: Path,
     output_dir: Path,
@@ -330,7 +331,6 @@ def _pad_integers_to_same_width(input: list[int]) -> list[str]:
     width = len(str(max(input)))
     padded_numbers = [str(number).zfill(width) for number in input]
     return padded_numbers
-
 
 
 def video_to_poseinterface(
