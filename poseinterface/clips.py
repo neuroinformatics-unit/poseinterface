@@ -31,7 +31,6 @@ def extract_clip(
         the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``, and
         if a sibling labels file exists, its filename should be
         ``sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json``.
-        Note that this is by convention and not enforced by the function.
     start_frame
         Index of the first frame to include in the clip (0-based).
     duration
@@ -204,12 +203,20 @@ def parse_args(args: list[str]) -> argparse.Namespace:
         Parsed arguments with attributes ``video_path`` (str),
         ``start_frame`` (int), and ``duration`` (int).
     """
-    parser = argparse.ArgumentParser(description="Extract clips from video")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Extract clips from video (and corresponding"
+            "clip labels if available)."
+        )
+    )
     parser.add_argument(
         "--video_path",
         type=str,
         required=True,
-        help="Path to video file to clip.",
+        help="Path to video file to clip. The filename should follow "
+        "the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``, "
+        "and if a sibling labels file exists, its filename should be "
+        "``sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json``.",
     )
     parser.add_argument(
         "--start_frame",
