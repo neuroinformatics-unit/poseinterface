@@ -243,6 +243,18 @@ For a clip starting at frame 1000 with a duration of 5 frames, the `images` arra
 Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` through `frame-1004` in the `file_name` values refer to the original frame positions in the session video.
 :::
 
+(target-videolabels)=
+### Intermediate file `videolabels.json`
+
+:::{note}
+This file is **not a required part of a benchmark dataset**. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the `extract_clip` tool.
+:::
+
+* A `videolabels.json` file uses the **same schema as [`cliplabels.json`](target-cliplabels)**, but it refers to a full video rather than to a clip of it.
+* It is produced once per video (e.g. by converting model predictions for the entire video into the `cliplabels` schema) and reused to extract any number of clip label files from that video.
+* When present alongside a session video as `sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json`, the `extract-clip` command will slice it into per-clip `cliplabels.json` files matching the requested frame ranges.
+* In the `videolabels.json` file, each entry in the `images` list uses the **0-based frame index in the video** as its `id` (same convention as [frame labels](target-framelabels)).
+
 (target-startlabels)=
 ### Clip start labels (`startlabels.json`)
 

@@ -60,7 +60,7 @@ def extract_clip(
     the same schema as ``cliplabels.json`` but is refers to the full video,
     rather than to a clip of it. The ``*_videolabels.json`` file is not part
     of the published benchmark dataset. For further details, see the
-    "Intermediate file: *_videolabels.json" section of the benchmark
+    "Intermediate file: `videolabels.json`" section of the benchmark
     dataset spec.
 
     This function assumes that the ``id`` field in the ``images`` list of the
