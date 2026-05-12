@@ -135,20 +135,23 @@ def _extract_cliplabels(video_path, clips_dir, start_frame, duration):
         if start_frame <= img["id"] < end_frame
     ]
 
-    # Keep only annotations in the clip, remapping image_id to the local
-    # (clip-based) frame index
-    clip_annotations = [
+    # Keep only annotations within the clip, remapping image_id to the local
+    # (clip-based) frame index, and renumbering annotation ids to be 1-based
+    # within the clip.
+    clip_labels["annotations"] = [
         {
             **annot,
             "image_id": annot["image_id"] - start_frame,  # overwrite image_id
+            "id": new_id,
         }
-        for annot in video_labels["annotations"]
-        if start_frame <= annot["image_id"] < end_frame
-    ]
-    # renumbering annotation ids to be 1-based within the clip.
-    clip_labels["annotations"] = [
-        {**annot, "id": new_id}
-        for new_id, annot in enumerate(clip_annotations, start=1)
+        for new_id, annot in enumerate(
+            (
+                ant
+                for ant in video_labels["annotations"]
+                if start_frame <= ant["image_id"] < end_frame
+            ),  # generator lazily yields only annotations within the clip
+            start=1,  # annotation ids are 1-based within clip
+        )
     ]
     # pass categories unchanged
     clip_labels["categories"] = video_labels["categories"]
