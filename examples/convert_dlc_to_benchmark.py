@@ -1,8 +1,7 @@
 """Convert DeepLabCut project to benchmark dataset
 ==================================================
 
-Convert videos and labelled frames from DeepLabCut to
-``poseinterface`` benchmark dataset format.
+Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
 """
 
 # %%
@@ -20,6 +19,24 @@ from poseinterface.io import (
     video_to_poseinterface,
 )
 from poseinterface.utils import tree
+
+# %%
+# Overview
+# --------
+# We'll handle the conversion in two steps:
+#
+# 1. **Convert:** DLC project files (session videos, frame annotations, and
+#    model predictions) are restructured into the
+#    :ref:`poseinterface benchmark layout <target-benchmark-dataset>`.
+# 2. **Extract clips:** Short video clips and their label files are extracted
+#    from the converted session videos, ready for expert review.
+#
+# .. figure:: /_static/DLC_to_poseinterface_worklow.svg
+#    :alt: Workflow diagram showing how a DLC project is converted
+#           to a poseinterface benchmark dataset
+#    :align: center
+#
+#    High-level overview of the two-step conversion workflow.
 
 # %%
 # Source DLC project

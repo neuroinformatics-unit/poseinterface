@@ -141,6 +141,6 @@ commands =
 
 
 [tool.codespell]
-skip = '.git'
+skip = '.git,*.svg'
 check-hidden = true
 ignore-words-list = 'reencode'
