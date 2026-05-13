@@ -8,7 +8,6 @@ import numpy as np
 import sleap_io as sio
 import xarray as xr
 from movement.io import load_dataset
-from movement.io.load import _build_suffix_map, _validate_file
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
@@ -209,7 +208,7 @@ def predictions_to_poseinterface(
     """Convert a prediction file to ``poseinterface`` COCO JSON format.
 
     Reads a predictions file and writes a JSON with ``poseinterface``-style
-    filenames suitable for clip-level labels (``_cliplabels.json``).
+    filenames suitable for video-level labels (``_videolabels.json``).
 
     Parameters
     ----------
@@ -232,15 +231,11 @@ def predictions_to_poseinterface(
     Path
         Path to the saved COCO JSON file.
     """
-    # Guess source software using movement validators
-    # (take first guess)
-    source_software = _guess_source_software(predictions_path)[0]
-
     # Read input file as movement dataset
     # NOTE: fps=None is ignore with NWB files
     ds = load_dataset(
         file=predictions_path,
-        source_software=source_software,
+        source_software="auto",  # infer from validators
         fps=None,
     )
 
@@ -248,8 +243,8 @@ def predictions_to_poseinterface(
     video = sio.load_video(video_path)
     _, img_h, img_w, _ = video.shape
 
-    # Convert movement dataset to cliplabels dict
-    coco_data = _convert_movement_ds_to_cliplabels(
+    # Convert movement dataset to videolabels dict
+    coco_data = _convert_movement_ds_to_videolabels(
         ds,
         sub_id=sub_id,
         ses_id=ses_id,
@@ -261,7 +256,7 @@ def predictions_to_poseinterface(
     # Export dict as JSON
     output_json_parent_dir = (
         Path(output_json_parent_dir)
-        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}.json"
+        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_videolabels.json"
     )
     with open(output_json_parent_dir, "w") as f:
         json.dump(coco_data, f)
@@ -269,54 +264,7 @@ def predictions_to_poseinterface(
     return output_json_parent_dir
 
 
-def _guess_source_software(file: Path | str) -> list[SourceSoftware]:
-    """Guess the source software based on file validation.
-
-    Tries each known file validator against the given file and returns
-    the source software names whose validators accept the file.
-
-    Parameters
-    ----------
-    file
-        Path to the file to identify.
-
-    Returns
-    -------
-    list[SourceSoftware]
-        List of source software names whose validators matched.
-
-    Examples
-    --------
-    >>> from movement.io.load import guess_source_software
-    >>> guess_source_software("path/to/predictions.h5")
-    ['DeepLabCut']
-
-    """
-    file = Path(file)
-    suffix = file.suffix
-    matches: list[SourceSoftware] = []
-
-    for (
-        source_software,
-        validator_classes,
-    ) in _SOURCE_SOFTWARE_VALIDATORS.items():
-        map_suffix_to_validators = _build_suffix_map(validator_classes)
-        # If input suffix not associated to this set of validators, continue
-        if suffix not in map_suffix_to_validators:
-            continue
-
-        # If suffix is covered by these validators, use them to
-        # validate the input file
-        try:
-            _validate_file(file, map_suffix_to_validators, source_software)
-            matches.append(source_software)
-        except Exception:
-            continue
-
-    return matches
-
-
-def _convert_movement_ds_to_cliplabels(
+def _convert_movement_ds_to_videolabels(
     ds: xr.Dataset,
     *,
     sub_id: str,
@@ -325,7 +273,7 @@ def _convert_movement_ds_to_cliplabels(
     img_w: int,
     img_h: int,
 ) -> dict[str, list[dict]]:
-    """Convert predictions in movement dataset to cliplabels dict."""
+    """Convert predictions in movement dataset to videolabels dict."""
     # Extract position array and coordinates from dataset
     positions = ds["position"].values  # (time, space, keypoints, individuals)
     n_frames = positions.shape[0]
