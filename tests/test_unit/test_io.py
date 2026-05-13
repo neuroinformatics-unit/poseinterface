@@ -603,17 +603,22 @@ def test_predictions_to_poseinterface(
     mock_load_video,
     mock_convert,
     sample_movement_ds,
+    sub_ses_cam_ids,
     get_mock_video,
     tmp_path,
 ):
     """Test that the relevant subfunctions are called."""
-    # Get movement dataset and video fixtures
+    # Get movement dataset
     ds = sample_movement_ds
-    video = get_mock_video(n_frames=3)
+
+    # Mock video input files
+    fake_video = tmp_path / "unreadable.mp4"
+    fake_video.touch()
+    mock_video = get_mock_video(n_frames=3)
 
     # Mock return values for supporting functions
     mock_load_dataset.return_value = ds
-    mock_load_video.return_value.shape = video.shape
+    mock_load_video.return_value = mock_video
     mock_convert.return_value = {
         "images": [],
         "annotations": [],
@@ -623,11 +628,9 @@ def test_predictions_to_poseinterface(
     # Convert predictions
     result = predictions_to_poseinterface(
         input_path="fake.csv",
-        video_path="fake.mp4",
+        video_path=fake_video,
         output_dir=tmp_path,
-        sub_id="M01",
-        ses_id="20240101",
-        cam_id="top",
+        **sub_ses_cam_ids,
     )
 
     # Check subfunctions are called
@@ -637,13 +640,20 @@ def test_predictions_to_poseinterface(
 
     # Check output file exists with expected name
     assert result.exists()
-    assert result.name == "sub-M01_ses-20240101_cam-top_videolabels.json"
+    assert (
+        result.name
+        == "_".join(
+            [f"{ky.strip('_id')}-{val}" for ky, val in sub_ses_cam_ids.items()]
+        )
+        + "_videolabels.json"
+    )
 
 
 @patch("poseinterface.io.load_dataset")
-def test_predictions_to_poseinterface_missing_video(
+def test_predictions_to_poseinterface_video_file_missing(
     mock_load_dataset,
     sample_movement_ds,
+    sub_ses_cam_ids,
     tmp_path,
 ):
     """Check FileNotFoundError is raised when the video path does not exist."""
@@ -656,18 +666,17 @@ def test_predictions_to_poseinterface_missing_video(
             input_path="fake.csv",
             video_path=tmp_path / "does_not_exist.mp4",
             output_dir=tmp_path,
-            sub_id="M01",
-            ses_id="20240101",
-            cam_id="top",
+            **sub_ses_cam_ids,
         )
 
 
 @patch("poseinterface.io.sio.load_video")
 @patch("poseinterface.io.load_dataset")
-def test_predictions_to_poseinterface_unreadable_video(
+def test_predictions_to_poseinterface_video_shape_none(
     mock_load_dataset,
     mock_load_video,
     sample_movement_ds,
+    sub_ses_cam_ids,
     tmp_path,
 ):
     """Check ValueError is raised when the loaded video has shape=None."""
@@ -683,14 +692,13 @@ def test_predictions_to_poseinterface_unreadable_video(
             input_path="fake.csv",
             video_path=fake_video,
             output_dir=tmp_path,
-            sub_id="M01",
-            ses_id="20240101",
-            cam_id="top",
+            **sub_ses_cam_ids,
         )
 
 
 def test_convert_movement_ds_to_videolabels(
     sample_movement_ds,
+    sub_ses_cam_ids,
     get_mock_video,
 ):
     """Test that movement dataset is converted to videolabels dict."""
@@ -702,12 +710,15 @@ def test_convert_movement_ds_to_videolabels(
     # Convert dataset to videolabels dict
     coco_data = _convert_movement_ds_to_videolabels(
         ds,
-        sub_id="M01",
-        ses_id="20240101",
-        cam_id="top",
+        **sub_ses_cam_ids,
         img_h=img_h,
         img_w=img_w,
     )
+
+    # Unwrap subject, session and camera IDs
+    sub_id = sub_ses_cam_ids["sub_id"]
+    ses_id = sub_ses_cam_ids["ses_id"]
+    cam_id = sub_ses_cam_ids["cam_id"]
 
     # Check top-level keys
     assert set(coco_data.keys()) == {"images", "annotations", "categories"}
@@ -716,7 +727,7 @@ def test_convert_movement_ds_to_videolabels(
     assert len(coco_data["images"]) == len(ds.time)
     for k in range(len(coco_data["images"])):
         assert coco_data["images"][k]["file_name"] == (
-            f"sub-M01_ses-20240101_cam-top_frame-000{k}"
+            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{k:01d}"
         )
         assert coco_data["images"][k]["width"] == img_w
         assert coco_data["images"][k]["height"] == img_h
