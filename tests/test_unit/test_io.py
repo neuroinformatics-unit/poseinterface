@@ -639,9 +639,9 @@ def test_predictions_to_poseinterface(
 
     # Convert predictions
     result = predictions_to_poseinterface(
-        predictions_path="fake.csv",
+        input_path="fake.csv",
         video_path="fake.mp4",
-        output_json_parent_dir=tmp_path,
+        output_dir=tmp_path,
         sub_id="M01",
         ses_id="20240101",
         cam_id="top",

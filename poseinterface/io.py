@@ -467,9 +467,9 @@ def _reencode_video(
 
 
 def predictions_to_poseinterface(
-    predictions_path: Path | str,
+    input_path: Path | str,
     video_path: Path | str,
-    output_json_parent_dir: Path | str,
+    output_dir: Path | str,
     *,
     sub_id: str,
     ses_id: str,
@@ -482,12 +482,12 @@ def predictions_to_poseinterface(
 
     Parameters
     ----------
-    predictions_path
-        Path to the DLC predictions CSV file.
+    input_path
+        Path to the predictions CSV file.
     video_path
         Path to the corresponding video file.  Used to attach video
         metadata (resolution) to the COCO output.
-    output_json_parent_dir
+    output_dir
         Path to the directory where to save the output JSON file.
     sub_id
         Subject ID to include in the generated filenames.
@@ -504,7 +504,7 @@ def predictions_to_poseinterface(
     # Read input file as movement dataset
     # NOTE: fps=None is ignore with NWB files
     ds = load_dataset(
-        file=predictions_path,
+        file=input_path,
         source_software="auto",  # infer from validators
         fps=None,
     )
@@ -525,7 +525,7 @@ def predictions_to_poseinterface(
 
     # Export dict as JSON
     output_json_path = (
-        Path(output_json_parent_dir)
+        Path(output_dir)
         / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_videolabels.json"
     )
     with open(output_json_path, "w") as f:
