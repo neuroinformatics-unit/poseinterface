@@ -483,7 +483,8 @@ def predictions_to_poseinterface(
     Parameters
     ----------
     input_path
-        Path to the predictions CSV file.
+        Path to the predictions file. It should be one of the formats
+        supported by ``movement`` (see `movement supported formats`_).
     video_path
         Path to the corresponding video file.  Used to attach video
         metadata (resolution) to the COCO output.
@@ -500,6 +501,16 @@ def predictions_to_poseinterface(
     -------
     Path
         Path to the saved COCO JSON file.
+
+    Notes
+    -------
+    For the full list of supported formats for the input file, see
+    `movement supported formats`_.
+
+    .. _movement supported formats:
+       https://movement.neuroinformatics.dev/dev/user_guide/input_output.html#supported-third-party-formats
+
+
     """
     # Read input file as movement dataset
     # NOTE: fps=None is ignore with NWB files
