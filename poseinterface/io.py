@@ -556,21 +556,22 @@ def _convert_movement_ds_to_videolabels(
     # with models that treat category 0 as background.
     categories = [
         {
-            "id": i + 1,
+            "id": i,
             "name": name,
             "keypoints": keypoint_names,
             "skeleton": [],
         }
-        for i, name in enumerate(individual_names)
+        for i, name in enumerate(individual_names, start=1)
     ]
 
     # Build images list (one entry per frame)
     # NOTE: image id values are always 0-indexed
+    frame_idx_width = len(str(n_frames - 1))
     images = [
         {
             "id": t,
             "file_name": (
-                f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{t:04d}"
+                f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{t:0{frame_idx_width}d}"
             ),
             "width": img_w,
             "height": img_h,
