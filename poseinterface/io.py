@@ -585,7 +585,7 @@ def _convert_movement_ds_to_videolabels(
     for t in range(n_frames):
         for i in range(len(individual_names)):
             # Get position data for this frame and individual
-            xy = positions[t, :, :, i]  # (2, n_keypoints)
+            xy = positions[t, :, :, i].T  # (n_keypoints, 2)
 
             # Determine kpt visibility:
             # 0: not labeled
@@ -593,15 +593,8 @@ def _convert_movement_ds_to_videolabels(
             # 2: labeled and visible
             # NOTE: The current code only assigns 0 or 2 because the movement
             # dataset doesn't carry occlusion information
-            visible_array = ~np.isnan(xy[0]) & ~np.isnan(xy[1])
+            visible_array = ~np.isnan(xy[:, 0]) & ~np.isnan(xy[:, 1])
             n_visible = int(visible_array.sum())
-
-            # Get list of flattened keypoints
-            # [x1, y1, v1, x2, y2, v2, ...]
-            x = np.where(visible_array, xy[0], 0.0)
-            y = np.where(visible_array, xy[1], 0.0)
-            v = np.where(visible_array, 2, 0)
-            list_xyv_kpts = np.stack([x, y, v], axis=1).ravel().tolist()
 
             # Compute bbox from visible keypoints
             # (zeros if no keypoints are visible)
@@ -621,7 +614,9 @@ def _convert_movement_ds_to_videolabels(
                     "id": annot_id,
                     "image_id": t,
                     "category_id": i + 1,
-                    "keypoints": list_xyv_kpts,
+                    "keypoints": coco.encode_keypoints(
+                        np.c_[xy, visible_array]
+                    ),  # returns flattened kpts [x1, y1, v1, x2, y2, v2, ...]
                     "num_keypoints": n_visible,
                     "bbox": [x_min, y_min, bbox_w, bbox_h],
                     "area": bbox_w * bbox_h,
