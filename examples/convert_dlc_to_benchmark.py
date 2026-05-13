@@ -114,7 +114,9 @@ for session in sessions:
     split = session["split"]
     ids = {k: session[k] for k in ["sub_id", "ses_id", "cam_id"]}
     sub_ses_prefix = f"sub-{ids['sub_id']}_ses-{ids['ses_id']}"
-    sub_ses_cam_prefix = sub_ses_prefix + f"_cam-{ids['cam_id']}"
+    sub_ses_cam_prefix = f"{sub_ses_prefix}_cam-{ids['cam_id']}"
+
+    print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
 
     # Derive source paths
     source_video_path = source_project_dir / "videos" / session["source_video"]
@@ -123,9 +125,14 @@ for session in sessions:
     )
     # Find the predictions .csv file. In real projects there may be multiple
     # (e.g. filtered versions), so adjust the glob pattern if needed.
-    source_predictions_path = list(
+    source_predictions_path = next(
         (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv")
-    )[0]
+    )
+    # Find the annotations .csv file. In real projects there may be multiple
+    # (e.g. for different labelers), so adjust the glob pattern if needed.
+    source_annotations_path = next(
+        source_frames_dir.glob("CollectedData_*.csv")
+    )
 
     # Derive target paths
     target_session_dir = (
@@ -140,34 +147,38 @@ for session in sessions:
         output_video_dir=target_session_dir,
         **ids,
     )
+    print(f"\tvideo: {source_video_path.name} -> {sub_ses_cam_prefix}.mp4")
 
-    # Convert DLC annotations to COCO frame labels JSON
-    framelabels_path = (
-        target_frames_dir / f"{sub_ses_cam_prefix}_framelabels.json"
-    )
-    annotations_to_poseinterface(
-        input_path=(source_frames_dir / "CollectedData_Loukia.csv"),
+    # Convert DLC annotations to COCO frame labels JSON, then copy the
+    # corresponding frame images with standardised poseinterface filenames.
+    framelabels_path = annotations_to_poseinterface(
+        input_path=source_annotations_path,
         output_dir=target_frames_dir,
         format="frame",
         **ids,
     )
-
-    # Copy frame images with standardised poseinterface filenames
     frames_to_poseinterface(
         source_dir=source_frames_dir,
         target_dir=target_frames_dir,
         framelabels_path=framelabels_path,
     )
+    print(
+        f"\tannotations (+ frame images): {source_annotations_path.name} -> "
+        f"{framelabels_path.name}"
+    )
 
-    # Convert DLC predictions to COCO JSON for clip extraction
+    # Convert DLC predictions to COCO video labels JSON for clip extraction
     predictions_to_poseinterface(
         predictions_path=source_predictions_path,
         video_path=source_video_path,
         output_json_parent_dir=target_session_dir,
         **ids,
     )
-
-    print(f"Done: {split}/{project_name}/{sub_ses_prefix}")
+    print(
+        f"\tpredictions: {source_predictions_path.name} -> "
+        f"{sub_ses_cam_prefix}_videolabels.json"
+    )
+    print("Done.\n")
 
 # %%
 # The resulting benchmark dataset:
@@ -181,7 +192,7 @@ print(tree(benchmark_base_dir, level=5))
 #    the published dataset the ``Test`` split withholds them for evaluation.
 #    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
 #
-#    The ``cliplabels.json`` files generated alongside each session video are
+#    The ``videolabels.json`` files generated alongside each session video are
 #    intermediate artifacts used for clip extraction in the next section, and
 #    will not be included in the published dataset.
 
@@ -205,16 +216,15 @@ start_frames = [25, 50, 75]
 # in a ``Clips/`` subdirectory within each session folder.
 
 for session in sessions:
-    split = session["split"]
-    ids = {k: session[k] for k in ["sub_id", "ses_id", "cam_id"]}
-    sub_ses_prefix = f"sub-{ids['sub_id']}_ses-{ids['ses_id']}"
-    sub_ses_cam_prefix = sub_ses_prefix + f"_cam-{ids['cam_id']}"
-
-    session_dir = benchmark_base_dir / split / project_name / sub_ses_prefix
+    sub_ses_prefix = f"sub-{session['sub_id']}_ses-{session['ses_id']}"
+    sub_ses_cam_prefix = f"{sub_ses_prefix}_cam-{session['cam_id']}"
+    session_dir = (
+        benchmark_base_dir / session["split"] / project_name / sub_ses_prefix
+    )
 
     for start_frame in start_frames:
-        clip_path, clip_json = extract_clip(
-            video_path=(session_dir / f"{sub_ses_cam_prefix}.mp4"),
+        clip_path, _ = extract_clip(
+            video_path=session_dir / f"{sub_ses_cam_prefix}.mp4",
             start_frame=start_frame,
             duration=duration,
         )
@@ -235,6 +245,8 @@ print(tree(benchmark_base_dir, level=5))
 #    labels (``cliplabels.json``). The ``Test`` split withholds full clip
 #    labels; only clip start labels (``startlabels.json``), derived from each
 #    clip's first frame, are included to support point-tracker evaluation.
+#    The `videolabels.json`` files generated in the previous section are
+#    intermediate artifacts used for clip extraction, and are never shared.
 #    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
 
 # %%
