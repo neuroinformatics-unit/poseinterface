@@ -37,13 +37,8 @@ def video_path(tmp_path, video_labels):
     return path
 
 
-def test_extract_cliplabels(tmp_path, video_labels):
+def test_extract_cliplabels(tmp_path, video_path, video_labels):
     """Test clip json file is extracted from the *_videolabels.json file."""
-    # Set up fake video path and corresponding videolabels.json
-    video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
-    json_path = tmp_path / "sub-01_ses-01_cam-01_videolabels.json"
-    json_path.write_text(json.dumps(video_labels))
-
     # Set up a "Clips" destination directory
     clips_dir = tmp_path / "Clips"
     clips_dir.mkdir()
