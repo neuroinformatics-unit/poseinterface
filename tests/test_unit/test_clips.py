@@ -1,7 +1,7 @@
 import argparse
 import json
 import logging
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -35,16 +35,6 @@ def video_path(tmp_path, video_labels):
     json_path = tmp_path / "sub-01_ses-01_cam-01_videolabels.json"
     json_path.write_text(json.dumps(video_labels))
     return path
-
-
-@pytest.fixture
-def mock_video():
-    """Mock Video object with 10 frames, matching video_labels fixture."""
-    video = MagicMock()
-    video.fps = 30
-    video.shape = (10, 480, 640, 3)
-    video.stem = "sub-01_ses-01_cam-01"
-    return video
 
 
 def test_extract_cliplabels(tmp_path, video_labels):
@@ -89,10 +79,11 @@ def test_extract_cliplabels(tmp_path, video_labels):
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
 def test_extract_clip(
-    mock_load_video, mock_save_video, mock_video, video_path
+    mock_load_video, mock_save_video, get_mock_video, video_path
 ):
     """Test clip video and json are extracted from the input video."""
     # Set mock_video as return value from load_video
+    mock_video = get_mock_video(n_frames=10)
     mock_load_video.return_value = mock_video
 
     # Extract clip
@@ -120,10 +111,11 @@ def test_extract_clip(
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
 def test_extract_clip_clamped(
-    mock_load_video, mock_save_video, mock_video, video_path, caplog
+    mock_load_video, mock_save_video, get_mock_video, video_path, caplog
 ):
     """Test clip video and json when duration is clamped."""
     # Set mock_video as return value from load_video
+    mock_video = get_mock_video(n_frames=10)
     mock_load_video.return_value = mock_video
 
     # Define clipping range

@@ -84,20 +84,6 @@ def sample_movement_ds():
     )
 
 
-@pytest.fixture
-def mock_video():
-    """Mock Video object with 10 frames, matching video_labels fixture."""
-
-    def _mock_video(n_frames):
-        video = MagicMock()
-        video.fps = 30
-        video.shape = (n_frames, 480, 640, 3)
-        video.stem = "sub-01_ses-01_cam-01"
-        return video
-
-    return _mock_video
-
-
 @patch("poseinterface.io.coco.convert_labels")
 @patch("poseinterface.io.sio.load_file")
 @pytest.mark.parametrize(
@@ -612,23 +598,20 @@ def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
 @patch("poseinterface.io._convert_movement_ds_to_videolabels")
 @patch("poseinterface.io.sio.load_video")
 @patch("poseinterface.io.load_dataset")
-@patch("poseinterface.io._guess_source_software")
 def test_predictions_to_poseinterface(
-    mock_guess_source_software,
     mock_load_dataset,
     mock_load_video,
     mock_convert,
     sample_movement_ds,
-    mock_video,
+    get_mock_video,
     tmp_path,
 ):
     """Test that the relevant subfunctions are called."""
     # Get movement dataset and video fixtures
     ds = sample_movement_ds
-    video = mock_video(n_frames=3)
+    video = get_mock_video(n_frames=3)
 
     # Mock return values for supporting functions
-    mock_guess_source_software.return_value = ["DeepLabCut"]
     mock_load_dataset.return_value = ds
     mock_load_video.return_value.shape = video.shape
     mock_convert.return_value = {
@@ -648,7 +631,6 @@ def test_predictions_to_poseinterface(
     )
 
     # Check subfunctions are called
-    mock_guess_source_software.assert_called_once()
     mock_load_dataset.assert_called_once()
     mock_load_video.assert_called_once()
     mock_convert.assert_called_once()
@@ -709,12 +691,12 @@ def test_predictions_to_poseinterface_unreadable_video(
 
 def test_convert_movement_ds_to_videolabels(
     sample_movement_ds,
-    mock_video,
+    get_mock_video,
 ):
     """Test that movement dataset is converted to videolabels dict."""
     # Get movement dataset and video fixtures
     ds = sample_movement_ds
-    video = mock_video(n_frames=3)
+    video = get_mock_video(n_frames=3)
     _, img_h, img_w, _ = video.shape
 
     # Convert dataset to videolabels dict
