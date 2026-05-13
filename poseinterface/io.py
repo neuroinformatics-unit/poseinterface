@@ -477,8 +477,14 @@ def predictions_to_poseinterface(
 ) -> Path:
     """Convert a prediction file to ``poseinterface`` COCO JSON format.
 
-    Reads a predictions file and writes a JSON with ``poseinterface``-style
-    filenames suitable for video-level labels (``_videolabels.json``).
+    This function reads predictions for a given video and writes the
+    corresponding "video-level" COCO JSON labels in the ``poseinterface``
+    format, (i.e. a
+    ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>_videolabels.json`` file).
+
+    The output JSON file is meant to facilitate the extraction of "clip-level"
+    labels, (i.e. files of the format
+    ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>_start-<frame_id>_dur-<n_frames>_cliplabels.json``).
 
     Parameters
     ----------
