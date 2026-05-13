@@ -484,7 +484,7 @@ def predictions_to_poseinterface(
     ----------
     input_path
         Path to the predictions file. It should be one of the formats
-        supported by ``movement`` (see `movement supported formats`_).
+        supported by ``movement`` (see `movement supported formats`_)
     video_path
         Path to the corresponding video file.  Used to attach video
         metadata (resolution) to the COCO output.
@@ -520,8 +520,17 @@ def predictions_to_poseinterface(
         fps=None,
     )
 
-    # Get video image width and height
+    # Read video object
+    video_path = Path(video_path)
+    if not video_path.is_file():
+        raise FileNotFoundError(
+            f"Input video file does not exist: {video_path}"
+        )
     video = sio.load_video(video_path)
+
+    # Get video image width and height
+    if video.shape is None:
+        raise ValueError(f"Could not extract video shape from {video_path}. ")
     _, img_h, img_w, _ = video.shape
 
     # Convert movement dataset to videolabels dict
