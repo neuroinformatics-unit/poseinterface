@@ -1,6 +1,11 @@
 (target-poseinterface)=
 # poseinterface
 
+**poseinterface** exists to advance pose estimation and point tracking
+applications in animal behaviour videos. The project aims to provide
+benchmark datasets, baseline models trained on those datasets, as well as
+tools for running and comparing pose estimation and tracking methods.
+
 ::::{grid} 1 2 2 4
 :gutter: 3
 
@@ -35,10 +40,6 @@ Public functions and classes in `poseinterface`.
 
 ![](_static/poseinterface_overview.png)
 
-**poseinterface** exists to advance pose estimation and point tracking
-applications in animal behaviour videos. The project aims to provide
-benchmark datasets, baseline models trained on those datasets, as well as
-tools for running and comparing pose estimation and tracking methods.
 
 ```{toctree}
 :maxdepth: 2
