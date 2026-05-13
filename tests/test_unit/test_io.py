@@ -658,6 +658,55 @@ def test_predictions_to_poseinterface(
     assert result.name == "sub-M01_ses-20240101_cam-top_videolabels.json"
 
 
+@patch("poseinterface.io.load_dataset")
+def test_predictions_to_poseinterface_missing_video(
+    mock_load_dataset,
+    sample_movement_ds,
+    tmp_path,
+):
+    """Check FileNotFoundError is raised when the video path does not exist."""
+    mock_load_dataset.return_value = sample_movement_ds
+
+    with pytest.raises(
+        FileNotFoundError, match="Input video file does not exist"
+    ):
+        predictions_to_poseinterface(
+            input_path="fake.csv",
+            video_path=tmp_path / "does_not_exist.mp4",
+            output_dir=tmp_path,
+            sub_id="M01",
+            ses_id="20240101",
+            cam_id="top",
+        )
+
+
+@patch("poseinterface.io.sio.load_video")
+@patch("poseinterface.io.load_dataset")
+def test_predictions_to_poseinterface_unreadable_video(
+    mock_load_dataset,
+    mock_load_video,
+    sample_movement_ds,
+    tmp_path,
+):
+    """Check ValueError is raised when the loaded video has shape=None."""
+    mock_load_dataset.return_value = sample_movement_ds
+
+    # File exists on disk, but load_video can't read its shape
+    fake_video = tmp_path / "unreadable.mp4"
+    fake_video.touch()
+    mock_load_video.return_value = MagicMock(shape=None)
+
+    with pytest.raises(ValueError, match="Could not extract video shape"):
+        predictions_to_poseinterface(
+            input_path="fake.csv",
+            video_path=fake_video,
+            output_dir=tmp_path,
+            sub_id="M01",
+            ses_id="20240101",
+            cam_id="top",
+        )
+
+
 def test_convert_movement_ds_to_videolabels(
     sample_movement_ds,
     mock_video,
