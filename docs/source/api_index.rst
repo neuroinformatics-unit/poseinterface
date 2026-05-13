@@ -10,4 +10,15 @@ io
     :toctree: api_generated
     :template: function.rst
 
-    annotations_to_coco
+    annotations_to_poseinterface
+    video_to_poseinterface
+
+clips
+-----
+.. currentmodule:: poseinterface.clips
+
+.. autosummary::
+    :toctree: api_generated
+    :template: function.rst
+
+    extract_clip

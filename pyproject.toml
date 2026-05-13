@@ -37,7 +37,7 @@ classifiers = [
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
@@ -61,6 +61,9 @@ docs = [
   "sphinx-sitemap",
   "sphinx-design",
 ]
+
+[project.scripts]
+extract-clip = "poseinterface.clips:wrapper"
 
 [build-system]
 requires = [
@@ -130,7 +133,7 @@ python =
     3.14: py314
 
 [testenv]
-extras =
+dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=poseinterface --cov-report=xml
@@ -140,3 +143,4 @@ commands =
 [tool.codespell]
 skip = '.git'
 check-hidden = true
+ignore-words-list = 'reencode'
