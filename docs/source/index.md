@@ -38,6 +38,8 @@ Public functions and classes in `poseinterface`.
 :::
 ::::
 
+![](_static/poseinterface_overview.png)
+
 
 ```{toctree}
 :maxdepth: 2
