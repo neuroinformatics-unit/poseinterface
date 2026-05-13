@@ -612,24 +612,28 @@ def test_predictions_to_poseinterface(
     ds = sample_movement_ds
 
     # Mock video input files
-    fake_video = tmp_path / "unreadable.mp4"
+    fake_video = tmp_path / "foo.mp4"
     fake_video.touch()
     mock_video = get_mock_video(n_frames=3)
+
+    # Pre-define a return value for `_convert_movement_ds_to_videolabels`
+    convert_output = {
+        "images": [{"id": 0, "file_name": "foo", "width": 10, "height": 20}],
+        "annotations": [{"id": 1, "image_id": 0}],
+        "categories": [{"id": 1, "name": "mouse"}],
+    }
 
     # Mock return values for supporting functions
     mock_load_dataset.return_value = ds
     mock_load_video.return_value = mock_video
-    mock_convert.return_value = {
-        "images": [],
-        "annotations": [],
-        "categories": [],
-    }
+    mock_convert.return_value = convert_output
 
     # Convert predictions
     result = predictions_to_poseinterface(
         input_path="fake.csv",
         video_path=fake_video,
-        output_dir=tmp_path,
+        output_dir=tmp_path / "nested" / "out",
+        # (use a nested dir from tmp_path to force creation)
         **sub_ses_cam_ids,
     )
 
@@ -647,6 +651,11 @@ def test_predictions_to_poseinterface(
         )
         + "_videolabels.json"
     )
+
+    # Check output json file contains the mock output from
+    # the convert function
+    with open(result) as f:
+        assert json.load(f) == convert_output
 
 
 @patch("poseinterface.io.load_dataset")

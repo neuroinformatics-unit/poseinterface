@@ -544,9 +544,10 @@ def predictions_to_poseinterface(
     )
 
     # Export dict as JSON
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     output_json_path = (
-        Path(output_dir)
-        / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_videolabels.json"
+        output_dir / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_videolabels.json"
     )
     with open(output_json_path, "w") as f:
         json.dump(coco_data, f)
