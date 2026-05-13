@@ -613,14 +613,16 @@ def _convert_movement_ds_to_videolabels(
             # 2: labeled and visible
             # NOTE: The current code only assigns 0 or 2 because the movement
             # dataset doesn't carry occlusion information
-            visible_array = ~np.isnan(xy[:, 0]) & ~np.isnan(xy[:, 1])
+            visible_array = ~np.isnan(xy[:, 0]) & ~np.isnan(
+                xy[:, 1]
+            )  # (n_keypoints,)
             n_visible = int(visible_array.sum())
 
             # Compute bbox from visible keypoints
             # (zeros if no keypoints are visible)
             if n_visible > 0:
-                x_visible = xy[0, visible_array]
-                y_visible = xy[1, visible_array]
+                x_visible = xy[visible_array, 0]
+                y_visible = xy[visible_array, 1]
                 x_min = float(x_visible.min())
                 y_min = float(y_visible.min())
                 bbox_w = float(x_visible.max()) - x_min
