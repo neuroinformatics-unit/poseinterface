@@ -607,7 +607,7 @@ def test_predictions_to_poseinterface(
     get_mock_video,
     tmp_path,
 ):
-    """Test that the relevant subfunctions are called."""
+    """Test output path, filename, and saved JSON content."""
     # Get movement dataset
     ds = sample_movement_ds
 
