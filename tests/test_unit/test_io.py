@@ -628,6 +628,10 @@ def test_predictions_to_poseinterface(
     mock_load_video.return_value = mock_video
     mock_convert.return_value = convert_output
 
+    # Get expected image width and height
+    # shape = (n_frames, img_height, img_width, 3)
+    _, expected_h, expected_w, _ = mock_video.shape
+
     # Convert predictions
     result = predictions_to_poseinterface(
         input_path="fake.csv",
@@ -637,10 +641,12 @@ def test_predictions_to_poseinterface(
         **sub_ses_cam_ids,
     )
 
-    # Check subfunctions are called
-    mock_load_dataset.assert_called_once()
-    mock_load_video.assert_called_once()
-    mock_convert.assert_called_once()
+    # Check surrounding code correctly routes image height to
+    # img_h and image width to img_w when calling the
+    # _convert_movement_ds_to_videolabels function
+    mock_convert.assert_called_once_with(
+        ds, **sub_ses_cam_ids, img_h=expected_h, img_w=expected_w
+    )
 
     # Check output file exists with expected name
     assert result.exists()
