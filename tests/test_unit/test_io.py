@@ -2,8 +2,10 @@ import json
 from contextlib import nullcontext
 from unittest.mock import MagicMock, Mock, patch
 
+import numpy as np
 import pytest
 import sleap_io as sio
+import xarray as xr
 from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
@@ -12,6 +14,7 @@ from poseinterface.io import (
     REENCODING_PARAMS,
     _build_output_json_path,
     _check_ffmpeg,
+    _convert_movement_ds_to_videolabels,
     _extract_frame_number,
     _generate_poseinterface_filenames,
     _get_codec_pixelformat,
@@ -20,8 +23,65 @@ from poseinterface.io import (
     _reencode_video,
     _update_image_ids,
     annotations_to_poseinterface,
+    predictions_to_poseinterface,
     video_to_poseinterface,
 )
+
+
+@pytest.fixture
+def sample_movement_ds():
+    """
+    Build a minimal movement dataset.
+    (2 frames, 2 keypoints, 1 individual)
+    """
+    # Initialise position array with NaN
+    # shape: (time, space, keypoints, individuals)
+    position_array = np.full((2, 2, 2, 1), np.nan)
+
+    # Fill in frame 0: kpt0=(10, 30), kpt1=(20, 40)
+    position_array[0, :, :, 0] = [
+        [10.0, 20.0],  # x coordinates
+        [30.0, 40.0],  # y coordinates
+    ]
+
+    # Fill in frame 1: kpt0=NaN, kpt1=(50, 60)
+    position_array[1, :, 1, 0] = [50.0, 60.0]  # x,y
+
+    # Build confidence array
+    # shape: (time, keypoints, individuals)
+    confidence_array = np.array(
+        [
+            [
+                [0.9],  # kpt0
+                [0.8],  # kpt1
+            ],  # frame 0
+            [
+                [np.nan],  # kpt0
+                [0.7],  # kpt1
+            ],  # frame 1
+        ],
+        dtype=np.float32,
+    )
+
+    # Return dataset
+    return xr.Dataset(
+        {
+            "position": (
+                ["time", "space", "keypoints", "individuals"],
+                position_array,
+            ),
+            "confidence": (
+                ["time", "keypoints", "individuals"],
+                confidence_array,
+            ),
+        },
+        coords={
+            "time": [0, 1],
+            "space": ["x", "y"],
+            "keypoints": ["Nose", "Tail"],
+            "individuals": ["id_0"],
+        },
+    )
 
 
 @patch("poseinterface.io.coco.convert_labels")
@@ -530,3 +590,187 @@ def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
         fps=video_fps,
         **REENCODING_PARAMS,
     )
+
+
+# ---------- predictions to poseinterface ----------------
+
+
+@patch("poseinterface.io._convert_movement_ds_to_videolabels")
+@patch("poseinterface.io.sio.load_video")
+@patch("poseinterface.io.load_dataset")
+def test_predictions_to_poseinterface(
+    mock_load_dataset,
+    mock_load_video,
+    mock_convert,
+    sample_movement_ds,
+    sub_ses_cam_ids,
+    get_mock_video,
+    tmp_path,
+):
+    """Test output path, filename, and saved JSON content."""
+    # Get movement dataset
+    ds = sample_movement_ds
+
+    # Mock video input files
+    fake_video = tmp_path / "foo.mp4"
+    fake_video.touch()
+    mock_video = get_mock_video(n_frames=3)
+
+    # Pre-define a return value for `_convert_movement_ds_to_videolabels`
+    convert_output = {
+        "images": [{"id": 0, "file_name": "foo", "width": 10, "height": 20}],
+        "annotations": [{"id": 1, "image_id": 0}],
+        "categories": [{"id": 1, "name": "mouse"}],
+    }
+
+    # Mock return values for supporting functions
+    mock_load_dataset.return_value = ds
+    mock_load_video.return_value = mock_video
+    mock_convert.return_value = convert_output
+
+    # Get expected image width and height
+    # shape = (n_frames, img_height, img_width, 3)
+    _, expected_h, expected_w, _ = mock_video.shape
+
+    # Convert predictions
+    result = predictions_to_poseinterface(
+        input_path="fake.csv",
+        video_path=fake_video,
+        output_dir=tmp_path / "nested" / "out",
+        # (use a nested dir from tmp_path to force creation)
+        **sub_ses_cam_ids,
+    )
+
+    # Check surrounding code correctly routes image height to
+    # img_h and image width to img_w when calling the
+    # _convert_movement_ds_to_videolabels function
+    mock_convert.assert_called_once_with(
+        ds, **sub_ses_cam_ids, img_h=expected_h, img_w=expected_w
+    )
+
+    # Check output file exists with expected name
+    assert result.exists()
+    assert (
+        result.name
+        == "_".join(
+            [f"{ky.strip('_id')}-{val}" for ky, val in sub_ses_cam_ids.items()]
+        )
+        + "_videolabels.json"
+    )
+
+    # Check output json file contains the mock output from
+    # the convert function
+    with open(result) as f:
+        assert json.load(f) == convert_output
+
+
+@patch("poseinterface.io.load_dataset")
+def test_predictions_to_poseinterface_video_file_missing(
+    mock_load_dataset,
+    sample_movement_ds,
+    sub_ses_cam_ids,
+    tmp_path,
+):
+    """Check FileNotFoundError is raised when the video path does not exist."""
+    mock_load_dataset.return_value = sample_movement_ds
+
+    with pytest.raises(
+        FileNotFoundError, match="Input video file does not exist"
+    ):
+        predictions_to_poseinterface(
+            input_path="fake.csv",
+            video_path=tmp_path / "does_not_exist.mp4",
+            output_dir=tmp_path,
+            **sub_ses_cam_ids,
+        )
+
+
+@patch("poseinterface.io.sio.load_video")
+@patch("poseinterface.io.load_dataset")
+def test_predictions_to_poseinterface_video_shape_none(
+    mock_load_dataset,
+    mock_load_video,
+    sample_movement_ds,
+    sub_ses_cam_ids,
+    tmp_path,
+):
+    """Check ValueError is raised when the loaded video has shape=None."""
+    mock_load_dataset.return_value = sample_movement_ds
+
+    # File exists on disk, but load_video can't read its shape
+    fake_video = tmp_path / "unreadable.mp4"
+    fake_video.touch()
+    mock_load_video.return_value = MagicMock(shape=None)
+
+    with pytest.raises(ValueError, match="Could not extract video shape"):
+        predictions_to_poseinterface(
+            input_path="fake.csv",
+            video_path=fake_video,
+            output_dir=tmp_path,
+            **sub_ses_cam_ids,
+        )
+
+
+def test_convert_movement_ds_to_videolabels(
+    sample_movement_ds,
+    sub_ses_cam_ids,
+):
+    """Test that movement dataset is converted to videolabels dict."""
+    ds = sample_movement_ds
+    sub_id = sub_ses_cam_ids["sub_id"]
+    ses_id = sub_ses_cam_ids["ses_id"]
+    cam_id = sub_ses_cam_ids["cam_id"]
+    img_h, img_w = 480, 640
+
+    coco_data = _convert_movement_ds_to_videolabels(
+        ds,
+        **sub_ses_cam_ids,
+        img_h=img_h,
+        img_w=img_w,
+    )
+
+    assert set(coco_data.keys()) == {"images", "annotations", "categories"}
+
+    assert len(coco_data["images"]) == len(ds.time)
+    for k in range(len(coco_data["images"])):
+        assert coco_data["images"][k]["file_name"] == (
+            f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{k:01d}"
+        )
+        assert coco_data["images"][k]["width"] == img_w
+        assert coco_data["images"][k]["height"] == img_h
+
+    assert len(coco_data["categories"]) == len(ds.individuals)
+    assert coco_data["categories"][0]["name"] == ds.individuals.values[0]
+    assert (
+        coco_data["categories"][0]["keypoints"] == ds.keypoints.values.tolist()
+    )
+
+    # 2 frames x 1 individual = 2 annotations
+    assert len(coco_data["annotations"]) == len(ds.time) * len(ds.individuals)
+
+    # Frame 0: both keypoints visible, kpt0=(10, 30), kpt1=(20, 40)
+    annot0 = coco_data["annotations"][0]
+    assert annot0["num_keypoints"] == 2
+    assert annot0["keypoints"] == [
+        *ds.position.isel(time=0, keypoints=0, individuals=0).values.tolist(),
+        2.0,
+        *ds.position.isel(time=0, keypoints=1, individuals=0).values.tolist(),
+        2.0,
+    ]
+    # bbox: [xmin, ymin, width, height]
+    assert annot0["bbox"] == [10.0, 30.0, 10.0, 10.0]
+    assert annot0["area"] == 100.0
+
+    # Frame 1: kpt0 is NaN, kpt1=(50, 60)
+    annot1 = coco_data["annotations"][1]
+    assert annot1["num_keypoints"] == 1
+    assert annot1["keypoints"] == [
+        0.0,
+        0.0,
+        0.0,
+        *ds.position.isel(time=1, keypoints=1, individuals=0).values.tolist(),
+        2.0,
+    ]
+    # bbox covers only the single visible keypoint
+    assert annot1["bbox"] == [50.0, 60.0, 0.0, 0.0]
+    assert annot1["area"] == 0.0

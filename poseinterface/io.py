@@ -8,7 +8,10 @@ import shutil
 from pathlib import Path
 from typing import Literal, TypeAlias
 
+import numpy as np
 import sleap_io as sio
+import xarray as xr
+from movement.io import load_dataset
 from sleap_io.io import coco
 from sleap_io.io.cli import _get_video_encoding_info, _is_ffmpeg_available
 from sleap_io.io.dlc import is_dlc_file
@@ -461,3 +464,198 @@ def _reencode_video(
     )
     logging.info(f"Re-encoded video saved to {reencoded_video_path}")
     return reencoded_video_path
+
+
+def predictions_to_poseinterface(
+    input_path: Path | str,
+    video_path: Path | str,
+    output_dir: Path | str,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+) -> Path:
+    """Convert a prediction file to ``poseinterface`` COCO JSON format.
+
+    This function reads predictions for a given video and writes the
+    corresponding "video-level" COCO JSON labels in the ``poseinterface``
+    format, (i.e. a
+    ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>_videolabels.json`` file).
+
+    The output JSON file is meant to facilitate the extraction of "clip-level"
+    labels, (i.e. files of the format
+    ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>_start-<frame_id>_dur-<n_frames>_cliplabels.json``).
+
+    Parameters
+    ----------
+    input_path
+        Path to the predictions file. It should be one of the formats
+        supported by ``movement`` (see `movement supported formats`_)
+    video_path
+        Path to the corresponding video file.  Used to attach video
+        metadata (resolution) to the COCO output.
+    output_dir
+        Path to the directory where to save the output JSON file.
+    sub_id
+        Subject ID to include in the generated filenames.
+    ses_id
+        Session ID to include in the generated filenames.
+    cam_id
+        Camera ID to include in the generated filenames.
+
+    Returns
+    -------
+    Path
+        Path to the saved COCO JSON file.
+
+    Notes
+    -------
+    For the full list of supported formats for the input file, see
+    `movement supported formats`_.
+
+    .. _movement supported formats:
+       https://movement.neuroinformatics.dev/dev/user_guide/input_output.html#supported-third-party-formats
+
+
+    """
+    # Read input file as movement dataset
+    # NOTE: fps=None is ignore with NWB files
+    ds = load_dataset(
+        file=input_path,
+        source_software="auto",  # infer from validators
+        fps=None,
+    )
+
+    # Read video object
+    video_path = Path(video_path)
+    if not video_path.is_file():
+        raise FileNotFoundError(
+            f"Input video file does not exist: {video_path}"
+        )
+    video = sio.load_video(video_path)
+
+    # Get video image width and height
+    if video.shape is None:
+        raise ValueError(f"Could not extract video shape from {video_path}. ")
+    _, img_h, img_w, _ = video.shape
+
+    # Convert movement dataset to videolabels dict
+    coco_data = _convert_movement_ds_to_videolabels(
+        ds,
+        sub_id=sub_id,
+        ses_id=ses_id,
+        cam_id=cam_id,
+        img_h=img_h,
+        img_w=img_w,
+    )
+
+    # Export dict as JSON
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_json_path = (
+        output_dir / f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_videolabels.json"
+    )
+    with open(output_json_path, "w") as f:
+        json.dump(coco_data, f)
+
+    return output_json_path
+
+
+def _convert_movement_ds_to_videolabels(
+    ds: xr.Dataset,
+    *,
+    sub_id: str,
+    ses_id: str,
+    cam_id: str,
+    img_w: int,
+    img_h: int,
+) -> dict[str, list[dict]]:
+    """Convert predictions in movement dataset to videolabels dict."""
+    # Extract position array and coordinates from dataset
+    positions = ds["position"].values  # (time, space, keypoints, individuals)
+    n_frames = positions.shape[0]
+
+    keypoint_names = ds.coords["keypoints"].values.tolist()
+    individual_names = ds.coords["individuals"].values.tolist()
+
+    # Build categories list (one entry per individual)
+    # NOTE: categories are 1-indexed to avoid conflicts
+    # with models that treat category 0 as background.
+    categories = [
+        {
+            "id": i,
+            "name": name,
+            "keypoints": keypoint_names,
+            "skeleton": [],
+        }
+        for i, name in enumerate(individual_names, start=1)
+    ]
+
+    # Build images list (one entry per frame)
+    # NOTE: image id values are always 0-indexed
+    frame_idx_width = len(str(n_frames - 1))
+    images = [
+        {
+            "id": t,
+            "file_name": (
+                f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}_frame-{t:0{frame_idx_width}d}"
+            ),
+            "width": img_w,
+            "height": img_h,
+        }
+        for t in range(n_frames)
+    ]
+
+    # Build annotations list (one entry per frame per individual)
+    annotations = []
+    annot_id = 1
+    for t in range(n_frames):
+        for i in range(len(individual_names)):
+            # Get position data for this frame and individual
+            xy = positions[t, :, :, i].T  # (n_keypoints, 2)
+
+            # Determine kpt visibility:
+            # 0: not labeled
+            # 1: labeled but not visible (occluded)
+            # 2: labeled and visible
+            # NOTE: The current code only assigns 0 or 2 because the movement
+            # dataset doesn't carry occlusion information
+            visible_array = ~np.isnan(xy[:, 0]) & ~np.isnan(
+                xy[:, 1]
+            )  # (n_keypoints,)
+            n_visible = int(visible_array.sum())
+
+            # Compute bbox from visible keypoints
+            # (zeros if no keypoints are visible)
+            if n_visible > 0:
+                x_visible = xy[visible_array, 0]
+                y_visible = xy[visible_array, 1]
+                x_min = float(x_visible.min())
+                y_min = float(y_visible.min())
+                bbox_w = float(x_visible.max()) - x_min
+                bbox_h = float(y_visible.max()) - y_min
+            else:
+                x_min, y_min, bbox_w, bbox_h = 0.0, 0.0, 0.0, 0.0
+
+            # Append results to list of annotations
+            annotations.append(
+                {
+                    "id": annot_id,
+                    "image_id": t,
+                    "category_id": i + 1,
+                    "keypoints": coco.encode_keypoints(
+                        np.c_[xy, visible_array]
+                    ),  # returns flattened kpts [x1, y1, v1, x2, y2, v2, ...]
+                    "num_keypoints": n_visible,
+                    "bbox": [x_min, y_min, bbox_w, bbox_h],
+                    "area": bbox_w * bbox_h,
+                    "iscrowd": 0,
+                }
+            )
+            annot_id += 1
+
+    return {
+        "images": images,
+        "annotations": annotations,
+        "categories": categories,
+    }
