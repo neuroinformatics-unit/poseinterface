@@ -708,15 +708,14 @@ def test_predictions_to_poseinterface_video_shape_none(
 def test_convert_movement_ds_to_videolabels(
     sample_movement_ds,
     sub_ses_cam_ids,
-    get_mock_video,
 ):
     """Test that movement dataset is converted to videolabels dict."""
-    # Get movement dataset and video fixtures
     ds = sample_movement_ds
-    video = get_mock_video(n_frames=3)
-    _, img_h, img_w, _ = video.shape
+    sub_id = sub_ses_cam_ids["sub_id"]
+    ses_id = sub_ses_cam_ids["ses_id"]
+    cam_id = sub_ses_cam_ids["cam_id"]
+    img_h, img_w = 480, 640
 
-    # Convert dataset to videolabels dict
     coco_data = _convert_movement_ds_to_videolabels(
         ds,
         **sub_ses_cam_ids,
@@ -724,15 +723,8 @@ def test_convert_movement_ds_to_videolabels(
         img_w=img_w,
     )
 
-    # Unwrap subject, session and camera IDs
-    sub_id = sub_ses_cam_ids["sub_id"]
-    ses_id = sub_ses_cam_ids["ses_id"]
-    cam_id = sub_ses_cam_ids["cam_id"]
-
-    # Check top-level keys
     assert set(coco_data.keys()) == {"images", "annotations", "categories"}
 
-    # Check images
     assert len(coco_data["images"]) == len(ds.time)
     for k in range(len(coco_data["images"])):
         assert coco_data["images"][k]["file_name"] == (
@@ -741,27 +733,22 @@ def test_convert_movement_ds_to_videolabels(
         assert coco_data["images"][k]["width"] == img_w
         assert coco_data["images"][k]["height"] == img_h
 
-    # Check categories
     assert len(coco_data["categories"]) == len(ds.individuals)
-    assert (
-        coco_data["categories"][0]["name"] == ds.individuals.values.tolist()[0]
-    )
+    assert coco_data["categories"][0]["name"] == ds.individuals.values[0]
     assert (
         coco_data["categories"][0]["keypoints"] == ds.keypoints.values.tolist()
     )
 
-    # Check annotations
     # 2 frames x 1 individual = 2 annotations
     assert len(coco_data["annotations"]) == len(ds.time) * len(ds.individuals)
 
-    # Frame 0: both keypoints visible
-    # kpt0=(10, 30), kpt1=(20, 40)
+    # Frame 0: both keypoints visible, kpt0=(10, 30), kpt1=(20, 40)
     annot0 = coco_data["annotations"][0]
     assert annot0["num_keypoints"] == 2
     assert annot0["keypoints"] == [
-        *ds.position.isel(time=0, keypoints=0).values.squeeze().tolist(),
+        *ds.position.isel(time=0, keypoints=0, individuals=0).values.tolist(),
         2.0,
-        *ds.position.isel(time=0, keypoints=1).values.squeeze().tolist(),
+        *ds.position.isel(time=0, keypoints=1, individuals=0).values.tolist(),
         2.0,
     ]
     # bbox: [xmin, ymin, width, height]
@@ -775,7 +762,7 @@ def test_convert_movement_ds_to_videolabels(
         0.0,
         0.0,
         0.0,
-        *ds.position.isel(time=1, keypoints=1).values.squeeze().tolist(),
+        *ds.position.isel(time=1, keypoints=1, individuals=0).values.tolist(),
         2.0,
     ]
     # bbox covers only the single visible keypoint
