@@ -383,7 +383,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">coco</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_video_encoding_info</span><span class="p">,</span> <span class="n">_is_ffmpeg_available</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.dlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_dlc_file</span>
@@ -842,6 +845,204 @@
     <span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Re-encoded video saved to </span><span class="si">{</span><span class="n">reencoded_video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">reencoded_video_path</span>
+
+
+<div class="viewcode-block" id="predictions_to_poseinterface">
+<a class="viewcode-back" href="../../api_generated/poseinterface.io.predictions_to_poseinterface.html#poseinterface.io.predictions_to_poseinterface">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">predictions_to_poseinterface</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a prediction file to ``poseinterface`` COCO JSON format.</span>
+
+<span class="sd">    This function reads predictions for a given video and writes the</span>
+<span class="sd">    corresponding &quot;video-level&quot; COCO JSON labels in the ``poseinterface``</span>
+<span class="sd">    format, (i.e. a</span>
+<span class="sd">    ``sub-&lt;sub_id&gt;_ses-&lt;ses_id&gt;_cam-&lt;cam_id&gt;_videolabels.json`` file).</span>
+
+<span class="sd">    The output JSON file is meant to facilitate the extraction of &quot;clip-level&quot;</span>
+<span class="sd">    labels, (i.e. files of the format</span>
+<span class="sd">    ``sub-&lt;sub_id&gt;_ses-&lt;ses_id&gt;_cam-&lt;cam_id&gt;_start-&lt;frame_id&gt;_dur-&lt;n_frames&gt;_cliplabels.json``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_path</span>
+<span class="sd">        Path to the predictions file. It should be one of the formats</span>
+<span class="sd">        supported by ``movement`` (see `movement supported formats`_)</span>
+<span class="sd">    video_path</span>
+<span class="sd">        Path to the corresponding video file.  Used to attach video</span>
+<span class="sd">        metadata (resolution) to the COCO output.</span>
+<span class="sd">    output_dir</span>
+<span class="sd">        Path to the directory where to save the output JSON file.</span>
+<span class="sd">    sub_id</span>
+<span class="sd">        Subject ID to include in the generated filenames.</span>
+<span class="sd">    ses_id</span>
+<span class="sd">        Session ID to include in the generated filenames.</span>
+<span class="sd">    cam_id</span>
+<span class="sd">        Camera ID to include in the generated filenames.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to the saved COCO JSON file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -------</span>
+<span class="sd">    For the full list of supported formats for the input file, see</span>
+<span class="sd">    `movement supported formats`_.</span>
+
+<span class="sd">    .. _movement supported formats:</span>
+<span class="sd">       https://movement.neuroinformatics.dev/dev/user_guide/input_output.html#supported-third-party-formats</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read input file as movement dataset</span>
+    <span class="c1"># NOTE: fps=None is ignore with NWB files</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
+        <span class="n">file</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># infer from validators</span>
+        <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Read video object</span>
+    <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">video_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Input video file does not exist: </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">video</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_video</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+
+    <span class="c1"># Get video image width and height</span>
+    <span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not extract video shape from </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">. &quot;</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Convert movement dataset to videolabels dict</span>
+    <span class="n">coco_data</span> <span class="o">=</span> <span class="n">_convert_movement_ds_to_videolabels</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">sub_id</span><span class="o">=</span><span class="n">sub_id</span><span class="p">,</span>
+        <span class="n">ses_id</span><span class="o">=</span><span class="n">ses_id</span><span class="p">,</span>
+        <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">,</span>
+        <span class="n">img_h</span><span class="o">=</span><span class="n">img_h</span><span class="p">,</span>
+        <span class="n">img_w</span><span class="o">=</span><span class="n">img_w</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Export dict as JSON</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">output_json_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">_videolabels.json&quot;</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_json_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">coco_data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_json_path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_movement_ds_to_videolabels</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sub_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ses_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cam_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">img_w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">img_h</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert predictions in movement dataset to videolabels dict.&quot;&quot;&quot;</span>
+    <span class="c1"># Extract position array and coordinates from dataset</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (time, space, keypoints, individuals)</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">individual_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># Build categories list (one entry per individual)</span>
+    <span class="c1"># NOTE: categories are 1-indexed to avoid conflicts</span>
+    <span class="c1"># with models that treat category 0 as background.</span>
+    <span class="n">categories</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="n">keypoint_names</span><span class="p">,</span>
+            <span class="s2">&quot;skeleton&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">individual_names</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Build images list (one entry per frame)</span>
+    <span class="c1"># NOTE: image id values are always 0-indexed</span>
+    <span class="n">frame_idx_width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span>
+            <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><span class="n">sub_id</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><span class="n">ses_id</span><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><span class="n">cam_id</span><span class="si">}</span><span class="s2">_frame-</span><span class="si">{</span><span class="n">t</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">frame_idx_width</span><span class="si">}</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">img_w</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">img_h</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Build annotations list (one entry per frame per individual)</span>
+    <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">annot_id</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frames</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">)):</span>
+            <span class="c1"># Get position data for this frame and individual</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># (n_keypoints, 2)</span>
+
+            <span class="c1"># Determine kpt visibility:</span>
+            <span class="c1"># 0: not labeled</span>
+            <span class="c1"># 1: labeled but not visible (occluded)</span>
+            <span class="c1"># 2: labeled and visible</span>
+            <span class="c1"># NOTE: The current code only assigns 0 or 2 because the movement</span>
+            <span class="c1"># dataset doesn&#39;t carry occlusion information</span>
+            <span class="n">visible_array</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span>
+                <span class="n">xy</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>  <span class="c1"># (n_keypoints,)</span>
+            <span class="n">n_visible</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">visible_array</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+            <span class="c1"># Compute bbox from visible keypoints</span>
+            <span class="c1"># (zeros if no keypoints are visible)</span>
+            <span class="k">if</span> <span class="n">n_visible</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">x_visible</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="n">visible_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">y_visible</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="n">visible_array</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">x_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x_visible</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+                <span class="n">y_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y_visible</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+                <span class="n">bbox_w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x_visible</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">-</span> <span class="n">x_min</span>
+                <span class="n">bbox_h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y_visible</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">-</span> <span class="n">y_min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">bbox_w</span><span class="p">,</span> <span class="n">bbox_h</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+            <span class="c1"># Append results to list of annotations</span>
+            <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">annot_id</span><span class="p">,</span>
+                    <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span>
+                    <span class="s2">&quot;category_id&quot;</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="n">coco</span><span class="o">.</span><span class="n">encode_keypoints</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">xy</span><span class="p">,</span> <span class="n">visible_array</span><span class="p">]</span>
+                    <span class="p">),</span>  <span class="c1"># returns flattened kpts [x1, y1, v1, x2, y2, v2, ...]</span>
+                    <span class="s2">&quot;num_keypoints&quot;</span><span class="p">:</span> <span class="n">n_visible</span><span class="p">,</span>
+                    <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">bbox_w</span><span class="p">,</span> <span class="n">bbox_h</span><span class="p">],</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">bbox_w</span> <span class="o">*</span> <span class="n">bbox_h</span><span class="p">,</span>
+                    <span class="s2">&quot;iscrowd&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">annot_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">images</span><span class="p">,</span>
+        <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">annotations</span><span class="p">,</span>
+        <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">,</span>
+    <span class="p">}</span>
 </pre></div>
 
                 </article>
