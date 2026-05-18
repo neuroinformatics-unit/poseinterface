@@ -467,8 +467,8 @@ def _reencode_video(
 
 
 def frames_to_poseinterface(
-    source_dir: Path,
-    target_dir: Path,
+    input_dir: Path,
+    output_dir: Path,
     framelabels_path: Path,
 ) -> None:
     """Copy frame images, renaming them per the COCO JSON filenames.
@@ -479,10 +479,10 @@ def frames_to_poseinterface(
 
     Parameters
     ----------
-    source_dir
+    input_dir
         Directory containing the source frame images (e.g. DLC
         ``labeled-data/<video>/`` folder).
-    target_dir
+    output_dir
         Directory to copy the renamed frames into.
     framelabels_path
         Path to a COCO JSON file whose ``images`` entries provide
@@ -496,7 +496,7 @@ def frames_to_poseinterface(
     """
     # Build a map from frame number to source image path
     source_frame_map: dict[int, Path] = {}
-    for img_path in source_dir.glob("*.png"):
+    for img_path in input_dir.glob("*.png"):
         match = re.search(r"(\d+)", img_path.stem)
         if match:
             source_frame_map[int(match.group(1))] = img_path
@@ -510,9 +510,9 @@ def frames_to_poseinterface(
         if frame_number not in source_frame_map:
             raise FileNotFoundError(
                 f"No source frame found for frame {frame_number} "
-                f"in {source_dir}"
+                f"in {input_dir}"
             )
-        target_path = target_dir / target_filename
+        target_path = output_dir / target_filename
         if not target_path.exists():
             shutil.copy2(source_frame_map[frame_number], target_path)
 

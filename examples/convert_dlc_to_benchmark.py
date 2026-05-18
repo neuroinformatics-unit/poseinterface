@@ -175,8 +175,8 @@ for session in sessions:
         **ids,
     )
     frames_to_poseinterface(
-        source_dir=source_frames_dir,
-        target_dir=target_frames_dir,
+        input_dir=source_frames_dir,
+        output_dir=target_frames_dir,
         framelabels_path=framelabels_path,
     )
     print(
