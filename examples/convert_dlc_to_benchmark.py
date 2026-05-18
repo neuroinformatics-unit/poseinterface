@@ -262,7 +262,7 @@ print(tree(benchmark_base_dir, level=5))
 #    labels (``cliplabels.json``). The ``Test`` split withholds full clip
 #    labels; only clip start labels (``startlabels.json``), derived from each
 #    clip's first frame, are included to support point-tracker evaluation.
-#    The `videolabels.json`` files generated in the previous section are
+#    The ``videolabels.json`` files generated in the previous section are
 #    intermediate artifacts used for clip extraction, and are never shared.
 #    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
 
