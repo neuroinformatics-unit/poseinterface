@@ -186,9 +186,9 @@ for session in sessions:
 
     # Convert DLC predictions to COCO video labels JSON for clip extraction
     predictions_to_poseinterface(
-        predictions_path=source_predictions_path,
+        input_path=source_predictions_path,
         video_path=source_video_path,
-        output_json_parent_dir=target_session_dir,
+        output_dir=target_session_dir,
         **ids,
     )
     print(
