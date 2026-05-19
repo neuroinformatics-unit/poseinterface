@@ -7,10 +7,12 @@ Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
 # %%
 # Imports
 # -------
+import json
 import shutil
-import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
+import poseinterface
 from poseinterface.clips import extract_clip
 from poseinterface.io import (
     annotations_to_poseinterface,
@@ -25,11 +27,12 @@ from poseinterface.utils import tree
 # --------
 # We'll handle the conversion in two steps:
 #
-# 1. **Convert:** DLC project files (session videos, frame annotations, and
-#    model predictions) are restructured into the
+# 1. **Convert:** DLC project files (videos, frame annotations, and
+#    keypoint predictions) are restructured into the
 #    :ref:`poseinterface benchmark layout <target-benchmark-dataset>`.
-# 2. **Extract clips:** Short video clips and their label files are extracted
-#    from the converted session videos, ready for expert review.
+# 2. **Extract clips:** Short video clips and their labels are extracted
+#    from the converted videos and their corresponding keypoint
+#    predictions, ready for expert review.
 #
 # .. figure:: /_static/DLC_to_poseinterface_worklow.svg
 #    :alt: Workflow diagram showing how a DLC project is converted
@@ -44,8 +47,8 @@ from poseinterface.utils import tree
 # We work with a dataset from the
 # `Sainsbury Wellcome Centre (SWC) <https://www.sainsburywellcome.org/>`_,
 # produced by Loukia Katsouri from John O'Keefe's lab.
-# It contains single-animal top-down videos of mice exploring an elevated plus
-# maze, with keypoint annotations generated using
+# It contains single-animal top-down videos of mice exploring novel objects in
+# a Y-shaped maze, analysed using
 # `DeepLabCut (DLC) <https://www.mackenziemathislab.org/deeplabcut>`_.
 #
 # .. note::
@@ -54,25 +57,25 @@ from poseinterface.utils import tree
 #    repository (under ``tests/data/``). This fixture contains only a subset
 #    of the original DLC project, and is intended for testing and demonstration
 #    purposes.
-#    Replace ``source_project_dir`` with the path to your own DLC project to
-#    convert real data, and keep in mind that your project will contain more
-#    files than are shown here.
+#
+#    Replace ``source_project_dir`` and ``benchmark_base_dir`` with the paths
+#    to your DLC project and benchmark dataset directories, respectively. Keep
+#    in mind that your project will contain more files than are shown here.
 
-source_project_dir = (
-    Path(".").resolve().parent
-    / "tests"
-    / "data"
-    / "dlc"
-    / "MouseTopDown-Loukia-2022-09-13"
+
+source_project_dir = Path(
+    "/mnt/Data/Loukia_DLC/MouseTopDown-Loukia-2022-09-13"
 )
-
 print(tree(source_project_dir, level=1, exclude_hidden=True))
 
+benchmark_base_dir = Path("/home/niko/Dropbox/NIU/data/pose-benchmarks")
+print(f"Benchmark dataset will be saved to: {benchmark_base_dir}")
+
 # %%
-# The two sub-directories we care about are:
+# The two source project sub-directories we care about are:
 #
 # - ``videos/``: the session videos and their corresponding prediction files.
-# - ``labeled-data/``: sampled frames and their ground-truth annotations.
+# - ``labeled-data/``: sampled frames and their keypoint annotations.
 #
 # Let's peek inside each.
 
@@ -101,31 +104,33 @@ print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 sessions = [
     {
         "split": "Train",
-        "source_video": "M727755_EPM_20200317_170544999-converted.mp4",
-        "sub_id": "M727755",
-        "ses_id": "20200317",
+        "source_video": (
+            "M724000_NOR_TRAINING_20200319_151412092-converted.mp4"
+        ),
+        "sub_id": "M724000",
+        "ses_id": "20200319",
         "cam_id": "topdown",
     },
     {
         "split": "Test",
-        "source_video": "M708154_EPM_20200317_185651629-converted.mp4",
-        "sub_id": "M708154",
-        "ses_id": "20200317",
+        "source_video": "M908825_NOR_TRAIN_20201203_113703500downsampled.mp4",
+        "sub_id": "M908825",
+        "ses_id": "20201203",
         "cam_id": "topdown",
     },
 ]
 
-project_name = "SWC-plusmaze"
-
-# Replace this with the path where you want to save your benchmark dataset.
-benchmark_base_dir = Path(tempfile.mkdtemp())
+project_name = "SWC-novel-object-ymaze"
 
 # %%
 # Convert to benchmark format
 # ----------------------------
-# For each session we: copy and re-encode the session video if necessary,
-# convert DLC annotations to COCO frame labels, copy and rename the sampled
-# frame images, and convert DLC predictions to COCO JSON.
+# For each session we:
+#
+# 1. copy (and re-encode, if necessary) the session video
+# 2. convert DLC keypoint annotations to COCO JSON, as well as copy and
+#    rename the corresponding frame images
+# 3. convert DLC keypoint predictions to COCO JSON.
 
 for session in sessions:
     split = session["split"]
@@ -143,7 +148,7 @@ for session in sessions:
     # Find the predictions .csv file. In real projects there may be multiple
     # (e.g. filtered versions), so adjust the glob pattern if needed.
     source_predictions_path = next(
-        (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv")
+        (source_project_dir / "videos").glob(f"{source_video_path.stem}*0.h5")
     )
     # Find the annotations .csv file. In real projects there may be multiple
     # (e.g. for different labelers), so adjust the glob pattern if needed.
@@ -224,8 +229,11 @@ print(tree(benchmark_base_dir, level=5))
 # First, we specify the clip parameters. This step can be run multiple times
 # with different parameters to grow the clip set incrementally.
 
-duration = 5  # frames per clip
-start_frames = [25, 50, 75]
+duration = 30  # frames per clip
+start_minutes = [2, 5, 7]
+fps = 30
+start_frames = [int(minute * 60 * fps) for minute in start_minutes]
+print(f"Extracting {duration}-frame clips starting at frames: {start_frames}")
 
 # %%
 # We loop over all sessions and extract clips at each start frame.
@@ -266,9 +274,35 @@ print(tree(benchmark_base_dir, level=5))
 #    intermediate artifacts used for clip extraction, and are never shared.
 #    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
 
-# %%
-# Clean up the temporary directory.
 
-shutil.rmtree(benchmark_base_dir)
+# %%
+# Record provenance
+# -----------------
+# Save a copy of this script alongside a JSON sidecar with the
+# ``poseinterface`` version (including git commit, via ``setuptools_scm``)
+# and a UTC timestamp, so the exact conversion is reproducible later. Both
+# files are written to a top-level ``.provenance/`` folder, named by project,
+# so multiple projects under the same ``benchmark_base_dir`` stay distinct.
+
+provenance_dir = benchmark_base_dir / ".provenance"
+provenance_dir.mkdir(parents=True, exist_ok=True)
+
+# ``__file__`` is set when running this script directly with Python, but not
+# when sphinx-gallery executes it during the docs build, guard accordingly.
+script_path_str = globals().get("__file__")
+if script_path_str:
+    shutil.copy(Path(script_path_str), provenance_dir / f"{project_name}.py")
+
+(provenance_dir / f"{project_name}.json").write_text(
+    json.dumps(
+        {
+            "poseinterface_version": poseinterface.__version__,
+            "converted_at": datetime.now(timezone.utc).isoformat(),
+            "source_project_dir": str(source_project_dir),
+        },
+        indent=2,
+    )
+)
+print(tree(provenance_dir, level=1))
 
 # %%
