@@ -9,6 +9,7 @@ Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
 # -------
 import json
 import shutil
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -47,8 +48,8 @@ from poseinterface.utils import tree
 # We work with a dataset from the
 # `Sainsbury Wellcome Centre (SWC) <https://www.sainsburywellcome.org/>`_,
 # produced by Loukia Katsouri from John O'Keefe's lab.
-# It contains single-animal top-down videos of mice exploring novel objects in
-# a Y-shaped maze, analysed using
+# It contains single-animal top-down videos of mice exploring an
+# Elevated Plus Maze (EPM), analysed using
 # `DeepLabCut (DLC) <https://www.mackenziemathislab.org/deeplabcut>`_.
 #
 # .. note::
@@ -63,13 +64,18 @@ from poseinterface.utils import tree
 #    in mind that your project will contain more files than are shown here.
 
 
-source_project_dir = Path(
-    "/mnt/Data/Loukia_DLC/MouseTopDown-Loukia-2022-09-13"
+source_project_dir = (
+    Path(".").resolve().parent
+    / "tests"
+    / "data"
+    / "dlc"
+    / "MouseTopDown-Loukia-2022-09-13"
 )
 print(tree(source_project_dir, level=1, exclude_hidden=True))
 
-benchmark_base_dir = Path("/home/niko/Dropbox/NIU/data/pose-benchmarks")
-print(f"Benchmark dataset will be saved to: {benchmark_base_dir}")
+# For this example we use a temporary directory, cleaned up at the end.
+benchmark_base_dir = Path(tempfile.mkdtemp(prefix="poseinterface-benchmark-"))
+print(f"\nBenchmark dataset will be saved to: {benchmark_base_dir}")
 
 # %%
 # The two source project sub-directories we care about are:
@@ -84,7 +90,7 @@ print(tree(source_project_dir / "videos", level=1, exclude_hidden=True))
 # %%
 # Each video (ending in ``converted.mp4``) has a companion .csv prediction
 # file. The ``labeled-data`` sub-directories mirror the video names (without
-# ``.mp4``) and contain the sampled frame images (.png) and their annotations
+# .mp4) and contain the sampled frame images (.png) and their annotations
 # (.csv). In real projects you may also find predictions and annotations in
 # .h5 format, as well as filtered prediction files.
 
@@ -104,32 +110,30 @@ print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 sessions = [
     {
         "split": "Train",
-        "source_video": (
-            "M724000_NOR_TRAINING_20200319_151412092-converted.mp4"
-        ),
-        "sub_id": "M724000",
-        "ses_id": "20200319",
+        "source_video": "M727755_EPM_20200317_170544999-converted.mp4",
+        "sub_id": "M727755",
+        "ses_id": "20200317",
         "cam_id": "topdown",
     },
     {
         "split": "Test",
-        "source_video": "M908825_NOR_TRAIN_20201203_113703500downsampled.mp4",
-        "sub_id": "M908825",
-        "ses_id": "20201203",
+        "source_video": "M708154_EPM_20200317_185651629-converted.mp4",
+        "sub_id": "M708154",
+        "ses_id": "20200317",
         "cam_id": "topdown",
     },
 ]
 
-project_name = "SWC-novel-object-ymaze"
+project_name = "SWC-plusmaze"
 
 # %%
 # Convert to benchmark format
 # ----------------------------
 # For each session we:
 #
-# 1. copy (and re-encode, if necessary) the session video
+# 1. copy (and re-encode, if necessary) the session video;
 # 2. convert DLC keypoint annotations to COCO JSON, as well as copy and
-#    rename the corresponding frame images
+#    rename the corresponding frame images;
 # 3. convert DLC keypoint predictions to COCO JSON.
 
 for session in sessions:
@@ -148,7 +152,7 @@ for session in sessions:
     # Find the predictions .csv file. In real projects there may be multiple
     # (e.g. filtered versions), so adjust the glob pattern if needed.
     source_predictions_path = next(
-        (source_project_dir / "videos").glob(f"{source_video_path.stem}*0.h5")
+        (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv")
     )
     # Find the annotations .csv file. In real projects there may be multiple
     # (e.g. for different labelers), so adjust the glob pattern if needed.
@@ -229,10 +233,8 @@ print(tree(benchmark_base_dir, level=5))
 # First, we specify the clip parameters. This step can be run multiple times
 # with different parameters to grow the clip set incrementally.
 
-duration = 30  # frames per clip
-start_minutes = [2, 5, 7]
-fps = 30
-start_frames = [int(minute * 60 * fps) for minute in start_minutes]
+duration = 5  # in frames
+start_frames = [25, 50, 75]
 print(f"Extracting {duration}-frame clips starting at frames: {start_frames}")
 
 # %%
@@ -276,13 +278,16 @@ print(tree(benchmark_base_dir, level=5))
 
 
 # %%
-# Record provenance
-# -----------------
-# Save a copy of this script alongside a JSON sidecar with the
+# Record provenance (optional)
+# ----------------------------
+# This step is optional and can be safely skipped, but it is highly recommended
+# when converting real data, for book-keeping and reproducibility purposes.
+#
+# We save a copy of this script alongside a JSON sidecar with the
 # ``poseinterface`` version (including git commit, via ``setuptools_scm``)
-# and a UTC timestamp, so the exact conversion is reproducible later. Both
-# files are written to a top-level ``.provenance/`` folder, named by project,
-# so multiple projects under the same ``benchmark_base_dir`` stay distinct.
+# and a UTC timestamp. Both files are written to a top-level
+# ``.provenance/`` folder, named by project, so multiple projects under the
+# same ``benchmark_base_dir`` stay distinct.
 
 provenance_dir = benchmark_base_dir / ".provenance"
 provenance_dir.mkdir(parents=True, exist_ok=True)
@@ -303,6 +308,26 @@ if script_path_str:
         indent=2,
     )
 )
-print(tree(provenance_dir, level=1))
 
 # %%
+# Clean up
+# --------
+# Since this example writes to a temporary directory, we remove it at the end.
+#
+# .. warning::
+#
+#    Only run this cell when ``benchmark_base_dir`` points to a temporary
+#    location. The guard below refuses to delete anything outside the system
+#    temp directory, so it is safe to leave in place when you adapt this
+#    example to a real benchmark dataset path.
+
+system_tempdir = Path(tempfile.gettempdir()).resolve()
+target = benchmark_base_dir.resolve()
+if target.is_relative_to(system_tempdir) and target != system_tempdir:
+    shutil.rmtree(target)
+    print(f"Removed temporary benchmark directory: {target}")
+else:
+    print(
+        f"Refusing to remove {target}: not inside system temp dir "
+        f"({system_tempdir}). Delete manually if you really want to."
+    )
