@@ -37,7 +37,7 @@ source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
 ```
 
-Then, install the package directly from GitHub:
+Then, install the package directly from the `main` branch on GitHub:
 
 ```bash
 uv pip install git+https://github.com/neuroinformatics-unit/poseinterface.git@main
