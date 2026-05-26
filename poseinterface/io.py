@@ -471,7 +471,7 @@ def frames_to_poseinterface(
     output_dir: Path,
     framelabels_path: Path,
 ) -> None:
-    """Copy frame images, renaming them per the COCO JSON filenames.
+    """Copy and rename frame images to match filenames in COCO JSON.
 
     Source frames are matched to target names by frame number: the
     first group of digits in each source filename is compared against
@@ -496,25 +496,39 @@ def frames_to_poseinterface(
     """
     # Build a map from frame number to source image path
     source_frame_map: dict[int, Path] = {}
-    for img_path in input_dir.glob("*.png"):
-        match = re.search(r"(\d+)", img_path.stem)
-        if match:
-            source_frame_map[int(match.group(1))] = img_path
+    for ext in ("*.jpg", "*.jpeg", "*.png"):
+        for img_path in input_dir.glob(ext):
+            match = re.search(r"(\d+)", img_path.stem)
+            if match:
+                source_frame_map[int(match.group(1))] = img_path
+
+    if not source_frame_map:
+        raise FileNotFoundError(
+            f"No image files found in {input_dir}"
+        )
 
     with open(framelabels_path) as f:
         coco_data = json.load(f)
 
+    missing_frames = []
     for img in coco_data["images"]:
         target_filename = img["file_name"]
         frame_number = _extract_frame_number(target_filename)
         if frame_number not in source_frame_map:
-            raise FileNotFoundError(
-                f"No source frame found for frame {frame_number} "
-                f"in {input_dir}"
-            )
+            missing_frames.append(target_filename)
+            continue
         target_path = output_dir / target_filename
         if not target_path.exists():
             shutil.copy2(source_frame_map[frame_number], target_path)
+
+    if missing_frames:
+        missing = "\n".join(f"  {f}" for f in missing_frames)
+        warnings.warn(
+            f"{len(missing_frames)} frame(s) not found in {input_dir} "
+            f"and were skipped:\n{missing}",
+            UserWarning,
+            stacklevel=2,
+        )
 
 
 def predictions_to_poseinterface(
