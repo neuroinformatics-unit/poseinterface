@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import shutil
+import warnings
 from pathlib import Path
 from typing import Literal, TypeAlias
 
@@ -464,6 +465,69 @@ def _reencode_video(
     )
     logging.info(f"Re-encoded video saved to {reencoded_video_path}")
     return reencoded_video_path
+
+
+def frames_to_poseinterface(
+    input_dir: Path,
+    output_dir: Path,
+    framelabels_path: Path,
+) -> None:
+    """Copy and rename frame images to match filenames in COCO JSON.
+
+    Source frames are matched to target names by frame number: the
+    first group of digits in each source filename is compared against
+    the ``frame-<ID>`` field in the COCO ``file_name`` entries.
+
+    Parameters
+    ----------
+    input_dir
+        Directory containing the source frame images (e.g. DLC
+        ``labeled-data/<video>/`` folder).
+    output_dir
+        Directory to copy the renamed frames into.
+    framelabels_path
+        Path to a COCO JSON file whose ``images`` entries provide
+        the target filenames.
+
+    Raises
+    ------
+    FileNotFoundError
+        If a source frame cannot be found for a frame number
+        listed in the COCO JSON.
+    """
+    # Build a map from frame number to source image path
+    source_frame_map: dict[int, Path] = {}
+    for ext in ("*.jpg", "*.jpeg", "*.png"):
+        for img_path in input_dir.glob(ext):
+            match = re.search(r"(\d+)", img_path.stem)
+            if match:
+                source_frame_map[int(match.group(1))] = img_path
+
+    if not source_frame_map:
+        raise FileNotFoundError(f"No image files found in {input_dir}")
+
+    with open(framelabels_path) as f:
+        coco_data = json.load(f)
+
+    missing_frames = []
+    for img in coco_data["images"]:
+        target_filename = img["file_name"]
+        frame_number = _extract_frame_number(target_filename)
+        if frame_number not in source_frame_map:
+            missing_frames.append(target_filename)
+            continue
+        target_path = output_dir / target_filename
+        if not target_path.exists():
+            shutil.copy2(source_frame_map[frame_number], target_path)
+
+    if missing_frames:
+        missing = "\n".join(f"  {f}" for f in missing_frames)
+        warnings.warn(
+            f"{len(missing_frames)} frame(s) not found in {input_dir} "
+            f"and were skipped:\n{missing}",
+            UserWarning,
+            stacklevel=2,
+        )
 
 
 def predictions_to_poseinterface(
