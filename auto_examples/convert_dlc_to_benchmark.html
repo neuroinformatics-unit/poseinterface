@@ -1,0 +1,1016 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Convert DeepLabCut project to benchmark dataset &#8212; poseinterface</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+
+    <script src="../_static/documentation_options.js?v=6aee1ebc"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/convert_dlc_to_benchmark';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/auto_examples/convert_dlc_to_benchmark.html" />
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API" href="../api_index.html" />
+    <link rel="prev" title="Examples" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">poseinterface v0.1.dev1</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../benchmark-dataset.html">
+    Benchmark dataset
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/poseinterface" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../benchmark-dataset.html">
+    Benchmark dataset
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/poseinterface" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Convert DeepLabCut project to benchmark dataset</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Convert DeepLabCut project to benchmark dataset</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-convert-dlc-to-benchmark-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="convert-deeplabcut-project-to-benchmark-dataset">
+<span id="sphx-glr-auto-examples-convert-dlc-to-benchmark-py"></span><h1>Convert DeepLabCut project to benchmark dataset<a class="headerlink" href="#convert-deeplabcut-project-to-benchmark-dataset" title="Link to this heading">#</a></h1>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> benchmark dataset from a DeepLabCut (DLC) project.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># sphinx_gallery_thumbnail_path = &#39;_static/project_icon.png&#39;</span>
+</pre></div>
+</div>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">poseinterface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface.clips</span><span class="w"> </span><span class="kn">import</span> <a href="../api_generated/poseinterface.clips.extract_clip.html#poseinterface.clips.extract_clip" title="poseinterface.clips.extract_clip" class="sphx-glr-backref-module-poseinterface-clips sphx-glr-backref-type-py-function"><span class="n">extract_clip</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface.io</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../api_generated/poseinterface.io.annotations_to_poseinterface.html#poseinterface.io.annotations_to_poseinterface" title="poseinterface.io.annotations_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">annotations_to_poseinterface</span></a><span class="p">,</span>
+    <a href="../api_generated/poseinterface.io.frames_to_poseinterface.html#poseinterface.io.frames_to_poseinterface" title="poseinterface.io.frames_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">frames_to_poseinterface</span></a><span class="p">,</span>
+    <a href="../api_generated/poseinterface.io.predictions_to_poseinterface.html#poseinterface.io.predictions_to_poseinterface" title="poseinterface.io.predictions_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">predictions_to_poseinterface</span></a><span class="p">,</span>
+    <a href="../api_generated/poseinterface.io.video_to_poseinterface.html#poseinterface.io.video_to_poseinterface" title="poseinterface.io.video_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">video_to_poseinterface</span></a><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface.utils</span><span class="w"> </span><span class="kn">import</span> <a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a>
+</pre></div>
+</div>
+</section>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>We’ll handle the conversion in two steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Convert:</strong> DLC project files (videos, frame annotations, and
+keypoint predictions) are restructured into the
+<a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">poseinterface benchmark layout</span></a>.</p></li>
+<li><p><strong>Extract clips:</strong> Short video clips and their labels are extracted
+from the converted videos and their corresponding keypoint
+predictions, ready for expert review.</p></li>
+</ol>
+<figure class="align-center" id="id1">
+<img alt="Workflow diagram showing how a DLC project is converted to a poseinterface benchmark dataset" src="../_images/DLC_to_poseinterface_worklow.svg" />
+<figcaption>
+<p><span class="caption-text">High-level overview of the two-step conversion workflow.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="source-dlc-project">
+<h2>Source DLC project<a class="headerlink" href="#source-dlc-project" title="Link to this heading">#</a></h2>
+<p>We work with a dataset from the
+<a class="reference external" href="https://www.sainsburywellcome.org/">Sainsbury Wellcome Centre (SWC)</a>,
+produced by Loukia Katsouri from John O’Keefe’s lab.
+It contains single-animal top-down videos of mice exploring an
+Elevated Plus Maze (EPM), analysed using
+<a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut">DeepLabCut (DLC)</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example runs against a lightweight fixture shipped with the
+repository (under <code class="docutils literal notranslate"><span class="pre">tests/data/</span></code>). This fixture contains only a subset
+of the original DLC project, and is intended for testing and demonstration
+purposes.</p>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">source_project_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> with the paths
+to your DLC project and benchmark dataset directories, respectively. Keep
+in mind that your project will contain more files than are shown here.</p>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">=</span> <span class="p">(</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+    <span class="o">/</span> <span class="s2">&quot;tests&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;dlc&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;MouseTopDown-Loukia-2022-09-13&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+<span class="c1"># For this example we use a temporary directory, cleaned up at the end.</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;poseinterface-benchmark-&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Benchmark dataset will be saved to: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>MouseTopDown-Loukia-2022-09-13/
+├── labeled-data/
+└── videos/
+
+2 directories
+
+Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-7pxh4uv5
+</pre></div>
+</div>
+<p>The two source project sub-directories we care about are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">videos/</span></code>: the session videos and their corresponding prediction files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">labeled-data/</span></code>: sampled frames and their keypoint annotations.</p></li>
+</ul>
+<p>Let’s peek inside each.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;videos&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>videos/
+├── M708154_EPM_20200317_185651629-converted.mp4
+├── M708154_EPM_20200317_185651629-convertedDLC_resnet50_MouseTopDownSep13shuffle1_340000.csv
+├── M727755_EPM_20200317_170544999-converted.mp4
+└── M727755_EPM_20200317_170544999-convertedDLC_resnet50_MouseTopDownSep13shuffle1_340000.csv
+
+0 directories, 4 files
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">videos/</span></code>, each video (ending in <code class="docutils literal notranslate"><span class="pre">converted.mp4</span></code>) has a companion .csv
+prediction file.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;labeled-data&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>labeled-data/
+├── M708154_EPM_20200317_185651629-converted/
+│   ├── CollectedData_Loukia.csv
+│   ├── img01841.png
+│   ├── img08489.png
+│   └── img09286.png
+└── M727755_EPM_20200317_170544999-converted/
+    ├── CollectedData_Loukia.csv
+    ├── img00114.png
+    ├── img00927.png
+    └── img05794.png
+
+2 directories, 8 files
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">labeled-data/</span></code>, the sub-directories mirror the video names (without
+.mp4) and contain the sampled frame images (.png) and their annotations
+(.csv). In real projects you may also find predictions and annotations in
+.h5 format, as well as filtered prediction files.</p>
+</section>
+<section id="define-sessions-to-convert">
+<h2>Define sessions to convert<a class="headerlink" href="#define-sessions-to-convert" title="Link to this heading">#</a></h2>
+<p>We select two sessions from the DLC project and assign each to either
+the <code class="docutils literal notranslate"><span class="pre">Train</span></code> or <code class="docutils literal notranslate"><span class="pre">Test</span></code> split of the
+<a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">benchmark dataset</span></a>.
+You may expand this list with more sessions, but ensure that each session
+belongs to exactly one split, and that the same subject doesn’t appear in
+both splits (to avoid data leakage).
+All videos use the same top-down camera view (<code class="docutils literal notranslate"><span class="pre">cam-topdown</span></code>).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sessions</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;Train&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;source_video&quot;</span><span class="p">:</span> <span class="s2">&quot;M727755_EPM_20200317_170544999-converted.mp4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sub_id&quot;</span><span class="p">:</span> <span class="s2">&quot;M727755&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ses_id&quot;</span><span class="p">:</span> <span class="s2">&quot;20200317&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cam_id&quot;</span><span class="p">:</span> <span class="s2">&quot;topdown&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;source_video&quot;</span><span class="p">:</span> <span class="s2">&quot;M708154_EPM_20200317_185651629-converted.mp4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sub_id&quot;</span><span class="p">:</span> <span class="s2">&quot;M708154&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ses_id&quot;</span><span class="p">:</span> <span class="s2">&quot;20200317&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cam_id&quot;</span><span class="p">:</span> <span class="s2">&quot;topdown&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a> <span class="o">=</span> <span class="s2">&quot;SWC-plusmaze&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="convert-to-benchmark-format">
+<h2>Convert to benchmark format<a class="headerlink" href="#convert-to-benchmark-format" title="Link to this heading">#</a></h2>
+<p>For each session we:</p>
+<ol class="arabic simple">
+<li><p>copy (and re-encode, if necessary) the session video;</p></li>
+<li><p>convert DLC keypoint annotations to COCO JSON, as well as copy and
+rename the corresponding frame images;</p></li>
+<li><p>convert DLC keypoint predictions to COCO JSON.</p></li>
+</ol>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sessions</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">split</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sub_id&quot;</span><span class="p">,</span> <span class="s2">&quot;ses_id&quot;</span><span class="p">,</span> <span class="s2">&quot;cam_id&quot;</span><span class="p">]}</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">[</span><span class="s1">&#39;sub_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">[</span><span class="s1">&#39;ses_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_cam_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_video_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;videos&quot;</span> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;source_video&quot;</span><span class="p">]</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_frames_dir</span></a> <span class="o">=</span> <span class="p">(</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;labeled-data&quot;</span> <span class="o">/</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.stem" title="pathlib.PurePath.stem" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_video_path</span><span class="o">.</span><span class="n">stem</span></a>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_session_dir</span></a> <span class="o">=</span> <span class="p">(</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">split</span></a> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_frames_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_session_dir</span></a> <span class="o">/</span> <span class="s2">&quot;Frames&quot;</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir" title="pathlib.Path.mkdir" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">target_frames_dir</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converting session: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">split</span></a><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Copy the session video, re-encoding to H.264/yuv420p if necessary</span>
+    <a href="../api_generated/poseinterface.io.video_to_poseinterface.html#poseinterface.io.video_to_poseinterface" title="poseinterface.io.video_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">video_to_poseinterface</span></a><span class="p">(</span>
+        <span class="n">input_video</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_video_path</span></a><span class="p">,</span>
+        <span class="n">output_video_dir</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_session_dir</span></a><span class="p">,</span>
+        <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">video: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name" title="pathlib.PurePath.name" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_video_path</span><span class="o">.</span><span class="n">name</span></a><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_cam_prefix</span></a><span class="si">}</span><span class="s2">.mp4&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert DLC annotations to COCO frame labels JSON, then copy the</span>
+    <span class="c1"># corresponding frame images with standardised poseinterface filenames.</span>
+    <span class="c1"># In real projects there may be multiple annotation CSVs (e.g. for</span>
+    <span class="c1"># different labelers); adjust the glob pattern to select the right one.</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_annotations_path</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.glob" title="pathlib.Path.glob" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">source_frames_dir</span><span class="o">.</span><span class="n">glob</span></a><span class="p">(</span><span class="s2">&quot;CollectedData_*.csv&quot;</span><span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_annotations_path</span></a> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">No CollectedData CSV found in </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_frames_dir</span></a><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="s2">&quot; Skipping annotations-to-poseinterface conversion.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">framelabels_path</span></a> <span class="o">=</span> <a href="../api_generated/poseinterface.io.annotations_to_poseinterface.html#poseinterface.io.annotations_to_poseinterface" title="poseinterface.io.annotations_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">annotations_to_poseinterface</span></a><span class="p">(</span>
+            <span class="n">input_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_annotations_path</span></a><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_frames_dir</span></a><span class="p">,</span>
+            <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span>
+            <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">,</span>
+        <span class="p">)</span>
+        <a href="../api_generated/poseinterface.io.frames_to_poseinterface.html#poseinterface.io.frames_to_poseinterface" title="poseinterface.io.frames_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">frames_to_poseinterface</span></a><span class="p">(</span>
+            <span class="n">input_dir</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_frames_dir</span></a><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_frames_dir</span></a><span class="p">,</span>
+            <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">framelabels_path</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">framelabels_path</span></a><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">annotations (+ frame images): </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name" title="pathlib.PurePath.name" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_annotations_path</span><span class="o">.</span><span class="n">name</span></a><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;-&gt; </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name" title="pathlib.PurePath.name" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">framelabels_path</span><span class="o">.</span><span class="n">name</span></a><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Convert DLC predictions to COCO video labels JSON for clip extraction.</span>
+    <span class="c1"># In real projects there may be multiple prediction CSVs (e.g. filtered</span>
+    <span class="c1"># versions); adjust the glob pattern to select the right one.</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_predictions_path</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;videos&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.stem" title="pathlib.PurePath.stem" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_video_path</span><span class="o">.</span><span class="n">stem</span></a><span class="si">}</span><span class="s2">*.csv&quot;</span><span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_predictions_path</span></a> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">No prediction CSV found for </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.stem" title="pathlib.PurePath.stem" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_video_path</span><span class="o">.</span><span class="n">stem</span></a><span class="si">!r}</span><span class="s2"> in &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;videos&#39;</span><span class="si">}</span><span class="s2">. Skipping predictions-to-&quot;</span>
+            <span class="s2">&quot;poseinterface conversion.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="../api_generated/poseinterface.io.predictions_to_poseinterface.html#poseinterface.io.predictions_to_poseinterface" title="poseinterface.io.predictions_to_poseinterface" class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function"><span class="n">predictions_to_poseinterface</span></a><span class="p">(</span>
+            <span class="n">input_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_predictions_path</span></a><span class="p">,</span>
+            <span class="n">video_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_video_path</span></a><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target_session_dir</span></a><span class="p">,</span>
+            <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">predictions: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name" title="pathlib.PurePath.name" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">source_predictions_path</span><span class="o">.</span><span class="n">name</span></a><span class="si">}</span><span class="s2"> -&gt; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_cam_prefix</span></a><span class="si">}</span><span class="s2">_videolabels.json&quot;</span>
+        <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Converting session: Train/SWC-plusmaze/sub-M727755_ses-20200317
+        video: M727755_EPM_20200317_170544999-converted.mp4 -&gt; sub-M727755_ses-20200317_cam-topdown.mp4
+        annotations (+ frame images): CollectedData_Loukia.csv -&gt; sub-M727755_ses-20200317_cam-topdown_framelabels.json
+        predictions: M727755_EPM_20200317_170544999-convertedDLC_resnet50_MouseTopDownSep13shuffle1_340000.csv -&gt; sub-M727755_ses-20200317_cam-topdown_videolabels.json
+Done.
+
+Converting session: Test/SWC-plusmaze/sub-M708154_ses-20200317
+        video: M708154_EPM_20200317_185651629-converted.mp4 -&gt; sub-M708154_ses-20200317_cam-topdown.mp4
+        annotations (+ frame images): CollectedData_Loukia.csv -&gt; sub-M708154_ses-20200317_cam-topdown_framelabels.json
+        predictions: M708154_EPM_20200317_185651629-convertedDLC_resnet50_MouseTopDownSep13shuffle1_340000.csv -&gt; sub-M708154_ses-20200317_cam-topdown_videolabels.json
+Done.
+</pre></div>
+</div>
+<p>The resulting benchmark dataset:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>poseinterface-benchmark-7pxh4uv5/
+├── Test/
+│   └── SWC-plusmaze/
+│       └── sub-M708154_ses-20200317/
+│           ├── Frames/
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-1841.png
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-8489.png
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-9286.png
+│           │   └── sub-M708154_ses-20200317_cam-topdown_framelabels.json
+│           ├── sub-M708154_ses-20200317_cam-topdown.mp4
+│           └── sub-M708154_ses-20200317_cam-topdown_videolabels.json
+└── Train/
+    └── SWC-plusmaze/
+        └── sub-M727755_ses-20200317/
+            ├── Frames/
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-0114.png
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-0927.png
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-5794.png
+            │   └── sub-M727755_ses-20200317_cam-topdown_framelabels.json
+            ├── sub-M727755_ses-20200317_cam-topdown.mp4
+            └── sub-M727755_ses-20200317_cam-topdown_videolabels.json
+
+8 directories, 12 files
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) are generated for both splits, but in
+the <strong>published</strong> dataset the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split intentionally omits them for
+evaluation. See the
+<a class="reference internal" href="../benchmark-dataset.html#target-dataset-folder-structure"><span class="std std-ref">folder structure specification</span></a> for
+details.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> files generated alongside each session video are
+intermediate artifacts used for clip extraction in the next section, and
+will not be included in the published dataset.</p>
+</div>
+</section>
+<section id="extract-clips">
+<h2>Extract clips<a class="headerlink" href="#extract-clips" title="Link to this heading">#</a></h2>
+<p>Clips (short video segments) can be extracted from the converted session
+videos. When the <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> files are present, the corresponding
+clip label files (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>) are generated automatically during
+clip extraction.
+These clip label files should then be proof-read and corrected by
+experts before being included in the benchmark dataset.</p>
+<p>First, we specify the clip-extraction parameters. This step can be repeated
+with different parameters to incrementally expand the clip set.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">duration</span></a> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># in frames</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frames</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">duration</span></a><span class="si">}</span><span class="s2">-frame clips starting at frames: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frames</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extracting 5-frame clips starting at frames: [25, 50, 75]
+</pre></div>
+</div>
+<p>We loop over all sessions and extract clips at each start frame.
+The resulting video clips and their <code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files are saved
+in a <code class="docutils literal notranslate"><span class="pre">Clips/</span></code> subdirectory within each session folder.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sessions</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s1">&#39;sub_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s1">&#39;ses_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_cam_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session_dir</span></a> <span class="o">=</span> <span class="p">(</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a> <span class="o">/</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_prefix</span></a>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frame</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frames</span></a><span class="p">:</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">clip_path</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <a href="../api_generated/poseinterface.clips.extract_clip.html#poseinterface.clips.extract_clip" title="poseinterface.clips.extract_clip" class="sphx-glr-backref-module-poseinterface-clips sphx-glr-backref-type-py-function"><span class="n">extract_clip</span></a><span class="p">(</span>
+            <span class="n">video_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">session_dir</span></a> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sub_ses_cam_prefix</span></a><span class="si">}</span><span class="s2">.mp4&quot;</span><span class="p">,</span>
+            <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frame</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start_frame</span></a><span class="p">,</span>
+            <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">duration</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">duration</span></a><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted clip: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.stem" title="pathlib.PurePath.stem" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute"><span class="n">clip_path</span><span class="o">.</span><span class="n">stem</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extracted clip: sub-M727755_ses-20200317_cam-topdown_start-25_dur-5
+Extracted clip: sub-M727755_ses-20200317_cam-topdown_start-50_dur-5
+Extracted clip: sub-M727755_ses-20200317_cam-topdown_start-75_dur-5
+Extracted clip: sub-M708154_ses-20200317_cam-topdown_start-25_dur-5
+Extracted clip: sub-M708154_ses-20200317_cam-topdown_start-50_dur-5
+Extracted clip: sub-M708154_ses-20200317_cam-topdown_start-75_dur-5
+</pre></div>
+</div>
+<p>The resulting benchmark dataset, including the extracted clips and their
+corresponding labels:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree" class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function"><span class="n">tree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>poseinterface-benchmark-7pxh4uv5/
+├── Test/
+│   └── SWC-plusmaze/
+│       └── sub-M708154_ses-20200317/
+│           ├── Clips/
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_start-25_dur-5.mp4
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_start-25_dur-5_cliplabels.json
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_start-50_dur-5.mp4
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_start-50_dur-5_cliplabels.json
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_start-75_dur-5.mp4
+│           │   └── sub-M708154_ses-20200317_cam-topdown_start-75_dur-5_cliplabels.json
+│           ├── Frames/
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-1841.png
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-8489.png
+│           │   ├── sub-M708154_ses-20200317_cam-topdown_frame-9286.png
+│           │   └── sub-M708154_ses-20200317_cam-topdown_framelabels.json
+│           ├── sub-M708154_ses-20200317_cam-topdown.mp4
+│           └── sub-M708154_ses-20200317_cam-topdown_videolabels.json
+└── Train/
+    └── SWC-plusmaze/
+        └── sub-M727755_ses-20200317/
+            ├── Clips/
+            │   ├── sub-M727755_ses-20200317_cam-topdown_start-25_dur-5.mp4
+            │   ├── sub-M727755_ses-20200317_cam-topdown_start-25_dur-5_cliplabels.json
+            │   ├── sub-M727755_ses-20200317_cam-topdown_start-50_dur-5.mp4
+            │   ├── sub-M727755_ses-20200317_cam-topdown_start-50_dur-5_cliplabels.json
+            │   ├── sub-M727755_ses-20200317_cam-topdown_start-75_dur-5.mp4
+            │   └── sub-M727755_ses-20200317_cam-topdown_start-75_dur-5_cliplabels.json
+            ├── Frames/
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-0114.png
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-0927.png
+            │   ├── sub-M727755_ses-20200317_cam-topdown_frame-5794.png
+            │   └── sub-M727755_ses-20200317_cam-topdown_framelabels.json
+            ├── sub-M727755_ses-20200317_cam-topdown.mp4
+            └── sub-M727755_ses-20200317_cam-topdown_videolabels.json
+
+10 directories, 24 files
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the published dataset, the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split includes all
+<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files. The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split omits all
+<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files and instead provides only clip start labels
+(<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>), derived from each clip’s first frame,
+to support point-tracker evaluation.
+The <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> files generated in the previous section are
+intermediate artifacts used for clip extraction, and are never shared.
+See the <a class="reference internal" href="../benchmark-dataset.html#target-dataset-folder-structure"><span class="std std-ref">folder structure specification</span></a> for details.</p>
+</div>
+</section>
+<section id="record-provenance-optional">
+<h2>Record provenance (optional)<a class="headerlink" href="#record-provenance-optional" title="Link to this heading">#</a></h2>
+<p>This step is optional and can be safely skipped, but it is highly recommended
+when converting real data, for book-keeping and reproducibility purposes.</p>
+<p>We save a copy of this script alongside a JSON sidecar with the
+<code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> version (including git commit, via <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code>)
+and a UTC timestamp. Both files are written to a top-level
+<code class="docutils literal notranslate"><span class="pre">.provenance/</span></code> folder, named by project, so multiple projects under the
+same <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> stay distinct.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># sphinx_gallery_capture_repr = ()</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">provenance_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <span class="s2">&quot;.provenance&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir" title="pathlib.Path.mkdir" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">provenance_dir</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># ``__file__`` is set when running this script directly with Python, but not</span>
+<span class="c1"># when sphinx-gallery executes it during the docs build, guard accordingly.</span>
+<span class="n">script_path_str</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__file__&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">script_path_str</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/shutil.html#shutil.copy" title="shutil.copy" class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function"><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="n">script_path_str</span><span class="p">),</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">provenance_dir</span></a> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">)</span>
+
+<span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">provenance_dir</span></a> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/json.html#json.dumps" title="json.dumps" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">dumps</span></a><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;poseinterface_version&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">poseinterface</span><span class="o">.</span><span class="n">__version__</span></a><span class="p">,</span>
+            <span class="s2">&quot;converted_at&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime.now" title="datetime.datetime.now" class="sphx-glr-backref-module-datetime-datetime sphx-glr-backref-type-py-method"><span class="n">datetime</span><span class="o">.</span><span class="n">now</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/datetime.html#datetime.timezone" title="datetime.timezone" class="sphx-glr-backref-module-datetime sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span></a><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;source_project_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">source_project_dir</span></a><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="clean-up">
+<h2>Clean up<a class="headerlink" href="#clean-up" title="Link to this heading">#</a></h2>
+<p>Since this example writes to a temporary directory, we remove it at the end.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only run this cell when <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> points to a temporary
+location. The guard below refuses to delete anything outside the system
+temp directory, so it is safe to leave in place when you adapt this
+example to a real benchmark dataset path.</p>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">system_tempdir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir" title="tempfile.gettempdir" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span></a><span class="p">())</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.resolve" title="pathlib.Path.resolve" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">benchmark_base_dir</span><span class="o">.</span><span class="n">resolve</span></a><span class="p">()</span>
+<span class="k">if</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.is_relative_to" title="pathlib.PurePath.is_relative_to" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">target</span><span class="o">.</span><span class="n">is_relative_to</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">system_tempdir</span></a><span class="p">)</span> <span class="ow">and</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target</span></a> <span class="o">!=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">system_tempdir</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/shutil.html#shutil.rmtree" title="shutil.rmtree" class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function"><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target</span></a><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed temporary benchmark directory: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Refusing to remove </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">target</span></a><span class="si">}</span><span class="s2">: not inside system temp dir &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">system_tempdir</span></a><span class="si">}</span><span class="s2">). Delete manually if you really want to.&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Removed temporary benchmark directory: /tmp/poseinterface-benchmark-7pxh4uv5
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 12.873 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-convert-dlc-to-benchmark-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/fc03672e3d7cc92081962003e1b88b7f/convert_dlc_to_benchmark.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">convert_dlc_to_benchmark.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/cb67a78a1eb14467e8dc655e95fff5e2/convert_dlc_to_benchmark.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">convert_dlc_to_benchmark.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c3d68f7588ffa86a7066362b8c73d66d/convert_dlc_to_benchmark.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">convert_dlc_to_benchmark.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api_index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-dlc-project">Source DLC project</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-sessions-to-convert">Define sessions to convert</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-to-benchmark-format">Convert to benchmark format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-clips">Extract clips</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#record-provenance-optional">Record provenance (optional)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/auto_examples/convert_dlc_to_benchmark.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The poseinterface developers.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -17,6 +17,7 @@ We mark requirements with italicised *keywords* that should be interpreted as de
 
 The current scope is limited to **single-animal pose estimation** from a **single camera view**. Support for multi-camera setups is planned for a future version.
 
+(target-dataset-folder-structure)=
 ## Folder structure
 
 :::{note}

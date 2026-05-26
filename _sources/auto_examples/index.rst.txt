@@ -17,11 +17,34 @@ A gallery of examples demonstrating ``poseinterface`` usage.
 
 .. thumbnail-parent-div-open
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a DeepLabCut (DLC) project.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_convert_dlc_to_benchmark_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/convert_dlc_to_benchmark`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Convert DeepLabCut project to benchmark dataset</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
 
     </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/convert_dlc_to_benchmark
 
 
 .. only:: html
@@ -31,6 +54,10 @@ A gallery of examples demonstrating ``poseinterface`` usage.
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download all examples in Python source code: auto_examples_python.zip </auto_examples/auto_examples_python.zip>`
+
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html
