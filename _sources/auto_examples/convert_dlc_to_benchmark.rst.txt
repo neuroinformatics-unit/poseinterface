@@ -143,7 +143,7 @@ Elevated Plus Maze (EPM), analysed using
 
     2 directories
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-7pxh4uv5
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-xby460c6
 
 
 
@@ -409,7 +409,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-7pxh4uv5/
+    poseinterface-benchmark-xby460c6/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -552,7 +552,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-7pxh4uv5/
+    poseinterface-benchmark-xby460c6/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -689,7 +689,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-7pxh4uv5
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-xby460c6
 
 
 
@@ -697,7 +697,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.873 seconds)
+   **Total running time of the script:** (0 minutes 13.335 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_dlc_to_benchmark.py:
