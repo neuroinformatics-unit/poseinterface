@@ -40,7 +40,7 @@ source .venv/bin/activate  # On macOS and Linux
 Then, install the package directly from GitHub:
 
 ```bash
-uv pip install git+https://github.com/neuroinformatics-unit/poseinterface.git
+uv pip install git+https://github.com/neuroinformatics-unit/poseinterface.git@main
 ```
 
 If you would like to contribute, see the
