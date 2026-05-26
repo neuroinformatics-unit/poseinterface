@@ -25,6 +25,18 @@ Read the [documentation](https://poseinterface.neuroinformatics.dev/) for more i
 > The API is not stable and may change without warning.
 > Use with caution.
 
+## Installation
+
+You can install the ``poseinterface`` package directly from GitHub using pip:
+
+```bash
+pip install git+https://github.com/neuroinformatics-unit/poseinterface.git
+```
+
+If you would like to contribute, see the
+[contributing guide](https://poseinterface.neuroinformatics.dev/contributing.html),
+which includes instructions for setting up a development environment.
+
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)
 
