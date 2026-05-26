@@ -516,8 +516,28 @@ def test_frames_to_poseinterface_raises_for_missing_source(
     empty_src = tmp_path / "empty_source"
     empty_src.mkdir()
 
-    with pytest.raises(FileNotFoundError, match="No source frame found"):
+    with pytest.raises(FileNotFoundError, match="No image files found"):
         frames_to_poseinterface(empty_src, frames_target_dir, frames_coco_json)
+
+
+def test_frames_to_poseinterface_warns_for_partial_match(
+    frames_source_dir, frames_target_dir, frames_coco_json
+):
+    """Test that a warning is emitted when some frames are missing."""
+    # Remove one source image so it can't be matched
+    (frames_source_dir / "img0200.png").unlink()
+
+    with pytest.warns(UserWarning, match="1 frame.*not found.*skipped"):
+        frames_to_poseinterface(
+            frames_source_dir, frames_target_dir, frames_coco_json
+        )
+
+    # The two matched frames should still be copied
+    actual_names = {f.name for f in frames_target_dir.glob("*.png")}
+    assert actual_names == {
+        "sub-A_ses-1_cam-top_frame-0100.png",
+        "sub-A_ses-1_cam-top_frame-0350.png",
+    }
 
 
 # ---------- Video to poseinterface ----------------

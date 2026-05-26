@@ -25,7 +25,6 @@ class TestTree:
         assert "1 directories" in result
         assert "1 files" in result
 
-
     def test_level_limits_depth(self, tmp_path):
         """Test that level limits the depth of the tree."""
         (tmp_path / "a" / "b" / "c").mkdir(parents=True)

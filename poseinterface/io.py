@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import shutil
+import warnings
 from pathlib import Path
 from typing import Literal, TypeAlias
 
@@ -503,9 +504,7 @@ def frames_to_poseinterface(
                 source_frame_map[int(match.group(1))] = img_path
 
     if not source_frame_map:
-        raise FileNotFoundError(
-            f"No image files found in {input_dir}"
-        )
+        raise FileNotFoundError(f"No image files found in {input_dir}")
 
     with open(framelabels_path) as f:
         coco_data = json.load(f)
