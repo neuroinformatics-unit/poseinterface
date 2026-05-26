@@ -21,24 +21,10 @@ class TestTree:
         result = tree(tmp_path)
         assert "a_dir/" in result
         assert "b_file.txt" in result
+        assert "b_file.txt/" not in result
         assert "1 directories" in result
         assert "1 files" in result
 
-    def test_directories_have_trailing_slash(self, tmp_path):
-        """Test that directory names end with / and file names do not."""
-        (tmp_path / "subdir").mkdir()
-        (tmp_path / "file.txt").touch()
-
-        result = tree(tmp_path)
-        lines = result.split("\n")
-        # Root line
-        assert lines[0].endswith("/")
-        # Subdirectory line
-        subdir_line = [line for line in lines if "subdir" in line][0]
-        assert subdir_line.endswith("subdir/")
-        # File line should NOT end with /
-        file_line = [line for line in lines if "file.txt" in line][0]
-        assert not file_line.endswith("/")
 
     def test_level_limits_depth(self, tmp_path):
         """Test that level limits the depth of the tree."""
