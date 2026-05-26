@@ -27,10 +27,20 @@ Read the [documentation](https://poseinterface.neuroinformatics.dev/) for more i
 
 ## Installation
 
-You can install the ``poseinterface`` package directly from GitHub using pip:
+We recommend installing `poseinterface` in a virtual environment, using [uv](https://docs.astral.sh/uv/).
+
+In your working directory, create a new environment and activate it:
 
 ```bash
-pip install git+https://github.com/neuroinformatics-unit/poseinterface.git
+uv venv --python=3.13
+source .venv/bin/activate  # On macOS and Linux
+.venv\Scripts\activate     # On Windows PowerShell
+```
+
+Then, install the package directly from GitHub:
+
+```bash
+uv pip install git+https://github.com/neuroinformatics-unit/poseinterface.git
 ```
 
 If you would like to contribute, see the
