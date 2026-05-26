@@ -309,6 +309,7 @@ print(tree(benchmark_base_dir, level=5))
 # ``.provenance/`` folder, named by project, so multiple projects under the
 # same ``benchmark_base_dir`` stay distinct.
 
+# sphinx_gallery_capture_repr = ()
 provenance_dir = benchmark_base_dir / ".provenance"
 provenance_dir.mkdir(parents=True, exist_ok=True)
 
