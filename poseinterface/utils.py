@@ -63,18 +63,16 @@ def tree(
         nonlocal files, directories
         if not level:
             return
-        contents = sorted(
-            (
-                d
-                for d in dir_path.iterdir()
-                if not (exclude_hidden and d.name.startswith("."))
-            ),
-            key=lambda d: d.name,
-        )
+        contents = [
+            d
+            for d in sorted(dir_path.iterdir(), key=lambda d: d.name)
+            if not (exclude_hidden and d.name.startswith("."))
+        ]
         if limit_to_directories:
             contents = [d for d in contents if d.is_dir()]
-        pointers = [tee] * (len(contents) - 1) + [last]
-        for pointer, path in zip(pointers, contents):
+        last_index = len(contents) - 1
+        for index, path in enumerate(contents):
+            pointer = last if index == last_index else tee
             if path.is_dir():
                 yield prefix + pointer + path.name + "/"
                 directories += 1
