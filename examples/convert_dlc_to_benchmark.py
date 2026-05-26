@@ -88,13 +88,16 @@ print(f"\nBenchmark dataset will be saved to: {benchmark_base_dir}")
 print(tree(source_project_dir / "videos", level=1, exclude_hidden=True))
 
 # %%
-# Each video (ending in ``converted.mp4``) has a companion .csv prediction
-# file. The ``labeled-data`` sub-directories mirror the video names (without
+# In ``videos/``, each video (ending in ``converted.mp4``) has a companion .csv
+# prediction file.
+
+print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
+
+# %%
+# In ``labeled-data/``, the sub-directories mirror the video names (without
 # .mp4) and contain the sampled frame images (.png) and their annotations
 # (.csv). In real projects you may also find predictions and annotations in
 # .h5 format, as well as filtered prediction files.
-
-print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 
 # %%
 # Define sessions to convert
@@ -141,32 +144,17 @@ for session in sessions:
     ids = {k: session[k] for k in ["sub_id", "ses_id", "cam_id"]}
     sub_ses_prefix = f"sub-{ids['sub_id']}_ses-{ids['ses_id']}"
     sub_ses_cam_prefix = f"{sub_ses_prefix}_cam-{ids['cam_id']}"
-
-    print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
-
-    # Derive source paths
     source_video_path = source_project_dir / "videos" / session["source_video"]
     source_frames_dir = (
         source_project_dir / "labeled-data" / source_video_path.stem
     )
-    # Find the predictions .csv file. In real projects there may be multiple
-    # (e.g. filtered versions), so adjust the glob pattern if needed.
-    source_predictions_path = next(
-        (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv")
-    )
-    # Find the annotations .csv file. In real projects there may be multiple
-    # (e.g. for different labelers), so adjust the glob pattern if needed.
-    source_annotations_path = next(
-        source_frames_dir.glob("CollectedData_*.csv")
-    )
-
-    # Derive target paths
     target_session_dir = (
         benchmark_base_dir / split / project_name / sub_ses_prefix
     )
     target_frames_dir = target_session_dir / "Frames"
     target_frames_dir.mkdir(parents=True, exist_ok=True)
 
+    print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
     # Copy the session video, re-encoding to H.264/yuv420p if necessary
     video_to_poseinterface(
         input_video=source_video_path,
@@ -177,33 +165,58 @@ for session in sessions:
 
     # Convert DLC annotations to COCO frame labels JSON, then copy the
     # corresponding frame images with standardised poseinterface filenames.
-    framelabels_path = annotations_to_poseinterface(
-        input_path=source_annotations_path,
-        output_dir=target_frames_dir,
-        format="frame",
-        **ids,
+    # In real projects there may be multiple annotation CSVs (e.g. for
+    # different labelers); adjust the glob pattern to select the right one.
+    source_annotations_path = next(
+        source_frames_dir.glob("CollectedData_*.csv"),
+        None,
     )
-    frames_to_poseinterface(
-        input_dir=source_frames_dir,
-        output_dir=target_frames_dir,
-        framelabels_path=framelabels_path,
-    )
-    print(
-        f"\tannotations (+ frame images): {source_annotations_path.name} -> "
-        f"{framelabels_path.name}"
-    )
+    if source_annotations_path is None:
+        print(
+            f"\tNo CollectedData CSV found in {source_frames_dir}."
+            " Skipping annotations-to-poseinterface conversion."
+        )
+    else:
+        framelabels_path = annotations_to_poseinterface(
+            input_path=source_annotations_path,
+            output_dir=target_frames_dir,
+            format="frame",
+            **ids,
+        )
+        frames_to_poseinterface(
+            input_dir=source_frames_dir,
+            output_dir=target_frames_dir,
+            framelabels_path=framelabels_path,
+        )
+        print(
+            f"\tannotations (+ frame images): {source_annotations_path.name} "
+            f"-> {framelabels_path.name}"
+        )
 
-    # Convert DLC predictions to COCO video labels JSON for clip extraction
-    predictions_to_poseinterface(
-        input_path=source_predictions_path,
-        video_path=source_video_path,
-        output_dir=target_session_dir,
-        **ids,
+    # Convert DLC predictions to COCO video labels JSON for clip extraction.
+    # In real projects there may be multiple prediction CSVs (e.g. filtered
+    # versions); adjust the glob pattern to select the right one.
+    source_predictions_path = next(
+        (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv"),
+        None,
     )
-    print(
-        f"\tpredictions: {source_predictions_path.name} -> "
-        f"{sub_ses_cam_prefix}_videolabels.json"
-    )
+    if source_predictions_path is None:
+        print(
+            f"\tNo prediction CSV found for {source_video_path.stem!r} in "
+            f"{source_project_dir / 'videos'}. Skipping predictions-to-"
+            "poseinterface conversion."
+        )
+    else:
+        predictions_to_poseinterface(
+            input_path=source_predictions_path,
+            video_path=source_video_path,
+            output_dir=target_session_dir,
+            **ids,
+        )
+        print(
+            f"\tpredictions: {source_predictions_path.name} -> "
+            f"{sub_ses_cam_prefix}_videolabels.json"
+        )
     print("Done.\n")
 
 # %%
@@ -215,8 +228,10 @@ print(tree(benchmark_base_dir, level=5))
 # .. note::
 #
 #    Frame labels (``framelabels.json``) are generated for both splits, but in
-#    the published dataset the ``Test`` split withholds them for evaluation.
-#    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
+#    the **published** dataset the ``Test`` split intentionally omits them for
+#    evaluation. See the
+#    :ref:`folder structure specification<target-dataset-folder-structure>` for
+#    details.
 #
 #    The ``videolabels.json`` files generated alongside each session video are
 #    intermediate artifacts used for clip extraction in the next section, and
@@ -226,12 +241,15 @@ print(tree(benchmark_base_dir, level=5))
 # %%
 # Extract clips
 # -------------
-# Let's extract short clips from the converted session videos. The resulting
-# clip label files (``cliplabels.json``) can be proof-read and corrected by
-# experts before being shared as part of the benchmark dataset.
+# Clips (short video segments) can be extracted from the converted session
+# videos. When the ``videolabels.json`` files are present, the corresponding
+# clip label files (``cliplabels.json``) are generated automatically during
+# clip extraction.
+# These clip label files should then be proof-read and corrected by
+# experts before being included in the benchmark dataset.
 #
-# First, we specify the clip parameters. This step can be run multiple times
-# with different parameters to grow the clip set incrementally.
+# First, we specify the clip-extraction parameters. This step can be repeated
+# with different parameters to incrementally expand the clip set.
 
 duration = 5  # in frames
 start_frames = [25, 50, 75]
@@ -268,13 +286,15 @@ print(tree(benchmark_base_dir, level=5))
 # %%
 # .. note::
 #
-#    In the published dataset, the ``Train`` split includes all extracted clip
-#    labels (``cliplabels.json``). The ``Test`` split withholds full clip
-#    labels; only clip start labels (``startlabels.json``), derived from each
-#    clip's first frame, are included to support point-tracker evaluation.
+#    In the published dataset, the ``Train`` split includes all
+#    ``cliplabels.json`` files. The ``Test`` split omits all
+#    ``cliplabels.json`` files and instead provides only clip start labels
+#    (``startlabels.json``), derived from each clip's first frame,
+#    to support point-tracker evaluation.
 #    The ``videolabels.json`` files generated in the previous section are
 #    intermediate artifacts used for clip extraction, and are never shared.
-#    See :ref:`benchmark dataset <target-benchmark-dataset>` for details.
+#    See the :ref:`folder structure specification<target-dataset-folder-\
+#    structure>` for details.
 
 
 # %%
