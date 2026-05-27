@@ -13,7 +13,7 @@ dynamic = ["version"]
 dependencies = [
   "jupyter>=1.1.1",
   "movement>=0.16.0",
-  "sleap-io>=0.6.4",
+  "sleap-io>=0.7.1",
 ]
 
 license = {text = "BSD-3-Clause"}
