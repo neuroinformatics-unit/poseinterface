@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 from unittest.mock import patch
@@ -9,6 +10,8 @@ from poseinterface.clips import (
     _uniform_start_frames,
     extract_clip,
     extract_clips,
+    main,
+    parse_args,
 )
 
 
@@ -275,3 +278,147 @@ def test_extract_clips_unknown_sampling(video_path):
     """Unrecognised sampling strategy raises ValueError."""
     with pytest.raises(ValueError, match="Unknown sampling"):
         extract_clips(video_path, 5, "bad_strategy")
+
+
+# ---------------------------------------------------------------------------
+# parse_args
+# ---------------------------------------------------------------------------
+
+
+def test_parse_args_uniform():
+    """Uniform strategy args are parsed with correct types."""
+    args = parse_args(
+        [
+            "--video_path",
+            "foo.mp4",
+            "--duration",
+            "5",
+            "--sampling",
+            "uniform",
+            "--num_clips",
+            "3",
+        ]
+    )
+    assert args.video_path == "foo.mp4"
+    assert args.duration == 5
+    assert args.sampling == "uniform"
+    assert args.num_clips == 3
+    assert args.start_frames is None
+
+
+def test_parse_args_manual():
+    """Manual strategy args are parsed with correct types."""
+    args = parse_args(
+        [
+            "--video_path",
+            "foo.mp4",
+            "--duration",
+            "5",
+            "--sampling",
+            "manual",
+            "--start_frames",
+            "0",
+            "10",
+            "20",
+        ]
+    )
+    assert args.sampling == "manual"
+    assert args.start_frames == [0, 10, 20]
+    assert args.num_clips is None
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["--duration", "5", "--sampling", "uniform"],  # missing --video_path
+        [
+            "--video_path",
+            "foo.mp4",
+            "--sampling",
+            "uniform",
+        ],  # missing --duration
+        ["--video_path", "foo.mp4", "--duration", "5"],  # missing --sampling
+    ],
+)
+def test_parse_args_missing_required(argv):
+    """Missing required arguments cause SystemExit."""
+    with pytest.raises(SystemExit):
+        parse_args(argv)
+
+
+def test_parse_args_invalid_sampling():
+    """An unrecognised sampling choice causes SystemExit."""
+    with pytest.raises(SystemExit):
+        parse_args(
+            [
+                "--video_path",
+                "foo.mp4",
+                "--duration",
+                "5",
+                "--sampling",
+                "bad_strategy",
+            ]
+        )
+
+
+# ---------------------------------------------------------------------------
+# main
+# ---------------------------------------------------------------------------
+
+
+@patch("poseinterface.clips.extract_clips")
+def test_main_uniform(mock_extract_clips):
+    """main dispatches uniform sampling with num_clips kwarg."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="uniform",
+        num_clips=3,
+        start_frames=None,
+    )
+    main(args)
+    mock_extract_clips.assert_called_once_with(
+        "foo.mp4", 5, "uniform", num_clips=3
+    )
+
+
+@patch("poseinterface.clips.extract_clips")
+def test_main_manual(mock_extract_clips):
+    """main dispatches manual sampling with start_frames kwarg."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=[0, 10, 20],
+    )
+    main(args)
+    mock_extract_clips.assert_called_once_with(
+        "foo.mp4", 5, "manual", start_frames=[0, 10, 20]
+    )
+
+
+def test_main_uniform_missing_num_clips():
+    """uniform sampling without --num_clips exits with an error message."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="uniform",
+        num_clips=None,
+        start_frames=None,
+    )
+    with pytest.raises(SystemExit, match="--num_clips"):
+        main(args)
+
+
+def test_main_manual_missing_start_frames():
+    """manual sampling without --start_frames exits with an error message."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=None,
+    )
+    with pytest.raises(SystemExit, match="--start_frames"):
+        main(args)
