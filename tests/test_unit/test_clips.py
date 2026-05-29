@@ -7,7 +7,9 @@ import pytest
 
 from poseinterface.clips import (
     _extract_cliplabels,
+    _uniform_start_frames,
     extract_clip,
+    extract_clips,
     main,
     parse_args,
 )
@@ -195,3 +197,124 @@ def test_main(mock_extract_clip):
     mock_extract_clip.assert_called_once_with(
         "video.mp4", args.start_frame, args.duration
     )
+
+
+# ---------------------------------------------------------------------------
+# _uniform_start_frames
+# ---------------------------------------------------------------------------
+
+
+def test_uniform_start_frames_single_clip():
+    """Single clip always starts at frame 0."""
+    assert _uniform_start_frames(1, 5, 20) == [0]
+
+
+def test_uniform_start_frames_two_clips():
+    """Two clips divide the video into two equal segments."""
+    assert _uniform_start_frames(2, 5, 20) == [0, 10]
+
+
+def test_uniform_start_frames_evenly_divisible():
+    """Clips are evenly spaced when the step divides exactly."""
+    assert _uniform_start_frames(5, 5, 25) == [0, 5, 10, 15, 20]
+
+
+def test_uniform_start_frames_endpoints():
+    """First start frame is 0; length equals num_clips."""
+    result = _uniform_start_frames(7, 10, 100)
+    assert len(result) == 7
+    assert result[0] == 0
+
+
+def test_uniform_start_frames_sorted():
+    """Start frames are in ascending order."""
+    result = _uniform_start_frames(5, 3, 30)
+    assert result == sorted(result)
+
+
+@pytest.mark.parametrize("num_clips", [0, -1])
+def test_uniform_start_frames_invalid_num_clips(num_clips):
+    """num_clips <= 0 raises ValueError."""
+    with pytest.raises(ValueError, match="num_clips must be positive"):
+        _uniform_start_frames(num_clips, 5, 20)
+
+
+def test_uniform_start_frames_duration_exceeds_video():
+    """duration longer than the video raises ValueError."""
+    with pytest.raises(ValueError, match="exceeds video length"):
+        _uniform_start_frames(3, 25, 20)
+
+
+# ---------------------------------------------------------------------------
+# extract_clips
+# ---------------------------------------------------------------------------
+
+
+@patch("poseinterface.clips.extract_clip")
+def test_extract_clips_manual(mock_extract_clip, video_path):
+    """Manual sampling calls extract_clip once per start frame."""
+    start_frames = [0, 5, 10]
+    duration = 3
+    mock_extract_clip.return_value = (video_path, None)
+
+    results = extract_clips(
+        video_path, duration, "manual", start_frames=start_frames
+    )
+
+    assert mock_extract_clip.call_count == len(start_frames)
+    for sf in start_frames:
+        mock_extract_clip.assert_any_call(video_path, sf, duration)
+    assert len(results) == len(start_frames)
+
+
+@patch("poseinterface.clips.extract_clip")
+@patch("poseinterface.clips.sio.load_video")
+def test_extract_clips_uniform(
+    mock_load_video, mock_extract_clip, get_mock_video, video_path
+):
+    """Uniform sampling distributes clips evenly across the video."""
+    mock_load_video.return_value = get_mock_video(n_frames=20)
+    mock_extract_clip.return_value = (video_path, None)
+
+    # n_frames=20, num_clips=3, step=20/3≈6.67 → [0, 7, 13]
+    results = extract_clips(video_path, 4, "uniform", num_clips=3)
+
+    assert mock_extract_clip.call_count == 3
+    for sf in [0, 7, 13]:
+        mock_extract_clip.assert_any_call(video_path, sf, 4)
+    assert len(results) == 3
+
+
+@patch("poseinterface.clips.extract_clip")
+def test_extract_clips_returns_extract_clip_output(
+    mock_extract_clip, video_path
+):
+    """Return value is a list of (clip_path, clip_json) tuples."""
+    sentinel = (video_path / "clip.mp4", None)
+    mock_extract_clip.return_value = sentinel
+
+    results = extract_clips(video_path, 3, "manual", start_frames=[0, 5])
+
+    assert results == [sentinel, sentinel]
+
+
+def test_extract_clips_missing_start_frames(video_path):
+    """manual sampling without start_frames raises ValueError."""
+    with pytest.raises(ValueError, match="start_frames"):
+        extract_clips(video_path, 5, "manual")
+
+
+@patch("poseinterface.clips.sio.load_video")
+def test_extract_clips_missing_num_clips(
+    mock_load_video, get_mock_video, video_path
+):
+    """uniform sampling without num_clips raises ValueError."""
+    mock_load_video.return_value = get_mock_video(n_frames=20)
+    with pytest.raises(ValueError, match="num_clips"):
+        extract_clips(video_path, 5, "uniform")
+
+
+def test_extract_clips_unknown_sampling(video_path):
+    """Unrecognised sampling strategy raises ValueError."""
+    with pytest.raises(ValueError, match="Unknown sampling"):
+        extract_clips(video_path, 5, "bad_strategy")

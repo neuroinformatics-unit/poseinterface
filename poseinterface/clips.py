@@ -196,9 +196,9 @@ def _uniform_start_frames(
 ) -> list[int]:
     """Compute uniformly spaced clip start frames.
 
-    The first clip starts at frame 0 and the last starts at
-    ``n_frames - duration``, with the remaining clips evenly distributed
-    in between.
+    The video is divided into ``num_clips`` equal segments of
+    ``n_frames / num_clips`` frames each; each clip starts at the
+    beginning of its segment.
 
     Parameters
     ----------
@@ -222,14 +222,11 @@ def _uniform_start_frames(
     """
     if num_clips <= 0:
         raise ValueError(f"num_clips must be positive, got {num_clips}")
-    max_start = n_frames - duration
-    if max_start < 0:
+    if duration > n_frames:
         raise ValueError(
             f"duration ({duration}) exceeds video length ({n_frames})"
         )
-    if num_clips == 1:
-        return [0]
-    step = max_start / (num_clips - 1)
+    step = n_frames / num_clips
     return [round(i * step) for i in range(num_clips)]
 
 
