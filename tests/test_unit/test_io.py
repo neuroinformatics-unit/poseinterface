@@ -1033,8 +1033,8 @@ def test_split_real_lp_data(lp_collected_data_path, tmp_path):
     results = split_lp_collected_data(lp_collected_data_path, output_dir)
 
     expected_sessions = {
-        "6c6983ef-7383-4989-9183-32b1a300d17a_left",
-        "a92c4b1d-46bd-457e-a1f4-414265f0e2d4_left",
+        "6c6983ef73834989918332b1a300d17a_left",
+        "a92c4b1d46bd457ea1f4414265f0e2d4_left",
     }
     assert set(results.keys()) == expected_sessions
     for path in results.values():
