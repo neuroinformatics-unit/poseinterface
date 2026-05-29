@@ -288,20 +288,33 @@ def _extract_cliplabels(
 
 
 def main(args: argparse.Namespace) -> None:
-    """Run clip extraction from parsed command-line arguments.
+    """Run multi-clip extraction from parsed command-line arguments.
 
     Parameters
     ----------
     args
-        Parsed arguments containing ``video_path``, ``start_frame``,
-        and ``duration``.
+        Parsed arguments containing ``video_path``, ``duration``,
+        ``sampling``, and (depending on the strategy) ``num_clips``
+        or ``start_frames``.
     """
-    # Extract clip
-    extract_clip(args.video_path, args.start_frame, args.duration)
+    kwargs: dict[str, object] = {}
+    if args.sampling == "uniform":
+        if args.num_clips is None:
+            raise SystemExit(
+                "error: --num_clips is required when --sampling uniform"
+            )
+        kwargs["num_clips"] = args.num_clips
+    elif args.sampling == "manual":
+        if not args.start_frames:
+            raise SystemExit(
+                "error: --start_frames is required when --sampling manual"
+            )
+        kwargs["start_frames"] = args.start_frames
+    extract_clips(args.video_path, args.duration, args.sampling, **kwargs)
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:
-    """Parse command-line arguments for clip extraction.
+    """Parse command-line arguments for multi-clip extraction.
 
     Parameters
     ----------
@@ -312,11 +325,12 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     -------
     argparse.Namespace
         Parsed arguments with attributes ``video_path`` (str),
-        ``start_frame`` (int), and ``duration`` (int).
+        ``duration`` (int), ``sampling`` (str), ``num_clips``
+        (int | None), and ``start_frames`` (list[int] | None).
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Extract clips from video (and corresponding "
+            "Extract multiple clips from a video (and corresponding "
             "clip labels if available)."
         )
     )
@@ -330,22 +344,45 @@ def parse_args(args: list[str]) -> argparse.Namespace:
         "``sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json``.",
     )
     parser.add_argument(
-        "--start_frame",
-        type=int,
-        required=True,
-        help="Start frame of the clip as a 0-based index.",
-    )
-    parser.add_argument(
         "--duration",
         type=int,
         required=True,
-        help="Total length of the output clip in frames",
+        help="Number of frames per clip.",
+    )
+    parser.add_argument(
+        "--sampling",
+        type=str,
+        required=True,
+        choices=["uniform", "manual"],
+        help=(
+            "Clip selection strategy. "
+            "'uniform': evenly space clips across the video "
+            "(requires --num_clips). "
+            "'manual': use explicit start frames "
+            "(requires --start_frames)."
+        ),
+    )
+    parser.add_argument(
+        "--num_clips",
+        type=int,
+        default=None,
+        help="Number of clips to extract. Required when --sampling uniform.",
+    )
+    parser.add_argument(
+        "--start_frames",
+        type=int,
+        nargs="+",
+        default=None,
+        help=(
+            "Start frame indices (0-based, space-separated). "
+            "Required when --sampling manual."
+        ),
     )
     return parser.parse_args(args)
 
 
 def wrapper() -> None:
-    """Entry point for the ``extract-clip`` console script."""
+    """Entry point for the ``extract-clips`` console script."""
     args = parse_args(sys.argv[1:])
     main(args)
 

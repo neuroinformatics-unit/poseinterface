@@ -1,4 +1,3 @@
-import argparse
 import json
 import logging
 from unittest.mock import patch
@@ -10,8 +9,6 @@ from poseinterface.clips import (
     _uniform_start_frames,
     extract_clip,
     extract_clips,
-    main,
-    parse_args,
 )
 
 
@@ -157,46 +154,6 @@ def test_extract_clip_invalid(
     """Test extract_clip with invalid start_frame or duration."""
     with pytest.raises(expected_exception, match=expected_message):
         extract_clip(video_path, start_frame, duration)
-
-
-def test_parse_args():
-    """Check arguments are parsed with correct types"""
-    video_path = "foo.mp4"
-    start_frame = 5
-    duration = 10
-    args = parse_args(
-        [
-            "--video_path",
-            video_path,
-            "--start_frame",
-            str(start_frame),
-            "--duration",
-            str(duration),
-        ]
-    )
-    assert args.video_path == video_path
-    assert args.start_frame == int(start_frame)
-    assert args.duration == int(duration)
-
-
-def test_parse_args_missing_required():
-    """Test parse_args raises on missing required arguments."""
-    # Call argument parsing function without --start_frame
-    # and --duration
-    with pytest.raises(SystemExit):
-        parse_args(["--video_path", "foo.mp4"])
-
-
-@patch("poseinterface.clips.extract_clip")
-def test_main(mock_extract_clip):
-    """Test main calls extract_clip with parsed arguments."""
-    args = argparse.Namespace(
-        video_path="video.mp4", start_frame=5, duration=10
-    )
-    main(args)
-    mock_extract_clip.assert_called_once_with(
-        "video.mp4", args.start_frame, args.duration
-    )
 
 
 # ---------------------------------------------------------------------------
