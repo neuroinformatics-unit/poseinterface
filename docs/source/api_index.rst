@@ -26,6 +26,7 @@ clips
     :template: function.rst
 
     extract_clip
+    extract_clips
 
 
 utils
