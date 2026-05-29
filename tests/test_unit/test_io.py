@@ -1,8 +1,10 @@
 import json
+import math
 from contextlib import nullcontext
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
+import pandas as pd
 import pytest
 import sleap_io as sio
 import xarray as xr
@@ -20,11 +22,13 @@ from poseinterface.io import (
     _get_codec_pixelformat,
     _needs_reencoding,
     _pad_integers_to_same_width,
+    _parse_lp_image_path,
     _reencode_video,
     _update_image_ids,
     annotations_to_poseinterface,
     frames_to_poseinterface,
     predictions_to_poseinterface,
+    split_lp_collected_data,
     video_to_poseinterface,
 )
 
@@ -875,3 +879,165 @@ def test_convert_movement_ds_to_videolabels(
     # bbox covers only the single visible keypoint
     assert annot1["bbox"] == [50.0, 60.0, 0.0, 0.0]
     assert annot1["area"] == 0.0
+
+
+# ---------- _parse_lp_image_path ----------
+
+
+@pytest.mark.parametrize(
+    "path_str, expected",
+    [
+        (
+            "labeled-data/ses-A/img0001.png",
+            ("labeled-data", "ses-A", "img0001.png"),
+        ),
+        (
+            "labeled-data/my-session_cam/img00074921.png",
+            ("labeled-data", "my-session_cam", "img00074921.png"),
+        ),
+        # Windows-style separators
+        (
+            "labeled-data\\ses-A\\img0001.png",
+            ("labeled-data", "ses-A", "img0001.png"),
+        ),
+    ],
+)
+def test_parse_lp_image_path(path_str, expected):
+    assert _parse_lp_image_path(path_str) == expected
+
+
+@pytest.mark.parametrize(
+    "path_str",
+    [
+        "img0001.png",  # only one component
+        "ses-A/img0001.png",  # missing top-level dir
+        "labeled-data/ses-A/subdir/img0001.png",  # four components
+    ],
+)
+def test_parse_lp_image_path_invalid(path_str):
+    with pytest.raises(ValueError, match="3 components"):
+        _parse_lp_image_path(path_str)
+
+
+# ---------- split_lp_collected_data ----------
+
+
+def test_split_creates_one_csv_per_session(lp_collected_data_csv, tmp_path):
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    assert set(results.keys()) == {"ses-A", "ses-B"}
+    for path in results.values():
+        assert path.exists()
+
+
+def test_split_output_filenames(lp_collected_data_csv, tmp_path):
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    assert (
+        results["ses-A"] == output_dir / "ses-A" / "CollectedData_scorer_a.csv"
+    )
+    assert (
+        results["ses-B"] == output_dir / "ses-B" / "CollectedData_scorer_a.csv"
+    )
+
+
+def test_split_creates_output_dirs(lp_collected_data_csv, tmp_path):
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    for session, path in results.items():
+        assert path.parent == output_dir / session
+        assert path.parent.is_dir()
+
+
+def test_split_row_counts(lp_collected_data_csv, tmp_path):
+    """Each session CSV should contain only its own rows."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    df_a = pd.read_csv(results["ses-A"], header=[0, 1, 2], index_col=[0, 1, 2])
+    df_b = pd.read_csv(results["ses-B"], header=[0, 1, 2], index_col=[0, 1, 2])
+
+    assert len(df_a) == 2
+    assert len(df_b) == 2
+
+
+def test_split_preserves_values(lp_collected_data_csv, tmp_path):
+    """Keypoint coordinates must survive the round-trip unchanged."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    df_a = pd.read_csv(results["ses-A"], header=[0, 1, 2], index_col=[0, 1, 2])
+    values = df_a.values.tolist()
+    assert values[0] == [1.0, 2.0, 3.0, 4.0]
+    assert values[1] == [5.0, 6.0, 7.0, 8.0]
+
+
+def test_split_preserves_nan(lp_collected_data_csv, tmp_path):
+    """Missing keypoints (NaN in the source) must remain NaN after
+    splitting."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    df_b = pd.read_csv(results["ses-B"], header=[0, 1, 2], index_col=[0, 1, 2])
+    # First row of ses-B: paw_l x and y are missing
+    row0 = df_b.iloc[0]
+    assert math.isnan(row0.iloc[0])  # paw_l x
+    assert math.isnan(row0.iloc[1])  # paw_l y
+    assert row0.iloc[2] == 9.0  # paw_r x
+    assert row0.iloc[3] == 10.0  # paw_r y
+
+
+def test_split_dlc_compatible_row_index(lp_collected_data_csv, tmp_path):
+    """Output CSVs must have a 3-level row MultiIndex matching the DLC
+    layout."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    df = pd.read_csv(results["ses-A"], header=[0, 1, 2], index_col=[0, 1, 2])
+
+    assert isinstance(df.index, pd.MultiIndex)
+    assert df.index.nlevels == 3
+    # Level 0: top-level dir, level 1: session name, level 2: image filename
+    top_dirs = df.index.get_level_values(0).unique().tolist()
+    sessions = df.index.get_level_values(1).unique().tolist()
+    assert top_dirs == ["labeled-data"]
+    assert sessions == ["ses-A"]
+
+
+def test_split_dlc_compatible_column_index(lp_collected_data_csv, tmp_path):
+    """Column MultiIndex must have names (scorer, bodyparts, coords) as in
+    DLC."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    df = pd.read_csv(results["ses-A"], header=[0, 1, 2], index_col=[0, 1, 2])
+
+    assert isinstance(df.columns, pd.MultiIndex)
+    assert list(df.columns.names) == ["scorer", "bodyparts", "coords"]
+
+
+def test_split_session_order_preserved(lp_collected_data_csv, tmp_path):
+    """Sessions appear in the results dict in first-occurrence order."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_csv, output_dir)
+
+    assert list(results.keys()) == ["ses-A", "ses-B"]
+
+
+def test_split_real_lp_data(lp_collected_data_path, tmp_path):
+    """Smoke test against the actual ibl-paw fixture data."""
+    output_dir = tmp_path / "out"
+    results = split_lp_collected_data(lp_collected_data_path, output_dir)
+
+    expected_sessions = {
+        "6c6983ef-7383-4989-9183-32b1a300d17a_left",
+        "a92c4b1d-46bd-457e-a1f4-414265f0e2d4_left",
+    }
+    assert set(results.keys()) == expected_sessions
+    for path in results.values():
+        assert path.exists()
+        df = pd.read_csv(path, header=[0, 1, 2], index_col=[0, 1, 2])
+        assert len(df) == 3
