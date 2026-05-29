@@ -5,6 +5,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import Any
 
 import sleap_io as sio
 
@@ -119,6 +120,117 @@ def extract_clip(
         )
 
     return clip_path, clip_json
+
+
+def extract_clips(
+    video_path: Path,
+    duration: int,
+    sampling: str,
+    **kwargs: Any,
+) -> list[tuple[Path, Path | None]]:
+    """Extract multiple clips from a video.
+
+    Parameters
+    ----------
+    video_path
+        Path to the input ``.mp4`` video. See :func:`extract_clip` for
+        naming conventions.
+    duration
+        Number of frames per clip.
+    sampling
+        Strategy used to select clip start frames. Supported values:
+
+        ``"manual"``
+            Use explicitly provided start frames. Requires the
+            ``start_frames`` keyword argument (``list[int]``).
+        ``"uniform"``
+            Space clips evenly across the video. Requires the
+            ``num_clips`` keyword argument (``int``). Start frames are
+            computed with :func:`_uniform_start_frames`.
+
+    **kwargs
+        Additional arguments required by the chosen sampling strategy
+        (see above).
+
+    Returns
+    -------
+    list[tuple[Path, Path | None]]
+        One ``(clip_path, clip_json)`` tuple per extracted clip, in the
+        same order as the start frames. ``clip_json`` is ``None`` when no
+        sibling ``*_videolabels.json`` file exists.
+
+    Raises
+    ------
+    ValueError
+        If ``sampling`` is not a recognised strategy, or if a required
+        keyword argument for the chosen strategy is missing.
+    """
+    if sampling == "manual":
+        if "start_frames" not in kwargs:
+            raise ValueError(
+                "sampling='manual' requires the start_frames keyword argument"
+            )
+        start_frames = list(kwargs["start_frames"])
+    elif sampling == "uniform":
+        if "num_clips" not in kwargs:
+            raise ValueError(
+                "sampling='uniform' requires the num_clips keyword argument"
+            )
+        n_frames = sio.load_video(Path(video_path)).shape[0]
+        start_frames = _uniform_start_frames(
+            int(kwargs["num_clips"]),
+            duration,
+            n_frames,
+        )
+    else:
+        raise ValueError(
+            f"Unknown sampling strategy {sampling!r}. "
+            "Supported strategies: 'manual', 'uniform'."
+        )
+
+    return [extract_clip(video_path, sf, duration) for sf in start_frames]
+
+
+def _uniform_start_frames(
+    num_clips: int, duration: int, n_frames: int
+) -> list[int]:
+    """Compute uniformly spaced clip start frames.
+
+    The first clip starts at frame 0 and the last starts at
+    ``n_frames - duration``, with the remaining clips evenly distributed
+    in between.
+
+    Parameters
+    ----------
+    num_clips
+        Number of clips to extract.
+    duration
+        Length of each clip in frames.
+    n_frames
+        Total number of frames in the video.
+
+    Returns
+    -------
+    list[int]
+        Sorted list of ``num_clips`` start frames.
+
+    Raises
+    ------
+    ValueError
+        If ``num_clips`` is not positive or ``duration`` exceeds
+        ``n_frames``.
+    """
+    if num_clips <= 0:
+        raise ValueError(f"num_clips must be positive, got {num_clips}")
+    max_start = n_frames - duration
+    if max_start < 0:
+        raise ValueError(
+            f"duration ({duration}) exceeds video length ({n_frames})"
+        )
+    if num_clips == 1:
+        return [0]
+    step = max_start / (num_clips - 1)
+    return [round(i * step) for i in range(num_clips)]
 
 
 def _extract_cliplabels(
