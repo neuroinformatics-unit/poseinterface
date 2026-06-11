@@ -115,7 +115,7 @@ def test_extract_single_clip(
 def test_extract_single_clip_no_labels(
     mock_load_video, mock_save_video, get_mock_video, tmp_path
 ):
-    """extract_clip returns None clip_json when no *videolabels.json exists."""
+    """extract_single_clip returns None clip_json when no video label exist."""
     mock_load_video.return_value = get_mock_video(n_frames=10)
     video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
 
@@ -175,7 +175,7 @@ def test_extract_single_clip_clamped(
 def test_extract_single_clip_invalid(
     video_path, start_frame, duration, expected_exception, expected_message
 ):
-    """Test extract_clip with invalid start_frame or duration."""
+    """Test extract_single_clip with invalid start_frame or duration."""
     with pytest.raises(expected_exception, match=expected_message):
         extract_single_clip(video_path, start_frame, duration)
 
@@ -256,28 +256,28 @@ def test_validate_clip_request_invalid(start_frame, duration, match):
 # ---------------------------------------------------------------------------
 
 
-@patch("poseinterface.clips.extract_clip")
-def test_extract_clips(mock_extract_clip, video_path):
-    """extract_clips calls extract_clip once per start frame."""
+@patch("poseinterface.clips.extract_single_clip")
+def test_extract_clips(mock_extract_single_clip, video_path):
+    """extract_clips calls extract_single_clip once per start frame."""
     start_frames = [0, 5, 10]
     duration = 3
-    mock_extract_clip.return_value = (video_path, None)
+    mock_extract_single_clip.return_value = (video_path, None)
 
     results = extract_clips(video_path, duration, start_frames)
 
-    assert mock_extract_clip.call_count == len(start_frames)
+    assert mock_extract_single_clip.call_count == len(start_frames)
     for sf in start_frames:
-        mock_extract_clip.assert_any_call(video_path, sf, duration)
+        mock_extract_single_clip.assert_any_call(video_path, sf, duration)
     assert len(results) == len(start_frames)
 
 
-@patch("poseinterface.clips.extract_clip")
-def test_extract_clips_returns_extract_clip_output(
-    mock_extract_clip, video_path
+@patch("poseinterface.clips.extract_single_clip")
+def test_extract_clips_returns_extract_single_clip_output(
+    mock_extract_single_clip, video_path
 ):
-    """Return value is a list of (clip_path, clip_json) tuples."""
+    """Return a list of (clip_path, clip_json) from extract_single_clip."""
     sentinel = (video_path / "clip.mp4", None)
-    mock_extract_clip.return_value = sentinel
+    mock_extract_single_clip.return_value = sentinel
 
     results = extract_clips(video_path, 3, [0, 5])
 
@@ -289,21 +289,21 @@ def test_extract_clips_returns_extract_clip_output(
 # ---------------------------------------------------------------------------
 
 
-@patch("poseinterface.clips.extract_clip")
+@patch("poseinterface.clips.extract_single_clip")
 @patch("poseinterface.clips.sio.load_video")
 def test_extract_clips_uniform(
-    mock_load_video, mock_extract_clip, get_mock_video, video_path
+    mock_load_video, mock_extract_single_clip, get_mock_video, video_path
 ):
     """extract_clips_uniform distributes clips evenly across the video."""
     mock_load_video.return_value = get_mock_video(n_frames=20)
-    mock_extract_clip.return_value = (video_path, None)
+    mock_extract_single_clip.return_value = (video_path, None)
 
     # n_frames=20, num_clips=3, step=20/3≈6.67 → [0, 7, 13]
     results = extract_clips_uniform(video_path, 4, 3)
 
-    assert mock_extract_clip.call_count == 3
+    assert mock_extract_single_clip.call_count == 3
     for sf in [0, 7, 13]:
-        mock_extract_clip.assert_any_call(video_path, sf, 4)
+        mock_extract_single_clip.assert_any_call(video_path, sf, 4)
     assert len(results) == 3
 
 
@@ -394,7 +394,7 @@ def test_parse_args_invalid_sampling():
 
 
 @patch("poseinterface.clips.extract_clips_uniform")
-def test_main_uniform(mock_extract_clips_uniform):
+def test_main_uniform(mock_extract_single_clips_uniform):
     """main dispatches uniform sampling to extract_clips_uniform."""
     args = argparse.Namespace(
         video_path="foo.mp4",
@@ -404,11 +404,11 @@ def test_main_uniform(mock_extract_clips_uniform):
         start_frames=None,
     )
     main(args)
-    mock_extract_clips_uniform.assert_called_once_with("foo.mp4", 5, 3)
+    mock_extract_single_clips_uniform.assert_called_once_with("foo.mp4", 5, 3)
 
 
 @patch("poseinterface.clips.extract_clips")
-def test_main_manual(mock_extract_clips):
+def test_main_manual(mock_extract_single_clips):
     """main dispatches manual sampling to extract_clips."""
     args = argparse.Namespace(
         video_path="foo.mp4",
@@ -418,7 +418,9 @@ def test_main_manual(mock_extract_clips):
         start_frames=[0, 10, 20],
     )
     main(args)
-    mock_extract_clips.assert_called_once_with("foo.mp4", 5, [0, 10, 20])
+    mock_extract_single_clips.assert_called_once_with(
+        "foo.mp4", 5, [0, 10, 20]
+    )
 
 
 def test_main_uniform_missing_num_clips():
@@ -437,7 +439,7 @@ def test_main_uniform_missing_num_clips():
 @patch(
     "poseinterface.clips.extract_clips", side_effect=ValueError("bad frame")
 )
-def test_main_propagates_value_error(mock_extract_clips):
+def test_main_propagates_value_error(mock_extract_single_clips):
     """ValueError raised by extract_clips is caught/re-raised as SystemExit."""
     args = argparse.Namespace(
         video_path="foo.mp4",
