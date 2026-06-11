@@ -49,7 +49,7 @@ def _validate_clip_request(start_frame: int, duration: int) -> None:
         raise ValueError(f"duration must be positive, got {duration}")
 
 
-def extract_clip(
+def extract_single_clip(
     video_path: str | Path,
     start_frame: int,
     duration: int,
@@ -179,7 +179,9 @@ def extract_clips(
         sibling ``*_videolabels.json`` file exists.
     """
     # duration and start_frame validated in each call to extract_clip()
-    return [extract_clip(video_path, sf, duration) for sf in start_frames]
+    return [
+        extract_single_clip(video_path, sf, duration) for sf in start_frames
+    ]
 
 
 def extract_clips_uniform(

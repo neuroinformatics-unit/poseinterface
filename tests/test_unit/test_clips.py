@@ -9,9 +9,9 @@ from poseinterface.clips import (
     _extract_cliplabels,
     _uniform_start_frames,
     _validate_clip_request,
-    extract_clip,
     extract_clips,
     extract_clips_uniform,
+    extract_single_clip,
     main,
     parse_args,
     wrapper,
@@ -78,7 +78,7 @@ def test_extract_cliplabels(tmp_path, video_path, video_labels):
 
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
-def test_extract_clip(
+def test_extract_single_clip(
     mock_load_video, mock_save_video, get_mock_video, video_path
 ):
     """Test clip video and json are extracted from the input video."""
@@ -89,7 +89,9 @@ def test_extract_clip(
     # Extract clip
     start_frame = 3
     duration = 4
-    clip_path, clip_json = extract_clip(video_path, start_frame, duration)
+    clip_path, clip_json = extract_single_clip(
+        video_path, start_frame, duration
+    )
 
     # Check save was called with correct range
     # Note: MagicMock caches the return value of __getitem__
@@ -110,21 +112,21 @@ def test_extract_clip(
 
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
-def test_extract_clip_no_labels(
+def test_extract_single_clip_no_labels(
     mock_load_video, mock_save_video, get_mock_video, tmp_path
 ):
     """extract_clip returns None clip_json when no *videolabels.json exists."""
     mock_load_video.return_value = get_mock_video(n_frames=10)
     video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
 
-    _, clip_json = extract_clip(video_path, 0, 5)
+    _, clip_json = extract_single_clip(video_path, 0, 5)
 
     assert clip_json is None
 
 
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
-def test_extract_clip_clamped(
+def test_extract_single_clip_clamped(
     mock_load_video, mock_save_video, get_mock_video, video_path, caplog
 ):
     """Test clip video and json when duration is clamped."""
@@ -139,7 +141,9 @@ def test_extract_clip_clamped(
 
     # Extract clip
     with caplog.at_level(logging.WARNING):
-        clip_path, clip_json = extract_clip(video_path, start_frame, duration)
+        clip_path, clip_json = extract_single_clip(
+            video_path, start_frame, duration
+        )
 
     # Check warning is thrown
     assert f"Clamping duration to {clamped_duration} frames" in caplog.text
@@ -168,12 +172,12 @@ def test_extract_clip_clamped(
         (10, 0, ValueError, "duration must be positive"),
     ],
 )
-def test_extract_clip_invalid(
+def test_extract_single_clip_invalid(
     video_path, start_frame, duration, expected_exception, expected_message
 ):
     """Test extract_clip with invalid start_frame or duration."""
     with pytest.raises(expected_exception, match=expected_message):
-        extract_clip(video_path, start_frame, duration)
+        extract_single_clip(video_path, start_frame, duration)
 
 
 # ---------------------------------------------------------------------------
