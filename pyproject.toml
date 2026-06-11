@@ -12,7 +12,7 @@ dynamic = ["version"]
 
 dependencies = [
   "jupyter>=1.1.1",
-  "movement>=0.16.0",
+  "movement==0.16.0",
   "sleap-io>=0.7.1",
 ]
 
