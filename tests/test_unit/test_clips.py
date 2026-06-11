@@ -14,6 +14,7 @@ from poseinterface.clips import (
     extract_clips_uniform,
     main,
     parse_args,
+    wrapper,
 )
 
 
@@ -105,6 +106,20 @@ def test_extract_clip(
     assert clip_path.name == f"{expected_stem}.mp4"
     assert clip_json.name == f"{expected_stem}_cliplabels.json"
     assert clip_json.exists()
+
+
+@patch("poseinterface.clips.sio.save_video")
+@patch("poseinterface.clips.sio.load_video")
+def test_extract_clip_no_labels(
+    mock_load_video, mock_save_video, get_mock_video, tmp_path
+):
+    """extract_clip returns None clip_json when no *videolabels.json exists."""
+    mock_load_video.return_value = get_mock_video(n_frames=10)
+    video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
+
+    _, clip_json = extract_clip(video_path, 0, 5)
+
+    assert clip_json is None
 
 
 @patch("poseinterface.clips.sio.save_video")
@@ -415,6 +430,22 @@ def test_main_uniform_missing_num_clips():
         main(args)
 
 
+@patch(
+    "poseinterface.clips.extract_clips", side_effect=ValueError("bad frame")
+)
+def test_main_propagates_value_error(mock_extract_clips):
+    """ValueError raised by extract_clips is caught/re-raised as SystemExit."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=[0, 10],
+    )
+    with pytest.raises(SystemExit, match="bad frame"):
+        main(args)
+
+
 def test_main_manual_missing_start_frames():
     """manual sampling without --start_frames exits with an error message."""
     args = argparse.Namespace(
@@ -426,3 +457,29 @@ def test_main_manual_missing_start_frames():
     )
     with pytest.raises(SystemExit, match="start_frames"):
         main(args)
+
+
+@patch("poseinterface.clips.main")
+def test_wrapper(mock_main, monkeypatch):
+    """wrapper parses sys.argv and calls main with the result."""
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "extract-clips",
+            "--video_path",
+            "foo.mp4",
+            "--duration",
+            "5",
+            "--sampling",
+            "uniform",
+            "--num_clips",
+            "3",
+        ],
+    )
+    wrapper()
+    mock_main.assert_called_once()
+    args = mock_main.call_args[0][0]
+    assert args.video_path == "foo.mp4"
+    assert args.duration == 5
+    assert args.sampling == "uniform"
+    assert args.num_clips == 3
