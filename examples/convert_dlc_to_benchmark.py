@@ -4,8 +4,6 @@
 Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
 """
 
-# sphinx_gallery_thumbnail_path = '_static/project_icon.png'
-
 # %%
 # Imports
 # -------

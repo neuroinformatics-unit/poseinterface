@@ -730,10 +730,10 @@ def split_lp_collected_data(
     input_path: Path,
     output_dir: Path,
 ) -> dict[str, Path]:
-    """Split a LightningPose project-level CollectedData.csv into
+    """Split a Lightning Pose project-level CollectedData.csv into
     per-session CSVs.
 
-    LightningPose stores labels for all sessions in a single project-level
+    Lightning Pose stores labels for all sessions in a single project-level
     ``CollectedData.csv``, with full image paths (e.g.
     ``labeled-data/<session>/<image>.png``) as the row index.
     This function splits that file into one CSV per session, each formatted
@@ -745,7 +745,7 @@ def split_lp_collected_data(
     Parameters
     ----------
     input_path
-        Path to the LightningPose project-level ``CollectedData.csv``.
+        Path to the Lightning Pose project-level ``CollectedData.csv``.
     output_dir
         Parent directory for the per-session output CSVs. Each session is
         written to ``<output_dir>/<session>/CollectedData_<scorer>.csv``,
@@ -813,7 +813,7 @@ def split_lp_collected_data(
 
 
 def _parse_lp_image_path(path_str: str) -> tuple[str, str, str]:
-    """Parse a LightningPose image path into ``(top_dir, session, image)``."""
+    """Parse a Lightning Pose image path into ``(top_dir, session, image)``."""
     parts = Path(path_str.replace("\\", "/")).parts
     if len(parts) != 3:
         raise ValueError(

@@ -5,8 +5,6 @@ Create a ``poseinterface`` benchmark dataset from a Lightning Pose (LP)
 project.
 """
 
-# sphinx_gallery_thumbnail_path = '_static/project_icon.png'
-
 # %%
 # Imports
 # -------
@@ -38,6 +36,10 @@ from poseinterface.utils import tree
 # 2. **Extract clips:** Short video clips and their labels are extracted
 #    from the converted videos and their corresponding keypoint predictions,
 #    ready for expert review.
+#
+# The workflow is similar to the one followed in
+# :ref:`sphx_glr_auto_examples_convert_dlc_to_benchmark.py`,
+# with a few differences explained below.
 
 # %%
 # Source Lightning Pose project
@@ -130,7 +132,7 @@ project_name = "IBL-paw"
 # resolves image paths relative to the CSV location, so the split CSV
 # must live alongside the frame images it references.
 
-lp_session_base = benchmark_base_dir / "_lp_sessions"
+lp_session_base = benchmark_base_dir / ".lp_sessions"
 split_results = split_lp_collected_data(
     input_path=source_project_dir / "CollectedData.csv",
     output_dir=lp_session_base,
@@ -240,7 +242,7 @@ for session in sessions:
 # %%
 # The resulting benchmark dataset:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(benchmark_base_dir, level=5, exclude_hidden=True))
 
 # %%
 # .. note::
@@ -298,7 +300,7 @@ for session in sessions:
 # The resulting benchmark dataset, including the extracted clips and their
 # corresponding labels:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(benchmark_base_dir, level=5, exclude_hidden=True))
 
 
 # %%
