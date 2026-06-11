@@ -5,7 +5,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Literal
 
 import sleap_io as sio
 
@@ -125,8 +125,10 @@ def extract_clip(
 def extract_clips(
     video_path: Path,
     duration: int,
-    sampling: str,
-    **kwargs: Any,
+    sampling: Literal["manual", "uniform"],
+    *,
+    num_clips: int | None = None,
+    start_frames: list[int] | None = None,
 ) -> list[tuple[Path, Path | None]]:
     """Extract multiple clips from a video.
 
@@ -136,21 +138,22 @@ def extract_clips(
         Path to the input ``.mp4`` video. See :func:`extract_clip` for
         naming conventions.
     duration
-        Number of frames per clip.
+        Number of frames per clip, common to all input clips
     sampling
         Strategy used to select clip start frames. Supported values:
 
         ``"manual"``
-            Use explicitly provided start frames. Requires the
-            ``start_frames`` keyword argument (``list[int]``).
+            Use explicitly provided start frames. Requires
+            ``start_frames``.
         ``"uniform"``
-            Space clips evenly across the video. Requires the
-            ``num_clips`` keyword argument (``int``). Start frames are
-            computed with :func:`_uniform_start_frames`.
+            Space clips evenly across the video. Requires ``num_clips``.
+            Start frames are computed with :func:`_uniform_start_frames`.
 
-    **kwargs
-        Additional arguments required by the chosen sampling strategy
-        (see above).
+    num_clips
+        Number of clips to extract. Required when ``sampling='uniform'``.
+    start_frames
+        Explicit start frame indices (0-based). Required when
+        ``sampling='manual'``.
 
     Returns
     -------
@@ -162,33 +165,21 @@ def extract_clips(
     Raises
     ------
     ValueError
-        If ``sampling`` is not a recognised strategy, or if a required
-        keyword argument for the chosen strategy is missing.
+        If a required argument for the chosen strategy is missing.
     """
     if sampling == "manual":
-        if "start_frames" not in kwargs:
-            raise ValueError(
-                "sampling='manual' requires the start_frames keyword argument"
-            )
-        start_frames = list(kwargs["start_frames"])
+        if start_frames is None:
+            raise ValueError("sampling='manual' requires start_frames")
+        frames = list(start_frames)
     elif sampling == "uniform":
-        if "num_clips" not in kwargs:
-            raise ValueError(
-                "sampling='uniform' requires the num_clips keyword argument"
-            )
+        if num_clips is None:
+            raise ValueError("sampling='uniform' requires num_clips")
         n_frames = sio.load_video(Path(video_path)).shape[0]
-        start_frames = _uniform_start_frames(
-            int(kwargs["num_clips"]),
-            duration,
-            n_frames,
-        )
+        frames = _uniform_start_frames(num_clips, duration, n_frames)
     else:
-        raise ValueError(
-            f"Unknown sampling strategy {sampling!r}. "
-            "Supported strategies: 'manual', 'uniform'."
-        )
+        raise ValueError(f"Unknown sampling strategy {sampling!r}")
 
-    return [extract_clip(video_path, sf, duration) for sf in start_frames]
+    return [extract_clip(video_path, sf, duration) for sf in frames]
 
 
 def _uniform_start_frames(
@@ -288,29 +279,17 @@ def _extract_cliplabels(
 
 
 def main(args: argparse.Namespace) -> None:
-    """Run multi-clip extraction from parsed command-line arguments.
-
-    Parameters
-    ----------
-    args
-        Parsed arguments containing ``video_path``, ``duration``,
-        ``sampling``, and (depending on the strategy) ``num_clips``
-        or ``start_frames``.
-    """
-    kwargs: dict[str, object] = {}
-    if args.sampling == "uniform":
-        if args.num_clips is None:
-            raise SystemExit(
-                "error: --num_clips is required when --sampling uniform"
-            )
-        kwargs["num_clips"] = args.num_clips
-    elif args.sampling == "manual":
-        if not args.start_frames:
-            raise SystemExit(
-                "error: --start_frames is required when --sampling manual"
-            )
-        kwargs["start_frames"] = args.start_frames
-    extract_clips(args.video_path, args.duration, args.sampling, **kwargs)
+    """Run multi-clip extraction from parsed command-line arguments."""
+    try:
+        extract_clips(
+            args.video_path,
+            args.duration,
+            args.sampling,
+            num_clips=args.num_clips,
+            start_frames=args.start_frames,
+        )
+    except ValueError as e:
+        raise SystemExit(f"error: {e}")
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:

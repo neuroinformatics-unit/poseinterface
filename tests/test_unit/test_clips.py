@@ -378,7 +378,7 @@ def test_main_uniform(mock_extract_clips):
     )
     main(args)
     mock_extract_clips.assert_called_once_with(
-        "foo.mp4", 5, "uniform", num_clips=3
+        "foo.mp4", 5, "uniform", num_clips=3, start_frames=None
     )
 
 
@@ -394,7 +394,7 @@ def test_main_manual(mock_extract_clips):
     )
     main(args)
     mock_extract_clips.assert_called_once_with(
-        "foo.mp4", 5, "manual", start_frames=[0, 10, 20]
+        "foo.mp4", 5, "manual", num_clips=None, start_frames=[0, 10, 20]
     )
 
 
@@ -407,7 +407,7 @@ def test_main_uniform_missing_num_clips():
         num_clips=None,
         start_frames=None,
     )
-    with pytest.raises(SystemExit, match="--num_clips"):
+    with pytest.raises(SystemExit, match="num_clips"):
         main(args)
 
 
@@ -420,5 +420,5 @@ def test_main_manual_missing_start_frames():
         num_clips=None,
         start_frames=None,
     )
-    with pytest.raises(SystemExit, match="--start_frames"):
+    with pytest.raises(SystemExit, match="start_frames"):
         main(args)
