@@ -1,13 +1,52 @@
-"""Functions to extract clips from ``poseinterface`` videos."""
+"""Functions to extract clips from ``poseinterface`` videos.
+
+Module structure
+----------------
+The module is organised around three layers:
+
+**Core extraction** (:func:`extract_clip`, :func:`extract_clips`)
+    ``extract_clip`` writes a single ``.mp4`` clip (and its
+    ``_cliplabels.json`` if a sibling ``*_videolabels.json`` exists).
+    ``extract_clips`` applies it over a list of start frames.
+
+**Start-frame generators** (:func:`_uniform_start_frames`, …)
+    Pure functions that return a ``list[int]`` of start frames given
+    video-level parameters.  They know nothing about I/O.
+
+**Strategy wrappers** (:func:`extract_clips_uniform`, …)
+    Thin public functions that pair a start-frame generator with
+    ``extract_clips``.  These are the entry points wired to the CLI.
+
+Adding a new sampling strategy
+-------------------------------
+1. Write a start-frame generator ``_<name>_start_frames(...)  -> list[int]``
+   that accepts whatever parameters the strategy needs and returns start
+   frames.  Validate its own inputs and raise ``ValueError`` on bad input.
+2. Write a wrapper ``extract_clips_<name>(video_path, duration, ...)``
+   that calls your generator, then passes the result to :func:`extract_clips`.
+3. Register the strategy in :func:`parse_args` by adding ``"<name>"`` to
+   the ``choices`` list of ``--sampling``, and a corresponding
+   ``--<parameter>`` argument.
+4. Dispatch to ``extract_clips_<name>`` in :func:`main`, following the
+   pattern of the existing ``"uniform"`` branch.
+"""
 
 import argparse
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Literal
 
 import sleap_io as sio
+
+
+def _validate_clip_request(start_frame: int, duration: int) -> None:
+    if start_frame < 0:
+        raise ValueError(
+            f"start_frame must be non-negative, got {start_frame}"
+        )
+    if duration <= 0:
+        raise ValueError(f"duration must be positive, got {duration}")
 
 
 def extract_clip(
@@ -23,7 +62,6 @@ def extract_clip(
     session video, using the same schema as ``cliplabels.json``), a
     matching ``_cliplabels.json`` containing only the annotations within
     the requested frame range is also written.
-
 
     Parameters
     ----------
@@ -67,13 +105,7 @@ def extract_clip(
     source ``*_videolabels.json`` corresponds to 0-based global frame indices
     of the full video.
     """
-    # Check input values
-    if start_frame < 0:
-        raise ValueError(
-            f"start_frame must be non-negative, got {start_frame}"
-        )
-    if duration <= 0:
-        raise ValueError(f"duration must be positive, got {duration}")
+    _validate_clip_request(start_frame, duration)
 
     # Create "Clips" directory if it doesn't exist
     video_path = Path(video_path)
@@ -125,10 +157,7 @@ def extract_clip(
 def extract_clips(
     video_path: Path,
     duration: int,
-    sampling: Literal["manual", "uniform"],
-    *,
-    num_clips: int | None = None,
-    start_frames: list[int] | None = None,
+    start_frames: list[int],
 ) -> list[tuple[Path, Path | None]]:
     """Extract multiple clips from a video.
 
@@ -138,48 +167,47 @@ def extract_clips(
         Path to the input ``.mp4`` video. See :func:`extract_clip` for
         naming conventions.
     duration
-        Number of frames per clip, common to all input clips
-    sampling
-        Strategy used to select clip start frames. Supported values:
-
-        ``"manual"``
-            Use explicitly provided start frames. Requires
-            ``start_frames``.
-        ``"uniform"``
-            Space clips evenly across the video. Requires ``num_clips``.
-            Start frames are computed with :func:`_uniform_start_frames`.
-
-    num_clips
-        Number of clips to extract. Required when ``sampling='uniform'``.
+        Number of frames per clip, common to all clips.
     start_frames
-        Explicit start frame indices (0-based). Required when
-        ``sampling='manual'``.
+        Start frame indices (0-based) for each clip.
 
     Returns
     -------
     list[tuple[Path, Path | None]]
         One ``(clip_path, clip_json)`` tuple per extracted clip, in the
-        same order as the start frames. ``clip_json`` is ``None`` when no
+        same order as ``start_frames``. ``clip_json`` is ``None`` when no
         sibling ``*_videolabels.json`` file exists.
-
-    Raises
-    ------
-    ValueError
-        If a required argument for the chosen strategy is missing.
     """
-    if sampling == "manual":
-        if start_frames is None:
-            raise ValueError("sampling='manual' requires start_frames")
-        frames = list(start_frames)
-    elif sampling == "uniform":
-        if num_clips is None:
-            raise ValueError("sampling='uniform' requires num_clips")
-        n_frames = sio.load_video(Path(video_path)).shape[0]
-        frames = _uniform_start_frames(num_clips, duration, n_frames)
-    else:
-        raise ValueError(f"Unknown sampling strategy {sampling!r}")
+    # duration and start_frame validated in each call to extract_clip()
+    return [extract_clip(video_path, sf, duration) for sf in start_frames]
 
-    return [extract_clip(video_path, sf, duration) for sf in frames]
+
+def extract_clips_uniform(
+    video_path: Path,
+    duration: int,
+    num_clips: int,
+) -> list[tuple[Path, Path | None]]:
+    """Extract uniformly spaced clips from a video.
+
+    Parameters
+    ----------
+    video_path
+        Path to the input ``.mp4`` video. See :func:`extract_clip` for
+        naming conventions.
+    duration
+        Number of frames per clip.
+    num_clips
+        Number of clips to extract, spaced evenly across the video via
+        :func:`_uniform_start_frames`.
+
+    Returns
+    -------
+    list[tuple[Path, Path | None]]
+        See :func:`extract_clips`.
+    """
+    n_frames = sio.load_video(Path(video_path)).shape[0]
+    frames = _uniform_start_frames(num_clips, duration, n_frames)
+    return extract_clips(video_path, duration, frames)
 
 
 def _uniform_start_frames(
@@ -281,13 +309,20 @@ def _extract_cliplabels(
 def main(args: argparse.Namespace) -> None:
     """Run multi-clip extraction from parsed command-line arguments."""
     try:
-        extract_clips(
-            args.video_path,
-            args.duration,
-            args.sampling,
-            num_clips=args.num_clips,
-            start_frames=args.start_frames,
-        )
+        if args.sampling == "uniform":
+            if args.num_clips is None:
+                raise SystemExit(
+                    "error: --num_clips is required when --sampling uniform"
+                )
+            extract_clips_uniform(
+                args.video_path, args.duration, args.num_clips
+            )
+        elif args.sampling == "manual":
+            if not args.start_frames:
+                raise SystemExit(
+                    "error: --start_frames is required when --sampling manual"
+                )
+            extract_clips(args.video_path, args.duration, args.start_frames)
     except ValueError as e:
         raise SystemExit(f"error: {e}")
 
