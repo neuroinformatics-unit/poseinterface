@@ -153,6 +153,7 @@ sphinx_gallery_conf = {
     "gallery_dirs": ["auto_examples"],
     "reference_url": {"poseinterface": None},
     "filename_pattern": "/*.py",  # which files to execute before inclusion
+    "default_thumb_file": "source/_static/project_icon.png",
 }
 
 # -- linkcheck configuration -------------------------------------------------

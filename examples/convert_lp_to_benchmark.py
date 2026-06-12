@@ -1,7 +1,8 @@
-"""Convert DeepLabCut project to benchmark dataset
-==================================================
+"""Convert Lightning Pose project to benchmark dataset
+======================================================
 
-Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
+Create a ``poseinterface`` benchmark dataset from a Lightning Pose (LP)
+project.
 """
 
 # %%
@@ -19,6 +20,7 @@ from poseinterface.io import (
     annotations_to_poseinterface,
     frames_to_poseinterface,
     predictions_to_poseinterface,
+    split_lp_collected_data,
     video_to_poseinterface,
 )
 from poseinterface.utils import tree
@@ -28,48 +30,45 @@ from poseinterface.utils import tree
 # --------
 # We'll handle the conversion in two steps:
 #
-# 1. **Convert:** DLC project files (videos, frame annotations, and
-#    keypoint predictions) are restructured into the
+# 1. **Convert:** LP project files (videos, frame annotations, and keypoint
+#    predictions) are restructured into the
 #    :ref:`poseinterface benchmark layout <target-benchmark-dataset>`.
 # 2. **Extract clips:** Short video clips and their labels are extracted
-#    from the converted videos and their corresponding keypoint
-#    predictions, ready for expert review.
+#    from the converted videos and their corresponding keypoint predictions,
+#    ready for expert review.
 #
-# .. figure:: /_static/DLC_to_poseinterface_worklow.svg
-#    :alt: Workflow diagram showing how a DLC project is converted
-#           to a poseinterface benchmark dataset
-#    :align: center
-#
-#    High-level overview of the two-step conversion workflow.
+# The workflow is similar to the one followed in
+# :ref:`sphx_glr_auto_examples_convert_dlc_to_benchmark.py`,
+# with a few differences explained below.
 
 # %%
-# Source DLC project
-# ------------------
+# Source Lightning Pose project
+# -----------------------------
 # We work with a dataset from the
-# `Sainsbury Wellcome Centre (SWC) <https://www.sainsburywellcome.org/>`_,
-# produced by Loukia Katsouri from John O'Keefe's lab.
-# It contains single-animal top-down videos of mice exploring an
-# Elevated Plus Maze (EPM), analysed using
-# `DeepLabCut (DLC) <https://www.mackenziemathislab.org/deeplabcut>`_.
+# `International Brain Laboratory (IBL)
+# <https://www.internationalbrainlab.com/>`_,
+# containing videos of mouse paw movements analysed using
+# `Lightning Pose <https://github.com/paninski-lab/lightning-pose>`_.
 #
 # .. note::
 #
 #    This example runs against a lightweight fixture shipped with the
-#    repository (under ``tests/data/``). This fixture contains only a subset
-#    of the original DLC project, and is intended for testing and demonstration
-#    purposes.
+#    repository (under ``tests/data/``). Replace ``source_project_dir``
+#    and ``benchmark_base_dir`` with the paths to your LP project and
+#    benchmark dataset directories, respectively. Keep in mind that your
+#    project will contain more files than are shown here.
 #
-#    Replace ``source_project_dir`` and ``benchmark_base_dir`` with the paths
-#    to your DLC project and benchmark dataset directories, respectively. Keep
-#    in mind that your project will contain more files than are shown here.
-
+# .. warning::
+#
+#    Lightning Pose saves prediction files to the model output directory,
+#    **not** to the project's ``videos/`` directory.  Before running this
+#    script, move (or copy) each session's prediction CSV — and apply any
+#    manual corrections you have made — into
+#    ``<source_project_dir>/videos/``, named to match the corresponding
+#    video stem (e.g. ``<video_stem>.csv``).
 
 source_project_dir = (
-    Path(".").resolve().parent
-    / "tests"
-    / "data"
-    / "dlc"
-    / "MouseTopDown-Loukia-2022-09-13"
+    Path(".").resolve().parent / "tests" / "data" / "lightningpose" / "ibl-paw"
 )
 print(tree(source_project_dir, level=1, exclude_hidden=True))
 
@@ -78,56 +77,74 @@ benchmark_base_dir = Path(tempfile.mkdtemp(prefix="poseinterface-benchmark-"))
 print(f"\nBenchmark dataset will be saved to: {benchmark_base_dir}")
 
 # %%
-# The two source project sub-directories we care about are:
+# The LP project differs from a DLC project in one key respect: all session
+# annotations live in a **single project-level** ``CollectedData.csv`` rather
+# than in per-session files inside ``labeled-data/``.  The two sub-directories
+# we care about otherwise mirror the DLC layout:
 #
-# - ``videos/``: the session videos and their corresponding prediction files.
-# - ``labeled-data/``: sampled frames and their keypoint annotations.
-#
-# Let's peek inside each.
+# - ``videos/``: session videos and (after the move described above) their
+#   corresponding prediction CSVs.
+# - ``labeled-data/``: sampled frames.
 
 print(tree(source_project_dir / "videos", level=1, exclude_hidden=True))
 
 # %%
-# In ``videos/``, each video (ending in ``converted.mp4``) has a companion .csv
-# prediction file.
 
 print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 
 # %%
-# In ``labeled-data/``, the sub-directories mirror the video names (without
-# .mp4) and contain the sampled frame images (.png) and their annotations
-# (.csv). In real projects you may also find predictions and annotations in
-# .h5 format, as well as filtered prediction files.
-
-# %%
 # Define sessions to convert
 # ---------------------------
-# We select two sessions from the DLC project and assign each to either
+# We select two sessions from the LP project and assign each to either
 # the ``Train`` or ``Test`` split of the
 # :ref:`benchmark dataset <target-benchmark-dataset>`.
 # You may expand this list with more sessions, but ensure that each session
 # belongs to exactly one split, and that the same subject doesn't appear in
 # both splits (to avoid data leakage).
-# All videos use the same top-down camera view (``cam-topdown``).
 
 sessions = [
     {
         "split": "Train",
-        "source_video": "M727755_EPM_20200317_170544999-converted.mp4",
-        "sub_id": "M727755",
-        "ses_id": "20200317",
-        "cam_id": "topdown",
+        "source_video": "6c6983ef73834989918332b1a300d17a_left.mp4",
+        "sub_id": "SWC054",
+        "ses_id": "6c6983ef73834989918332b1a300d17a",
+        "cam_id": "left",
     },
     {
         "split": "Test",
-        "source_video": "M708154_EPM_20200317_185651629-converted.mp4",
-        "sub_id": "M708154",
-        "ses_id": "20200317",
-        "cam_id": "topdown",
+        "source_video": "a92c4b1d46bd457ea1f4414265f0e2d4_left.mp4",
+        "sub_id": "KS023",
+        "ses_id": "a92c4b1d46bd457ea1f4414265f0e2d4",
+        "cam_id": "left",
     },
 ]
 
-project_name = "SWC-plusmaze"
+project_name = "IBL-paw"
+
+# %%
+# Split the project-level annotation file
+# ----------------------------------------
+# Unlike DLC, Lightning Pose stores all session annotations in a single
+# project-level ``CollectedData.csv``.  We split it into per-session
+# ``CollectedData_<scorer>.csv`` files and create a temporary directory
+# mirroring the ``labeled-data/`` structure with symlinks to the original
+# frames.  This is necessary because the underlying loader (sleap-io)
+# resolves image paths relative to the CSV location, so the split CSV
+# must live alongside the frame images it references.
+
+lp_session_base = benchmark_base_dir / ".lp_sessions"
+split_results = split_lp_collected_data(
+    input_path=source_project_dir / "CollectedData.csv",
+    output_dir=lp_session_base,
+)
+for ses_name, split_csv in split_results.items():
+    orig_frames_dir = source_project_dir / "labeled-data" / ses_name
+    ses_dir = split_csv.parent
+    for img in sorted(orig_frames_dir.glob("*.png")):
+        (ses_dir / img.name).symlink_to(img)
+print("Split annotation files:")
+for ses_name, csv_path in split_results.items():
+    print(f"  {ses_name}: {csv_path.name}")
 
 # %%
 # Convert to benchmark format
@@ -135,9 +152,9 @@ project_name = "SWC-plusmaze"
 # For each session we:
 #
 # 1. copy (and re-encode, if necessary) the session video;
-# 2. convert DLC keypoint annotations to COCO JSON, as well as copy and
+# 2. convert LP keypoint annotations to COCO JSON, as well as copy and
 #    rename the corresponding frame images;
-# 3. convert DLC keypoint predictions to COCO JSON.
+# 3. convert LP keypoint predictions to COCO JSON.
 
 for session in sessions:
     split = session["split"]
@@ -145,17 +162,19 @@ for session in sessions:
     sub_ses_prefix = f"sub-{ids['sub_id']}_ses-{ids['ses_id']}"
     sub_ses_cam_prefix = f"{sub_ses_prefix}_cam-{ids['cam_id']}"
     source_video_path = source_project_dir / "videos" / session["source_video"]
-    source_frames_dir = (
-        source_project_dir / "labeled-data" / source_video_path.stem
-    )
     target_session_dir = (
         benchmark_base_dir / split / project_name / sub_ses_prefix
     )
     target_frames_dir = target_session_dir / "Frames"
     target_frames_dir.mkdir(parents=True, exist_ok=True)
 
+    # LP session name matches ses_id + "_" + cam_id (e.g. labeled-data/ dir).
+    video_stem = source_video_path.stem
+    _lp_key = f"{session['ses_id']}_{session['cam_id']}"
+    lp_session_name: str | None = _lp_key if _lp_key in split_results else None
+
     print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
-    # Copy the session video, re-encoding to H.264/yuv420p if necessary
+    # Copy the session video, re-encoding to H.264/yuv420p if necessary.
     video_to_poseinterface(
         input_video=source_video_path,
         output_video_dir=target_session_dir,
@@ -163,20 +182,21 @@ for session in sessions:
     )
     print(f"\tvideo: {source_video_path.name} -> {sub_ses_cam_prefix}.mp4")
 
-    # Convert DLC annotations to COCO frame labels JSON, then copy the
+    # Convert LP annotations to COCO frame labels JSON, then copy the
     # corresponding frame images with standardised poseinterface filenames.
-    # In real projects there may be multiple annotation CSVs (e.g. for
-    # different labelers); adjust the glob pattern to select the right one.
-    source_annotations_path = next(
-        source_frames_dir.glob("CollectedData_*.csv"),
-        None,
-    )
-    if source_annotations_path is None:
+    if lp_session_name is None:
         print(
-            f"\tNo CollectedData CSV found in {source_frames_dir}."
+            f"\tNo matching LP session found for {video_stem!r}."
             " Skipping annotations-to-poseinterface conversion."
         )
     else:
+        # The split CSV lives in the temp dir alongside frame symlinks so
+        # that sleap-io can resolve image paths relative to the CSV location.
+        source_annotations_path = split_results[lp_session_name]
+        # Use the original frames dir (not the symlinks) for the copy step.
+        source_frames_dir = (
+            source_project_dir / "labeled-data" / lp_session_name
+        )
         framelabels_path = annotations_to_poseinterface(
             input_path=source_annotations_path,
             output_dir=target_frames_dir,
@@ -189,20 +209,20 @@ for session in sessions:
             framelabels_path=framelabels_path,
         )
         print(
-            f"\tannotations (+ frame images): {source_annotations_path.name} "
-            f"-> {framelabels_path.name}"
+            f"\tannotations (+ frame images): "
+            f"{source_annotations_path.name} -> {framelabels_path.name}"
         )
 
-    # Convert DLC predictions to COCO video labels JSON for clip extraction.
-    # In real projects there may be multiple prediction CSVs (e.g. filtered
-    # versions); adjust the glob pattern to select the right one.
+    # Convert LP predictions to COCO video labels JSON for clip extraction.
+    # Prediction CSVs must be present in videos/ before running this script;
+    # see the warning in the "Source Lightning Pose project" section above.
     source_predictions_path = next(
-        (source_project_dir / "videos").glob(f"{source_video_path.stem}*.csv"),
+        (source_project_dir / "videos").glob(f"{video_stem}*.csv"),
         None,
     )
     if source_predictions_path is None:
         print(
-            f"\tNo prediction CSV found for {source_video_path.stem!r} in "
+            f"\tNo prediction CSV found for {video_stem!r} in "
             f"{source_project_dir / 'videos'}. Skipping predictions-to-"
             "poseinterface conversion."
         )
@@ -222,20 +242,20 @@ for session in sessions:
 # %%
 # The resulting benchmark dataset:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(benchmark_base_dir, level=5, exclude_hidden=True))
 
 # %%
 # .. note::
 #
-#    Frame labels (``framelabels.json``) are generated for both splits, but in
-#    the **published** dataset the ``Test`` split intentionally omits them for
-#    evaluation. See the
-#    :ref:`folder structure specification<target-dataset-folder-structure>` for
+#    Frame labels (``framelabels.json``) are generated for both splits,
+#    but in the **published** dataset the ``Test`` split intentionally
+#    omits them for evaluation. See the
+#    :ref:`folder structure specification<target-benchmark-dataset>` for
 #    details.
 #
-#    The ``videolabels.json`` files generated alongside each session video are
-#    intermediate artifacts used for clip extraction in the next section, and
-#    will not be included in the published dataset.
+#    The ``videolabels.json`` files generated alongside each session video
+#    are intermediate artifacts used for clip extraction in the next
+#    section, and will not be included in the published dataset.
 
 
 # %%
@@ -248,8 +268,8 @@ print(tree(benchmark_base_dir, level=5))
 # These clip label files should then be proof-read and corrected by
 # experts before being included in the benchmark dataset.
 #
-# First, we specify the clip-extraction parameters. This step can be repeated
-# with different parameters to incrementally expand the clip set.
+# First, we specify the clip-extraction parameters. This step can be
+# repeated with different parameters to incrementally expand the clip set.
 
 duration = 5  # in frames
 start_frames = [25, 50, 75]
@@ -280,7 +300,7 @@ for session in sessions:
 # The resulting benchmark dataset, including the extracted clips and their
 # corresponding labels:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(benchmark_base_dir, level=5, exclude_hidden=True))
 
 
 # %%
@@ -293,28 +313,29 @@ print(tree(benchmark_base_dir, level=5))
 #    to support point-tracker evaluation.
 #    The ``videolabels.json`` files generated in the previous section are
 #    intermediate artifacts used for clip extraction, and are never shared.
-#    See the :ref:`folder structure specification<target-dataset-folder-\
-#    structure>` for details.
+#    See the :ref:`folder structure specification<target-benchmark-dataset>`
+#    for details.
 
 
 # %%
 # Record provenance (optional)
 # ----------------------------
-# This step is optional and can be safely skipped, but it is highly recommended
-# when converting real data, for book-keeping and reproducibility purposes.
+# This step is optional and can be safely skipped, but it is highly
+# recommended when converting real data, for book-keeping and
+# reproducibility purposes.
 #
 # We save a copy of this script alongside a JSON sidecar with the
 # ``poseinterface`` version (including git commit, via ``setuptools_scm``)
 # and a UTC timestamp. Both files are written to a top-level
-# ``.provenance/`` folder, named by project, so multiple projects under the
-# same ``benchmark_base_dir`` stay distinct.
+# ``.provenance/`` folder, named by project, so multiple projects under
+# the same ``benchmark_base_dir`` stay distinct.
 
 # sphinx_gallery_capture_repr = ()
 provenance_dir = benchmark_base_dir / ".provenance"
 provenance_dir.mkdir(parents=True, exist_ok=True)
 
-# ``__file__`` is set when running this script directly with Python, but not
-# when sphinx-gallery executes it during the docs build, guard accordingly.
+# ``__file__`` is set when running this script directly with Python, but
+# not when sphinx-gallery executes it during the docs build.
 script_path_str = globals().get("__file__")
 if script_path_str:
     shutil.copy(Path(script_path_str), provenance_dir / f"{project_name}.py")
@@ -333,14 +354,15 @@ if script_path_str:
 # %%
 # Clean up
 # --------
-# Since this example writes to a temporary directory, we remove it at the end.
+# Since this example writes to a temporary directory, we remove it at the
+# end.
 #
 # .. warning::
 #
 #    Only run this cell when ``benchmark_base_dir`` points to a temporary
-#    location. The guard below refuses to delete anything outside the system
-#    temp directory, so it is safe to leave in place when you adapt this
-#    example to a real benchmark dataset path.
+#    location. The guard below refuses to delete anything outside the
+#    system temp directory, so it is safe to leave in place when you adapt
+#    this example to a real benchmark dataset path.
 
 system_tempdir = Path(tempfile.gettempdir()).resolve()
 target = benchmark_base_dir.resolve()

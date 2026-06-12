@@ -13,6 +13,7 @@ io
     annotations_to_poseinterface
     frames_to_poseinterface
     predictions_to_poseinterface
+    split_lp_collected_data
     video_to_poseinterface
 
 
