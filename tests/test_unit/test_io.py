@@ -68,19 +68,19 @@ def sample_movement_ds():
     return xr.Dataset(
         {
             "position": (
-                ["time", "space", "keypoints", "individuals"],
+                ["time", "space", "keypoint", "individual"],
                 position_array,
             ),
             "confidence": (
-                ["time", "keypoints", "individuals"],
+                ["time", "keypoint", "individual"],
                 confidence_array,
             ),
         },
         coords={
             "time": [0, 1],
             "space": ["x", "y"],
-            "keypoints": ["Nose", "Tail"],
-            "individuals": ["id_0"],
+            "keypoint": ["Nose", "Tail"],
+            "individual": ["id_0"],
         },
     )
 
@@ -840,22 +840,22 @@ def test_convert_movement_ds_to_videolabels(
         assert coco_data["images"][k]["width"] == img_w
         assert coco_data["images"][k]["height"] == img_h
 
-    assert len(coco_data["categories"]) == len(ds.individuals)
-    assert coco_data["categories"][0]["name"] == ds.individuals.values[0]
+    assert len(coco_data["categories"]) == len(ds.individual)
+    assert coco_data["categories"][0]["name"] == ds.individual.values[0]
     assert (
-        coco_data["categories"][0]["keypoints"] == ds.keypoints.values.tolist()
+        coco_data["categories"][0]["keypoints"] == ds.keypoint.values.tolist()
     )
 
     # 2 frames x 1 individual = 2 annotations
-    assert len(coco_data["annotations"]) == len(ds.time) * len(ds.individuals)
+    assert len(coco_data["annotations"]) == len(ds.time) * len(ds.individual)
 
     # Frame 0: both keypoints visible, kpt0=(10, 30), kpt1=(20, 40)
     annot0 = coco_data["annotations"][0]
     assert annot0["num_keypoints"] == 2
     assert annot0["keypoints"] == [
-        *ds.position.isel(time=0, keypoints=0, individuals=0).values.tolist(),
+        *ds.position.isel(time=0, keypoint=0, individual=0).values.tolist(),
         2.0,
-        *ds.position.isel(time=0, keypoints=1, individuals=0).values.tolist(),
+        *ds.position.isel(time=0, keypoint=1, individual=0).values.tolist(),
         2.0,
     ]
     # bbox: [xmin, ymin, width, height]
@@ -869,7 +869,7 @@ def test_convert_movement_ds_to_videolabels(
         0.0,
         0.0,
         0.0,
-        *ds.position.isel(time=1, keypoints=1, individuals=0).values.tolist(),
+        *ds.position.isel(time=1, keypoint=1, individual=0).values.tolist(),
         2.0,
     ]
     # bbox covers only the single visible keypoint
