@@ -22,26 +22,12 @@ Convert DeepLabCut project to benchmark dataset
 
 Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-9
-
-.. code-block:: Python
-
-
-    # sphinx_gallery_thumbnail_path = '_static/project_icon.png'
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 10-12
+.. GENERATED FROM PYTHON SOURCE LINES 8-10
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-28
+.. GENERATED FROM PYTHON SOURCE LINES 10-26
 
 .. code-block:: Python
 
@@ -68,7 +54,7 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 29-46
+.. GENERATED FROM PYTHON SOURCE LINES 27-44
 
 Overview
 --------
@@ -88,7 +74,7 @@ We'll handle the conversion in two steps:
 
    High-level overview of the two-step conversion workflow.
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-67
+.. GENERATED FROM PYTHON SOURCE LINES 46-65
 
 Source DLC project
 ------------------
@@ -110,7 +96,7 @@ Elevated Plus Maze (EPM), analysed using
    to your DLC project and benchmark dataset directories, respectively. Keep
    in mind that your project will contain more files than are shown here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-82
+.. GENERATED FROM PYTHON SOURCE LINES 65-80
 
 .. code-block:: Python
 
@@ -143,12 +129,12 @@ Elevated Plus Maze (EPM), analysed using
 
     2 directories
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-mora_fc5
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-o3bqdh9x
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-89
+.. GENERATED FROM PYTHON SOURCE LINES 81-87
 
 The two source project sub-directories we care about are:
 
@@ -157,7 +143,7 @@ The two source project sub-directories we care about are:
 
 Let's peek inside each.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-92
+.. GENERATED FROM PYTHON SOURCE LINES 87-90
 
 .. code-block:: Python
 
@@ -183,12 +169,12 @@ Let's peek inside each.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-95
+.. GENERATED FROM PYTHON SOURCE LINES 91-93
 
 In ``videos/``, each video (ending in ``converted.mp4``) has a companion .csv
 prediction file.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-98
+.. GENERATED FROM PYTHON SOURCE LINES 93-96
 
 .. code-block:: Python
 
@@ -220,14 +206,14 @@ prediction file.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-103
+.. GENERATED FROM PYTHON SOURCE LINES 97-101
 
 In ``labeled-data/``, the sub-directories mirror the video names (without
 .mp4) and contain the sampled frame images (.png) and their annotations
 (.csv). In real projects you may also find predictions and annotations in
 .h5 format, as well as filtered prediction files.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-114
+.. GENERATED FROM PYTHON SOURCE LINES 103-112
 
 Define sessions to convert
 ---------------------------
@@ -239,7 +225,7 @@ belongs to exactly one split, and that the same subject doesn't appear in
 both splits (to avoid data leakage).
 All videos use the same top-down camera view (``cam-topdown``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-134
+.. GENERATED FROM PYTHON SOURCE LINES 112-132
 
 .. code-block:: Python
 
@@ -270,7 +256,7 @@ All videos use the same top-down camera view (``cam-topdown``).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-143
+.. GENERATED FROM PYTHON SOURCE LINES 133-141
 
 Convert to benchmark format
 ----------------------------
@@ -281,7 +267,7 @@ For each session we:
    rename the corresponding frame images;
 3. convert DLC keypoint predictions to COCO JSON.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-224
+.. GENERATED FROM PYTHON SOURCE LINES 141-222
 
 .. code-block:: Python
 
@@ -390,11 +376,11 @@ For each session we:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-226
+.. GENERATED FROM PYTHON SOURCE LINES 223-224
 
 The resulting benchmark dataset:
 
-.. GENERATED FROM PYTHON SOURCE LINES 226-229
+.. GENERATED FROM PYTHON SOURCE LINES 224-227
 
 .. code-block:: Python
 
@@ -409,7 +395,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-mora_fc5/
+    poseinterface-benchmark-o3bqdh9x/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -436,7 +422,7 @@ The resulting benchmark dataset:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 230-241
+.. GENERATED FROM PYTHON SOURCE LINES 228-239
 
 .. note::
 
@@ -450,7 +436,7 @@ The resulting benchmark dataset:
    intermediate artifacts used for clip extraction in the next section, and
    will not be included in the published dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-255
+.. GENERATED FROM PYTHON SOURCE LINES 242-253
 
 Extract clips
 -------------
@@ -464,7 +450,7 @@ experts before being included in the benchmark dataset.
 First, we specify the clip-extraction parameters. This step can be repeated
 with different parameters to incrementally expand the clip set.
 
-.. GENERATED FROM PYTHON SOURCE LINES 255-260
+.. GENERATED FROM PYTHON SOURCE LINES 253-258
 
 .. code-block:: Python
 
@@ -486,13 +472,13 @@ with different parameters to incrementally expand the clip set.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-264
+.. GENERATED FROM PYTHON SOURCE LINES 259-262
 
 We loop over all sessions and extract clips at each start frame.
 The resulting video clips and their ``cliplabels.json`` files are saved
 in a ``Clips/`` subdirectory within each session folder.
 
-.. GENERATED FROM PYTHON SOURCE LINES 264-281
+.. GENERATED FROM PYTHON SOURCE LINES 262-279
 
 .. code-block:: Python
 
@@ -531,12 +517,12 @@ in a ``Clips/`` subdirectory within each session folder.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-284
+.. GENERATED FROM PYTHON SOURCE LINES 280-282
 
 The resulting benchmark dataset, including the extracted clips and their
 corresponding labels:
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-288
+.. GENERATED FROM PYTHON SOURCE LINES 282-286
 
 .. code-block:: Python
 
@@ -552,7 +538,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-mora_fc5/
+    poseinterface-benchmark-o3bqdh9x/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -593,7 +579,7 @@ corresponding labels:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 289-300
+.. GENERATED FROM PYTHON SOURCE LINES 287-298
 
 .. note::
 
@@ -607,7 +593,7 @@ corresponding labels:
    See the :ref:`folder structure specification<target-dataset-folder-\
    structure>` for details.
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-313
+.. GENERATED FROM PYTHON SOURCE LINES 301-311
 
 Record provenance (optional)
 ----------------------------
@@ -620,7 +606,7 @@ and a UTC timestamp. Both files are written to a top-level
 ``.provenance/`` folder, named by project, so multiple projects under the
 same ``benchmark_base_dir`` stay distinct.
 
-.. GENERATED FROM PYTHON SOURCE LINES 313-335
+.. GENERATED FROM PYTHON SOURCE LINES 311-333
 
 .. code-block:: Python
 
@@ -653,7 +639,7 @@ same ``benchmark_base_dir`` stay distinct.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 336-346
+.. GENERATED FROM PYTHON SOURCE LINES 334-344
 
 Clean up
 --------
@@ -666,7 +652,7 @@ Since this example writes to a temporary directory, we remove it at the end.
    temp directory, so it is safe to leave in place when you adapt this
    example to a real benchmark dataset path.
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-357
+.. GENERATED FROM PYTHON SOURCE LINES 344-355
 
 .. code-block:: Python
 
@@ -689,7 +675,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-mora_fc5
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-o3bqdh9x
 
 
 
@@ -697,7 +683,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 13.164 seconds)
+   **Total running time of the script:** (0 minutes 13.224 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_dlc_to_benchmark.py:

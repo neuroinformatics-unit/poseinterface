@@ -34,6 +34,23 @@ A gallery of examples demonstrating ``poseinterface`` usage.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a Lightning Pose (LP) project.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_convert_lp_to_benchmark_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/convert_lp_to_benchmark`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Convert Lightning Pose project to benchmark dataset</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -45,6 +62,7 @@ A gallery of examples demonstrating ``poseinterface`` usage.
    :hidden:
 
    /auto_examples/convert_dlc_to_benchmark
+   /auto_examples/convert_lp_to_benchmark
 
 
 .. only:: html

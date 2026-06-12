@@ -1,0 +1,6 @@
+﻿poseinterface.io.split\_lp\_collected\_data
+===========================================
+
+.. currentmodule:: poseinterface.io
+
+.. autofunction:: split_lp_collected_data
