@@ -640,8 +640,8 @@ def _convert_movement_ds_to_videolabels(
     positions = ds["position"].values  # (time, space, keypoints, individuals)
     n_frames = positions.shape[0]
 
-    keypoint_names = ds.coords["keypoints"].values.tolist()
-    individual_names = ds.coords["individuals"].values.tolist()
+    keypoint_names = ds.coords["keypoint"].values.tolist()
+    individual_names = ds.coords["individual"].values.tolist()
 
     # Build categories list (one entry per individual)
     # NOTE: categories are 1-indexed to avoid conflicts
