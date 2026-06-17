@@ -161,6 +161,9 @@ def extract_clips_uniform(
 ) -> list[tuple[Path, Path | None]]:
     """Extract clips with uniformly spaced starting frames from a video.
 
+    Clips are guaranteed to be fully within the video, but clips
+    may overlap when ``duration > (total_n_frames - duration) / num_clips``.
+
     Parameters
     ----------
     video_path
@@ -178,8 +181,8 @@ def extract_clips_uniform(
         See :func:`extract_clips`.
     """
     n_frames = sio.load_video(Path(video_path)).shape[0]
-    frames = _uniform_start_frames(num_clips, duration, n_frames)
-    return extract_clips(video_path, duration, frames)
+    start_frames = _uniform_start_frames(num_clips, duration, n_frames)
+    return extract_clips(video_path, duration, start_frames)
 
 
 def _uniform_start_frames(
@@ -187,9 +190,8 @@ def _uniform_start_frames(
 ) -> list[int]:
     """Compute uniformly spaced clip start frames.
 
-    The video is divided into ``num_clips`` equal segments of
-    ``n_frames / num_clips`` frames each; each clip starts at the
-    beginning of its segment.
+    Starts frames are spread evenly over [0, n_frames - duration]
+    so every clip of length `duration` fits within the video.
 
     Parameters
     ----------
@@ -217,7 +219,7 @@ def _uniform_start_frames(
         raise ValueError(
             f"duration ({duration}) exceeds video length ({n_frames})"
         )
-    step = n_frames / num_clips
+    step = (n_frames - duration) / num_clips
     return [round(i * step) for i in range(num_clips)]
 
 

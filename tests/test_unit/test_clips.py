@@ -194,13 +194,13 @@ def test_uniform_start_frames_two_clips():
     """Two clips divide the video into two equal segments."""
     assert _uniform_start_frames(num_clips=2, duration=5, n_frames=20) == [
         0,
-        10,
+        8,
     ]
 
 
 def test_uniform_start_frames_evenly_divisible():
     """Clips are evenly spaced when the step divides exactly."""
-    assert _uniform_start_frames(5, 5, 25) == [0, 5, 10, 15, 20]
+    assert _uniform_start_frames(5, 5, 25) == [0, 4, 8, 12, 16]
 
 
 def test_uniform_start_frames_endpoints():
@@ -316,7 +316,7 @@ def test_extract_clips_uniform(
         num_clips=n_clips,
     )
 
-    expected_start_frames = [0, 7, 13]
+    expected_start_frames = [0, 5, 11]
 
     assert len(results) == n_clips
     assert mock_extract_single_clip.call_count == n_clips
