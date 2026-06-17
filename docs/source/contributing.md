@@ -107,7 +107,7 @@ On Windows powershell, prepend `.\` to the make command.
 You can preview the built docs at `docs/_build/html/index.html`.
 
 
-### Continuous integration
+## Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
 This will usually include linting, testing and deployment.
 
@@ -117,3 +117,29 @@ A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set
 * Release to PyPI (only if a git tag is present and if tests pass).
 
 Another workflow (`.github/workflows/docs_build_and_deploy.yml`) is set up to build and deploy the documentation to GitHub pages on each push to `main` and on releases (i.e. when a git tag is present).
+
+## Contributing clip sampling strategies
+
+The module {mod}`poseinterface.clips` is organised around three layers:
+
+* **Core clip extraction**: two main functions:
+    - {func}`~poseinterface.clips.extract_single_clip` writes a single ``.mp4`` clip (and its ``_cliplabels.json`` if a sibling ``*_videolabels.json`` exists).
+    - {func}`~poseinterface.clips.extract_clips`
+ applies the single clip extraction over a list of start frames.
+
+* **Start-frame generators**: pure functions that return a ``list[int]`` of start frames given video-level parameters. They know nothing about I/O. See for example: `_uniform_start_frames`.
+
+* **Strategy wrappers**: thin public functions that pair a start-frame generator with {func}`~poseinterface.clips.extract_clips`.  These are the entry points wired to the CLI. See for example: {func}`~poseinterface.clips.extract_clips_uniform`.
+
+### Adding a new sampling strategy
+1. Write a start-frame generator ``_<name>_start_frames(...)``
+   that accepts whatever parameters the strategy needs and returns a list
+   of integer start frames.  It must validate its own inputs and raise
+   ``ValueError`` on bad input.
+2. Write a wrapper ``extract_clips_<name>(video_path, duration, ...)``
+   that calls your generator, then passes the result to {func}`~poseinterface.clips.extract_clips`.
+3. Register the strategy in ``parse_args`` by adding ``"<name>"`` to
+   the ``choices`` list of ``--sampling``, and a corresponding
+   ``--<parameter>`` argument.
+4. Dispatch to ``extract_clips_<name>`` in ``main``, following the
+   pattern of the existing ``"uniform"`` branch.

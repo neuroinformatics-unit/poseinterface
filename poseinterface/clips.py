@@ -1,35 +1,4 @@
-"""Functions to extract clips from ``poseinterface`` videos.
-
-Module structure
-----------------
-The module is organised around three layers:
-
-**Core extraction** (:func:`extract_clip`, :func:`extract_clips`)
-    ``extract_clip`` writes a single ``.mp4`` clip (and its
-    ``_cliplabels.json`` if a sibling ``*_videolabels.json`` exists).
-    ``extract_clips`` applies it over a list of start frames.
-
-**Start-frame generators** (:func:`_uniform_start_frames`, …)
-    Pure functions that return a ``list[int]`` of start frames given
-    video-level parameters.  They know nothing about I/O.
-
-**Strategy wrappers** (:func:`extract_clips_uniform`, …)
-    Thin public functions that pair a start-frame generator with
-    ``extract_clips``.  These are the entry points wired to the CLI.
-
-Adding a new sampling strategy
--------------------------------
-1. Write a start-frame generator ``_<name>_start_frames(...)  -> list[int]``
-   that accepts whatever parameters the strategy needs and returns start
-   frames.  Validate its own inputs and raise ``ValueError`` on bad input.
-2. Write a wrapper ``extract_clips_<name>(video_path, duration, ...)``
-   that calls your generator, then passes the result to :func:`extract_clips`.
-3. Register the strategy in :func:`parse_args` by adding ``"<name>"`` to
-   the ``choices`` list of ``--sampling``, and a corresponding
-   ``--<parameter>`` argument.
-4. Dispatch to ``extract_clips_<name>`` in :func:`main`, following the
-   pattern of the existing ``"uniform"`` branch.
-"""
+"""Functions to extract clips from ``poseinterface`` videos."""
 
 import argparse
 import json
