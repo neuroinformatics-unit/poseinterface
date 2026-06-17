@@ -20,8 +20,8 @@ def _validate_clip_request(start_frame: int, duration: int) -> None:
 
 def extract_single_clip(
     video_path: str | Path,
-    start_frame: int,
     duration: int,
+    start_frame: int,
 ) -> tuple[Path, Path | None]:
     """Extract a video clip (and its clip labels if available).
 
@@ -39,12 +39,12 @@ def extract_single_clip(
         the convention ``sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4``, and
         if a sibling labels file exists, its filename should be
         ``sub-<subjectID>_ses-<sessionID>_cam-<camID>_videolabels.json``.
-    start_frame
-        Index of the first frame to include in the clip (0-based).
     duration
         Number of frames to include in the clip.  If ``start_frame +
         duration`` exceeds the video length, the duration is clamped to the
         remaining frames and a warning is logged.
+    start_frame
+        Index of the first frame to include in the clip (0-based).
 
     Returns
     -------
@@ -147,9 +147,10 @@ def extract_clips(
         same order as ``start_frames``. ``clip_json`` is ``None`` when no
         sibling ``*_videolabels.json`` file exists.
     """
-    # duration and start_frame validated in each call to extract_clip()
+    # duration and start_frame validated in
+    # each call to extract_single_clip()
     return [
-        extract_single_clip(video_path, sf, duration) for sf in start_frames
+        extract_single_clip(video_path, duration, sf) for sf in start_frames
     ]
 
 
@@ -158,12 +159,12 @@ def extract_clips_uniform(
     duration: int,
     num_clips: int,
 ) -> list[tuple[Path, Path | None]]:
-    """Extract uniformly spaced clips from a video.
+    """Extract clips with uniformly spaced starting frames from a video.
 
     Parameters
     ----------
     video_path
-        Path to the input ``.mp4`` video. See :func:`extract_clip` for
+        Path to the input ``.mp4`` video. See :func:`extract_single_clip` for
         naming conventions.
     duration
         Number of frames per clip.
