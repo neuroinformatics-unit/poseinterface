@@ -27,6 +27,7 @@ clips
 
     extract_single_clip
     extract_clips
+    extract_clips_uniform
 
 
 utils
