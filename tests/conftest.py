@@ -11,6 +11,7 @@ from PIL import Image
 TEST_DATA_DIR = Path(__file__).parent / "data"
 TEST_DATA_DLC_DIR = TEST_DATA_DIR / "dlc"
 TEST_DATA_SLEAP_DIR = TEST_DATA_DIR / "sleap"
+TEST_DATA_LP_DIR = TEST_DATA_DIR / "lightningpose"
 
 
 @pytest.fixture
@@ -186,3 +187,30 @@ def sleap_h5_file_cliplabels_json():
         TEST_DATA_SLEAP_DIR / "sub-testSub123_ses-testSes123_cam-testCam123_"
         "start-1000_dur-5_cliplabels.json"
     )
+
+
+@pytest.fixture
+def lp_collected_data_path():
+    """Path to the LightningPose project-level CollectedData.csv fixture."""
+    return TEST_DATA_LP_DIR / "ibl-paw" / "CollectedData.csv"
+
+
+@pytest.fixture
+def lp_collected_data_csv(tmp_path):
+    """Minimal synthetic LightningPose CollectedData.csv with two sessions.
+
+    Session A has 2 rows (both keypoints fully labeled).
+    Session B has 2 rows (first row has paw_l missing).
+    """
+    content = (
+        "scorer,scorer_a,scorer_a,scorer_a,scorer_a\n"
+        "bodyparts,paw_l,paw_l,paw_r,paw_r\n"
+        "coords,x,y,x,y\n"
+        "labeled-data/ses-A/img0001.png,1.0,2.0,3.0,4.0\n"
+        "labeled-data/ses-A/img0002.png,5.0,6.0,7.0,8.0\n"
+        "labeled-data/ses-B/img0003.png,,,9.0,10.0\n"
+        "labeled-data/ses-B/img0004.png,11.0,12.0,13.0,14.0\n"
+    )
+    csv_path = tmp_path / "CollectedData.csv"
+    csv_path.write_text(content)
+    return csv_path

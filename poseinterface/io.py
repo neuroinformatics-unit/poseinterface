@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Literal, TypeAlias
 
 import numpy as np
+import pandas as pd
 import sleap_io as sio
 import xarray as xr
 from movement.io import load_dataset
@@ -723,3 +724,100 @@ def _convert_movement_ds_to_videolabels(
         "annotations": annotations,
         "categories": categories,
     }
+
+
+def split_lp_collected_data(
+    input_path: Path,
+    output_dir: Path,
+) -> dict[str, Path]:
+    """Split a Lightning Pose project-level CollectedData.csv into
+    per-session CSVs.
+
+    Lightning Pose stores labels for all sessions in a single project-level
+    ``CollectedData.csv``, with full image paths (e.g.
+    ``labeled-data/<session>/<image>.png``) as the row index.
+    This function splits that file into one CSV per session, each formatted
+    as a DLC-style ``CollectedData_<scorer>.csv`` with a three-level row
+    MultiIndex ``(top_dir, session, image)``.  The resulting per-session
+    files can be passed directly to
+    :func:`poseinterface.io.annotations_to_poseinterface`.
+
+    Parameters
+    ----------
+    input_path
+        Path to the Lightning Pose project-level ``CollectedData.csv``.
+    output_dir
+        Parent directory for the per-session output CSVs. Each session is
+        written to ``<output_dir>/<session>/CollectedData_<scorer>.csv``,
+        mirroring the DLC ``labeled-data/`` layout.
+
+    Returns
+    -------
+    dict[str, Path]
+        Mapping from session name to the path of the per-session CSV.
+
+    Raises
+    ------
+    ValueError
+        If any row index entry cannot be parsed into exactly three path
+        components ``(top_dir, session, image)``.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from poseinterface.io import split_lp_collected_data
+    >>> session_csvs = split_lp_collected_data(
+    ...     input_path=Path("path/to/CollectedData.csv"),
+    ...     output_dir=Path("path/to/labeled-data"),
+    ... )
+    """
+    input_path = Path(input_path)
+    output_dir = Path(output_dir)
+
+    # Read LP CSV: 3-row column MultiIndex header, single-path row index.
+    # pandas uses the first element of each header row as the column level
+    # name (scorer, bodyparts, coords), which is what we need for DLC output.
+    df = pd.read_csv(input_path, header=[0, 1, 2], index_col=0)
+
+    # Parse every row path and group by session (the middle path component)
+    index_tuples: list[tuple[str, str, str]] = []
+    session_order: list[str] = []
+    for row_path in df.index:
+        parts = _parse_lp_image_path(row_path)
+        index_tuples.append(parts)
+        session = parts[1]
+        if session not in session_order:
+            session_order.append(session)
+
+    scorer = df.columns.get_level_values(0)[0]
+
+    results: dict[str, Path] = {}
+    for session_name in session_order:
+        positions = [
+            i
+            for i, (_, ses, _) in enumerate(index_tuples)
+            if ses == session_name
+        ]
+        session_df = df.iloc[positions].copy()
+        session_df.index = pd.MultiIndex.from_tuples(
+            [index_tuples[i] for i in positions]
+        )
+
+        session_dir = output_dir / session_name
+        session_dir.mkdir(parents=True, exist_ok=True)
+        output_path = session_dir / f"CollectedData_{scorer}.csv"
+        session_df.to_csv(output_path)
+        results[session_name] = output_path
+
+    return results
+
+
+def _parse_lp_image_path(path_str: str) -> tuple[str, str, str]:
+    """Parse a Lightning Pose image path into ``(top_dir, session, image)``."""
+    parts = Path(path_str.replace("\\", "/")).parts
+    if len(parts) != 3:
+        raise ValueError(
+            f"Expected a path with exactly 3 components "
+            f"(top_dir/session/image.png), got {len(parts)} in {path_str!r}."
+        )
+    return parts[0], parts[1], parts[2]
