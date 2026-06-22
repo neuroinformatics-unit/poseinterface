@@ -30,7 +30,9 @@ repos:
       hooks:
           - id: mypy
             additional_dependencies:
+                - pandas-stubs
                 - types-setuptools
+                - xarray
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.50"
       hooks:
