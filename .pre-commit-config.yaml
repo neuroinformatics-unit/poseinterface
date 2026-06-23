@@ -3,6 +3,7 @@ exclude: 'conf.py'
 # Configuring https://pre-commit.ci/
 ci:
     autoupdate_schedule: monthly
+    skip: [mypy] # Build exceeds tier max size 250MiB
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -29,7 +30,9 @@ repos:
       hooks:
           - id: mypy
             additional_dependencies:
+                - pandas-stubs
                 - types-setuptools
+                - xarray
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.50"
       hooks:
