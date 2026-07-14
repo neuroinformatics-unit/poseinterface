@@ -44,6 +44,12 @@ git add .
 pre-commit run
 ```
 
+These hooks also run automatically on every pull request via
+[pre-commit.ci](https://pre-commit.ci/) (except `mypy`, which is skipped there
+but still runs locally and in the test workflow). If a hook auto-fixes
+something, the bot will push the fix to your branch, so remember to pull before
+continuing to work.
+
 If a problem cannot be auto-fixed, the corresponding tool will provide
 information on what the issue is and how to fix it. For example, `ruff` might
 output something like:
