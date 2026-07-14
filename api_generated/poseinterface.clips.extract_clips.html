@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Examples &#8212; poseinterface</title>
+    <title>poseinterface.clips.extract_clips &#8212; poseinterface</title>
   
   
   
@@ -49,14 +49,14 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_generated/poseinterface.clips.extract_clips';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/auto_examples/index.html" />
+    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/api_generated/poseinterface.clips.extract_clips.html" />
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Convert DeepLabCut project to benchmark dataset" href="convert_dlc_to_benchmark.html" />
-    <link rel="prev" title="Benchmark dataset" href="../benchmark-dataset.html" />
+    <link rel="next" title="poseinterface.clips.extract_clips_uniform" href="poseinterface.clips.extract_clips_uniform.html" />
+    <link rel="prev" title="poseinterface.clips.extract_single_clip" href="poseinterface.clips.extract_single_clip.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -155,14 +155,14 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
     Examples
   </a>
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api_index.html">
     API
   </a>
@@ -277,14 +277,14 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
     Examples
   </a>
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api_index.html">
     API
   </a>
@@ -348,8 +348,19 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="convert_dlc_to_benchmark.html">Convert DeepLabCut project to benchmark dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convert_lp_to_benchmark.html">Convert Lightning Pose project to benchmark dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.io.annotations_to_poseinterface.html">poseinterface.io.annotations_to_poseinterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.io.frames_to_poseinterface.html">poseinterface.io.frames_to_poseinterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.io.predictions_to_poseinterface.html">poseinterface.io.predictions_to_poseinterface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.io.split_lp_collected_data.html">poseinterface.io.split_lp_collected_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.io.video_to_poseinterface.html">poseinterface.io.video_to_poseinterface</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.clips.extract_single_clip.html">poseinterface.clips.extract_single_clip</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">poseinterface.clips.extract_clips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.clips.extract_clips_uniform.html">poseinterface.clips.extract_clips_uniform</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="poseinterface.utils.tree.html">poseinterface.utils.tree</a></li>
 </ul>
 </div>
 </nav></div>
@@ -390,7 +401,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Examples</span></li>
+    
+    <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">poseinterface.clips.extract_clips</span></li>
   </ul>
 </nav>
 </div>
@@ -407,26 +421,32 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
-<p>A gallery of examples demonstrating <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> usage.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a DeepLabCut (DLC) project."><img alt="" src="../_images/sphx_glr_convert_dlc_to_benchmark_thumb.png" />
-<p><a class="reference internal" href="convert_dlc_to_benchmark.html"><span class="doc">Convert DeepLabCut project to benchmark dataset</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Convert DeepLabCut project to benchmark dataset</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a Lightning Pose (LP) project."><img alt="" src="../_images/sphx_glr_convert_lp_to_benchmark_thumb.png" />
-<p><a class="reference internal" href="convert_lp_to_benchmark.html"><span class="doc">Convert Lightning Pose project to benchmark dataset</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Convert Lightning Pose project to benchmark dataset</div>
-</div></div><div class="toctree-wrapper compound">
-</div>
-<div class="sphx-glr-footer sphx-glr-footer-gallery docutils container">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/07fcc19ba03226cd3d83d4e40ec44385/auto_examples_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">auto_examples_python.zip</span></code></a></p>
-</div>
-<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/6f1e7a639e0699d6164445b55e6c116d/auto_examples_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">auto_examples_jupyter.zip</span></code></a></p>
-</div>
-</div>
-<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+  <section id="poseinterface-clips-extract-clips">
+<h1>poseinterface.clips.extract_clips<a class="headerlink" href="#poseinterface-clips-extract-clips" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="poseinterface.clips.extract_clips">
+<span class="sig-prename descclassname"><span class="pre">poseinterface.clips.</span></span><span class="sig-name descname"><span class="pre">extract_clips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_frames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/poseinterface/clips.html#extract_clips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseinterface.clips.extract_clips" title="Link to this definition">#</a></dt>
+<dd><p>Extract multiple clips from a video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to the input <code class="docutils literal notranslate"><span class="pre">.mp4</span></code> video. See <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clip()</span></code> for
+naming conventions.</p></li>
+<li><p><strong>duration</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Number of frames per clip, common to all clips.</p></li>
+<li><p><strong>start_frames</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</span>) – Start frame indices (0-based) for each clip.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One <code class="docutils literal notranslate"><span class="pre">(clip_path,</span> <span class="pre">clip_json)</span></code> tuple per extracted clip, in the
+same order as <code class="docutils literal notranslate"><span class="pre">start_frames</span></code>. <code class="docutils literal notranslate"><span class="pre">clip_json</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> when no
+sibling <code class="docutils literal notranslate"><span class="pre">*_videolabels.json</span></code> file exists.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -440,20 +460,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../benchmark-dataset.html"
+       href="poseinterface.clips.extract_single_clip.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Benchmark dataset</p>
+        <p class="prev-next-title">poseinterface.clips.extract_single_clip</p>
       </div>
     </a>
     <a class="right-next"
-       href="convert_dlc_to_benchmark.html"
+       href="poseinterface.clips.extract_clips_uniform.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Convert DeepLabCut project to benchmark dataset</p>
+        <p class="prev-next-title">poseinterface.clips.extract_clips_uniform</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -469,9 +489,21 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#poseinterface.clips.extract_clips"><code class="docutils literal notranslate"><span class="pre">extract_clips()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/auto_examples/index.rst.txt">
+    <a href="../_sources/api_generated/poseinterface.clips.extract_clips.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

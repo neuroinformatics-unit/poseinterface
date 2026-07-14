@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
     <script src="../../_static/documentation_options.js?v=6aee1ebc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -396,12 +396,21 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
 
 
-<div class="viewcode-block" id="extract_clip">
-<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_clip.html#poseinterface.clips.extract_clip">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_clip</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_clip_request</span><span class="p">(</span><span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;start_frame must be non-negative, got </span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duration must be positive, got </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="extract_single_clip">
+<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_single_clip.html#poseinterface.clips.extract_single_clip">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_single_clip</span><span class="p">(</span>
     <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a video clip (and its clip labels if available).</span>
 
@@ -412,7 +421,6 @@
 <span class="sd">    matching ``_cliplabels.json`` containing only the annotations within</span>
 <span class="sd">    the requested frame range is also written.</span>
 
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    video_path</span>
@@ -420,12 +428,12 @@
 <span class="sd">        the convention ``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4``, and</span>
 <span class="sd">        if a sibling labels file exists, its filename should be</span>
 <span class="sd">        ``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json``.</span>
-<span class="sd">    start_frame</span>
-<span class="sd">        Index of the first frame to include in the clip (0-based).</span>
 <span class="sd">    duration</span>
 <span class="sd">        Number of frames to include in the clip.  If ``start_frame +</span>
 <span class="sd">        duration`` exceeds the video length, the duration is clamped to the</span>
 <span class="sd">        remaining frames and a warning is logged.</span>
+<span class="sd">    start_frame</span>
+<span class="sd">        Index of the first frame to include in the clip (0-based).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -455,13 +463,7 @@
 <span class="sd">    source ``*_videolabels.json`` corresponds to 0-based global frame indices</span>
 <span class="sd">    of the full video.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Check input values</span>
-    <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;start_frame must be non-negative, got </span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duration must be positive, got </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_validate_clip_request</span><span class="p">(</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
     <span class="c1"># Create &quot;Clips&quot; directory if it doesn&#39;t exist</span>
     <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
@@ -509,6 +511,112 @@
 
     <span class="k">return</span> <span class="n">clip_path</span><span class="p">,</span> <span class="n">clip_json</span></div>
 
+
+
+<div class="viewcode-block" id="extract_clips">
+<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_clips.html#poseinterface.clips.extract_clips">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_clips</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract multiple clips from a video.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    video_path</span>
+<span class="sd">        Path to the input ``.mp4`` video. See :func:`extract_clip` for</span>
+<span class="sd">        naming conventions.</span>
+<span class="sd">    duration</span>
+<span class="sd">        Number of frames per clip, common to all clips.</span>
+<span class="sd">    start_frames</span>
+<span class="sd">        Start frame indices (0-based) for each clip.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[tuple[Path, Path | None]]</span>
+<span class="sd">        One ``(clip_path, clip_json)`` tuple per extracted clip, in the</span>
+<span class="sd">        same order as ``start_frames``. ``clip_json`` is ``None`` when no</span>
+<span class="sd">        sibling ``*_videolabels.json`` file exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># duration and start_frame validated in</span>
+    <span class="c1"># each call to extract_single_clip()</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">extract_single_clip</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sf</span><span class="p">)</span> <span class="k">for</span> <span class="n">sf</span> <span class="ow">in</span> <span class="n">start_frames</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="extract_clips_uniform">
+<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_clips_uniform.html#poseinterface.clips.extract_clips_uniform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_clips_uniform</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">num_clips</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract clips with uniformly spaced starting frames from a video.</span>
+
+<span class="sd">    Clips are guaranteed to be fully within the video, but clips</span>
+<span class="sd">    may overlap when ``duration &gt; (total_n_frames - duration) / num_clips``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    video_path</span>
+<span class="sd">        Path to the input ``.mp4`` video. See :func:`extract_single_clip` for</span>
+<span class="sd">        naming conventions.</span>
+<span class="sd">    duration</span>
+<span class="sd">        Number of frames per clip.</span>
+<span class="sd">    num_clips</span>
+<span class="sd">        Number of clips to extract, spaced evenly across the video via</span>
+<span class="sd">        :func:`_uniform_start_frames`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[tuple[Path, Path | None]]</span>
+<span class="sd">        See :func:`extract_clips`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_video</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">start_frames</span> <span class="o">=</span> <span class="n">_uniform_start_frames</span><span class="p">(</span><span class="n">num_clips</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">extract_clips</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_frames</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_uniform_start_frames</span><span class="p">(</span>
+    <span class="n">num_clips</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute uniformly spaced clip start frames.</span>
+
+<span class="sd">    Starts frames are spread evenly over [0, n_frames - duration]</span>
+<span class="sd">    so every clip of length `duration` fits within the video.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    num_clips</span>
+<span class="sd">        Number of clips to extract.</span>
+<span class="sd">    duration</span>
+<span class="sd">        Length of each clip in frames.</span>
+<span class="sd">    n_frames</span>
+<span class="sd">        Total number of frames in the video.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[int]</span>
+<span class="sd">        Sorted list of ``num_clips`` start frames.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``num_clips`` is not positive or ``duration`` exceeds</span>
+<span class="sd">        ``n_frames``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">num_clips</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;num_clips must be positive, got </span><span class="si">{</span><span class="n">num_clips</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="n">n_frames</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;duration (</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">) exceeds video length (</span><span class="si">{</span><span class="n">n_frames</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_frames</span> <span class="o">-</span> <span class="n">duration</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_clips</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clips</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_cliplabels</span><span class="p">(</span>
@@ -569,20 +677,28 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run clip extraction from parsed command-line arguments.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args</span>
-<span class="sd">        Parsed arguments containing ``video_path``, ``start_frame``,</span>
-<span class="sd">        and ``duration``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Extract clip</span>
-    <span class="n">extract_clip</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run multi-clip extraction from parsed command-line arguments.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">num_clips</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
+                    <span class="s2">&quot;error: --num_clips is required when --sampling uniform&quot;</span>
+                <span class="p">)</span>
+            <span class="n">extract_clips_uniform</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_clips</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">start_frames</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
+                    <span class="s2">&quot;error: --start_frames is required when --sampling manual&quot;</span>
+                <span class="p">)</span>
+            <span class="n">extract_clips</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">start_frames</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command-line arguments for clip extraction.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command-line arguments for multi-clip extraction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -593,11 +709,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    argparse.Namespace</span>
 <span class="sd">        Parsed arguments with attributes ``video_path`` (str),</span>
-<span class="sd">        ``start_frame`` (int), and ``duration`` (int).</span>
+<span class="sd">        ``duration`` (int), ``sampling`` (str), ``num_clips``</span>
+<span class="sd">        (int | None), and ``start_frames`` (list[int] | None).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Extract clips from video (and corresponding &quot;</span>
+            <span class="s2">&quot;Extract multiple clips from a video (and corresponding &quot;</span>
             <span class="s2">&quot;clip labels if available).&quot;</span>
         <span class="p">)</span>
     <span class="p">)</span>
@@ -611,22 +728,45 @@
         <span class="s2">&quot;``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json``.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--start_frame&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Start frame of the clip as a 0-based index.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--duration&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Total length of the output clip in frames&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of frames per clip.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--sampling&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;uniform&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Clip selection strategy. &quot;</span>
+            <span class="s2">&quot;&#39;uniform&#39;: evenly space clips across the video &quot;</span>
+            <span class="s2">&quot;(requires --num_clips). &quot;</span>
+            <span class="s2">&quot;&#39;manual&#39;: use explicit start frames &quot;</span>
+            <span class="s2">&quot;(requires --start_frames).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--num_clips&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of clips to extract. Required when --sampling uniform.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--start_frames&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Start frame indices (0-based, space-separated). &quot;</span>
+            <span class="s2">&quot;Required when --sampling manual.&quot;</span>
+        <span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point for the ``extract-clip`` console script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point for the ``extract-clips`` console script.&quot;&quot;&quot;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
@@ -662,8 +802,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -697,7 +837,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
 </p></div>
       
     </div>

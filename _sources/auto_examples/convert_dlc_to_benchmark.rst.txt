@@ -38,7 +38,7 @@ Imports
     from pathlib import Path
 
     import poseinterface
-    from poseinterface.clips import extract_clip
+    from poseinterface.clips import extract_single_clip
     from poseinterface.io import (
         annotations_to_poseinterface,
         frames_to_poseinterface,
@@ -129,7 +129,7 @@ Elevated Plus Maze (EPM), analysed using
 
     2 directories
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-qpw5tn49
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-g29ip6qf
 
 
 
@@ -395,7 +395,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-qpw5tn49/
+    poseinterface-benchmark-g29ip6qf/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -491,7 +491,7 @@ in a ``Clips/`` subdirectory within each session folder.
         )
 
         for start_frame in start_frames:
-            clip_path, _ = extract_clip(
+            clip_path, _ = extract_single_clip(
                 video_path=session_dir / f"{sub_ses_cam_prefix}.mp4",
                 start_frame=start_frame,
                 duration=duration,
@@ -538,7 +538,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-qpw5tn49/
+    poseinterface-benchmark-g29ip6qf/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -675,7 +675,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-qpw5tn49
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-g29ip6qf
 
 
 
@@ -683,7 +683,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 13.484 seconds)
+   **Total running time of the script:** (0 minutes 11.125 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_dlc_to_benchmark.py:

@@ -1,0 +1,6 @@
+﻿poseinterface.clips.extract\_clips
+==================================
+
+.. currentmodule:: poseinterface.clips
+
+.. autofunction:: extract_clips

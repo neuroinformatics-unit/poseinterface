@@ -26,7 +26,9 @@ clips
     :toctree: api_generated
     :template: function.rst
 
-    extract_clip
+    extract_single_clip
+    extract_clips
+    extract_clips_uniform
 
 
 utils

@@ -1,0 +1,6 @@
+﻿poseinterface.clips.extract\_clips\_uniform
+===========================================
+
+.. currentmodule:: poseinterface.clips
+
+.. autofunction:: extract_clips_uniform

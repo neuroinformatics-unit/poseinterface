@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import poseinterface
-from poseinterface.clips import extract_clip
+from poseinterface.clips import extract_single_clip
 from poseinterface.io import (
     annotations_to_poseinterface,
     frames_to_poseinterface,
@@ -268,7 +268,7 @@ for session in sessions:
     )
 
     for start_frame in start_frames:
-        clip_path, _ = extract_clip(
+        clip_path, _ = extract_single_clip(
             video_path=session_dir / f"{sub_ses_cam_prefix}.mp4",
             start_frame=start_frame,
             duration=duration,

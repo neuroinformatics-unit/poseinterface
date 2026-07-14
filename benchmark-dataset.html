@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
@@ -38,10 +38,10 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
     <script src="_static/documentation_options.js?v=6aee1ebc"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
@@ -676,12 +676,12 @@ Published</label><div class="sd-tab-content docutils">
 <span id="target-videolabels"></span><h4>Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code><a class="headerlink" href="#intermediate-file-videolabels-json" title="Link to this heading">#</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This file is <strong>not a required part of a benchmark dataset</strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clip</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clip.html#poseinterface.clips.extract_clip" title="poseinterface.clips.extract_clip"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clip()</span></code></a> function.</p>
+<p>This file is <strong>not a required part of a benchmark dataset</strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clips</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clips.html#poseinterface.clips.extract_clips" title="poseinterface.clips.extract_clips"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clips()</span></code></a> function.</p>
 </div>
 <ul class="simple">
 <li><p>A <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> file uses the <strong>same schema as <a class="reference internal" href="#target-cliplabels"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code></span></a></strong>, but it refers to a full video rather than to a clip of it.</p></li>
 <li><p>It is produced once per video (e.g. by converting model predictions for the entire video into the <code class="docutils literal notranslate"><span class="pre">cliplabels</span></code> schema) and reused to extract any number of clip label files from that video.</p></li>
-<li><p>When present alongside a session video as <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json</span></code>, the <code class="docutils literal notranslate"><span class="pre">extract-clip</span></code> command will slice it into per-clip <code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files matching the requested frame ranges.</p></li>
+<li><p>When present alongside a session video as <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json</span></code>, the <code class="docutils literal notranslate"><span class="pre">extract-clips</span></code> command will slice it into per-clip <code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code> files matching the requested frame ranges.</p></li>
 <li><p>In the <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> file, each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> list uses the <strong>0-based frame index in the video</strong> as its <code class="docutils literal notranslate"><span class="pre">id</span></code> (same convention as <a class="reference internal" href="#target-framelabels"><span class="std std-ref">frame labels</span></a>).</p></li>
 </ul>
 </section>
@@ -886,8 +886,8 @@ Published</label><div class="sd-tab-content docutils">
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -921,7 +921,7 @@ Published</label><div class="sd-tab-content docutils">
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
 </p></div>
       
     </div>
