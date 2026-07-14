@@ -7,9 +7,14 @@ import pytest
 
 from poseinterface.clips import (
     _extract_cliplabels,
-    extract_clip,
+    _uniform_start_frames,
+    _validate_clip_request,
+    extract_clips,
+    extract_clips_uniform,
+    extract_single_clip,
     main,
     parse_args,
+    wrapper,
 )
 
 
@@ -73,7 +78,7 @@ def test_extract_cliplabels(tmp_path, video_path, video_labels):
 
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
-def test_extract_clip(
+def test_extract_single_clip(
     mock_load_video, mock_save_video, get_mock_video, video_path
 ):
     """Test clip video and json are extracted from the input video."""
@@ -84,7 +89,9 @@ def test_extract_clip(
     # Extract clip
     start_frame = 3
     duration = 4
-    clip_path, clip_json = extract_clip(video_path, start_frame, duration)
+    clip_path, clip_json = extract_single_clip(
+        video_path, duration, start_frame
+    )
 
     # Check save was called with correct range
     # Note: MagicMock caches the return value of __getitem__
@@ -105,7 +112,21 @@ def test_extract_clip(
 
 @patch("poseinterface.clips.sio.save_video")
 @patch("poseinterface.clips.sio.load_video")
-def test_extract_clip_clamped(
+def test_extract_single_clip_no_labels(
+    mock_load_video, mock_save_video, get_mock_video, tmp_path
+):
+    """extract_single_clip returns None clip_json when no video label exist."""
+    mock_load_video.return_value = get_mock_video(n_frames=10)
+    video_path = tmp_path / "sub-01_ses-01_cam-01.mp4"
+
+    _, clip_json = extract_single_clip(video_path, duration=5, start_frame=0)
+
+    assert clip_json is None
+
+
+@patch("poseinterface.clips.sio.save_video")
+@patch("poseinterface.clips.sio.load_video")
+def test_extract_single_clip_clamped(
     mock_load_video, mock_save_video, get_mock_video, video_path, caplog
 ):
     """Test clip video and json when duration is clamped."""
@@ -120,7 +141,9 @@ def test_extract_clip_clamped(
 
     # Extract clip
     with caplog.at_level(logging.WARNING):
-        clip_path, clip_json = extract_clip(video_path, start_frame, duration)
+        clip_path, clip_json = extract_single_clip(
+            video_path, duration, start_frame
+        )
 
     # Check warning is thrown
     assert f"Clamping duration to {clamped_duration} frames" in caplog.text
@@ -149,49 +172,368 @@ def test_extract_clip_clamped(
         (10, 0, ValueError, "duration must be positive"),
     ],
 )
-def test_extract_clip_invalid(
+def test_extract_single_clip_invalid(
     video_path, start_frame, duration, expected_exception, expected_message
 ):
-    """Test extract_clip with invalid start_frame or duration."""
+    """Test extract_single_clip with invalid start_frame or duration."""
     with pytest.raises(expected_exception, match=expected_message):
-        extract_clip(video_path, start_frame, duration)
+        extract_single_clip(video_path, duration, start_frame)
 
 
-def test_parse_args():
-    """Check arguments are parsed with correct types"""
-    video_path = "foo.mp4"
-    start_frame = 5
-    duration = 10
+# ---------------------------------------------------------------------------
+# _uniform_start_frames
+# ---------------------------------------------------------------------------
+
+
+def test_uniform_start_frames_single_clip():
+    """Single clip always starts at frame 0."""
+    assert _uniform_start_frames(num_clips=1, duration=5, n_frames=20) == [0]
+
+
+def test_uniform_start_frames_two_clips():
+    """Two clips divide the video into two equal segments."""
+    assert _uniform_start_frames(num_clips=2, duration=5, n_frames=20) == [
+        0,
+        8,
+    ]
+
+
+def test_uniform_start_frames_evenly_divisible():
+    """Clips are evenly spaced when the step divides exactly."""
+    assert _uniform_start_frames(5, 5, 25) == [0, 4, 8, 12, 16]
+
+
+def test_uniform_start_frames_endpoints():
+    """First start frame is 0; length equals num_clips."""
+    result = _uniform_start_frames(7, 10, 100)
+    assert len(result) == 7
+    assert result[0] == 0
+
+
+def test_uniform_start_frames_sorted():
+    """Start frames are in ascending order."""
+    result = _uniform_start_frames(5, 3, 30)
+    assert result == sorted(result)
+
+
+@pytest.mark.parametrize("num_clips", [0, -1])
+def test_uniform_start_frames_invalid_num_clips(num_clips):
+    """num_clips <= 0 raises ValueError."""
+    with pytest.raises(ValueError, match="num_clips must be positive"):
+        _uniform_start_frames(num_clips, 5, 20)
+
+
+def test_uniform_start_frames_duration_exceeds_video():
+    """duration longer than the video raises ValueError."""
+    with pytest.raises(ValueError, match="exceeds video length"):
+        _uniform_start_frames(3, 25, 20)
+
+
+# ---------------------------------------------------------------------------
+# _validate_clip_request
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "start_frame, duration",
+    [
+        (0, 1),
+        (10, 100),
+    ],
+)
+def test_validate_clip_request_valid(start_frame, duration):
+    """No exception raised for valid inputs."""
+    _validate_clip_request(start_frame, duration)
+
+
+@pytest.mark.parametrize(
+    "start_frame, duration, match",
+    [
+        (-1, 5, "start_frame must be non-negative"),
+        (0, 0, "duration must be positive"),
+        (0, -1, "duration must be positive"),
+    ],
+)
+def test_validate_clip_request_invalid(start_frame, duration, match):
+    """Invalid inputs raise ValueError with a descriptive message."""
+    with pytest.raises(ValueError, match=match):
+        _validate_clip_request(start_frame, duration)
+
+
+# ---------------------------------------------------------------------------
+# extract_clips
+# ---------------------------------------------------------------------------
+
+
+@patch("poseinterface.clips.extract_single_clip")
+def test_extract_clips(mock_extract_single_clip, video_path):
+    """extract_clips calls extract_single_clip once per start frame."""
+    start_frames = [0, 5, 10]
+    duration = 3
+    mock_extract_single_clip.return_value = (video_path, None)
+
+    results = extract_clips(video_path, duration, start_frames)
+
+    assert mock_extract_single_clip.call_count == len(start_frames)
+    for sf in start_frames:
+        mock_extract_single_clip.assert_any_call(video_path, duration, sf)
+    assert len(results) == len(start_frames)
+
+
+@patch("poseinterface.clips.extract_single_clip")
+def test_extract_clips_returns_extract_single_clip_output(
+    mock_extract_single_clip, video_path
+):
+    """Return a list of (clip_path, clip_json) from extract_single_clip."""
+    sentinel = (video_path / "clip.mp4", None)
+    mock_extract_single_clip.return_value = sentinel
+
+    results = extract_clips(video_path, duration=3, start_frames=[0, 5])
+
+    assert results == [sentinel, sentinel]
+
+
+# ---------------------------------------------------------------------------
+# extract_clips_uniform
+# ---------------------------------------------------------------------------
+
+
+@patch("poseinterface.clips.extract_single_clip")
+@patch("poseinterface.clips.sio.load_video")
+def test_extract_clips_uniform(
+    mock_load_video, mock_extract_single_clip, get_mock_video, video_path
+):
+    """extract_clips_uniform distributes clips evenly across the video."""
+    mock_load_video.return_value = get_mock_video(n_frames=20)
+    mock_extract_single_clip.return_value = (video_path, None)
+
+    # n_frames=20, num_clips=3, step=20/3≈6.67 → [0, 7, 13]
+    n_clips = 3
+    dur_clips = 4
+    results = extract_clips_uniform(
+        video_path,
+        duration=dur_clips,
+        num_clips=n_clips,
+    )
+
+    expected_start_frames = [0, 5, 11]
+
+    assert len(results) == n_clips
+    assert mock_extract_single_clip.call_count == n_clips
+    for sf in expected_start_frames:
+        mock_extract_single_clip.assert_any_call(
+            video_path,
+            dur_clips,
+            sf,
+        )
+
+
+# ---------------------------------------------------------------------------
+# parse_args
+# ---------------------------------------------------------------------------
+
+
+def test_parse_args_uniform():
+    """Uniform strategy args are parsed correctly."""
+    input_video = "foo.mp4"
+    input_duration = 5
+    input_sampling = "uniform"
+    input_n_clips = 3
+
     args = parse_args(
         [
             "--video_path",
-            video_path,
-            "--start_frame",
-            str(start_frame),
+            input_video,
             "--duration",
-            str(duration),
+            str(input_duration),
+            "--sampling",
+            input_sampling,
+            "--num_clips",
+            str(input_n_clips),
         ]
     )
-    assert args.video_path == video_path
-    assert args.start_frame == int(start_frame)
-    assert args.duration == int(duration)
+    assert args.video_path == input_video
+    assert args.duration == input_duration
+    assert args.sampling == input_sampling
+    assert args.num_clips == input_n_clips
+    assert args.start_frames is None
 
 
-def test_parse_args_missing_required():
-    """Test parse_args raises on missing required arguments."""
-    # Call argument parsing function without --start_frame
-    # and --duration
+def test_parse_args_manual():
+    """Manual strategy args are parsed correctly."""
+    input_video = "foo.mp4"
+    input_duration = 5
+    input_sampling = "manual"
+    input_start_frames = [0, 10, 20]
+
+    args = parse_args(
+        [
+            "--video_path",
+            input_video,
+            "--duration",
+            str(input_duration),
+            "--sampling",
+            input_sampling,
+            "--start_frames",
+            *[str(sf) for sf in input_start_frames],
+        ]
+    )
+    assert args.sampling == input_sampling
+    assert args.start_frames == input_start_frames
+    assert args.num_clips is None
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        [
+            "--duration",
+            "5",
+            "--sampling",
+            "uniform",
+        ],  # missing --video_path
+        [
+            "--video_path",
+            "foo.mp4",
+            "--sampling",
+            "uniform",
+        ],  # missing --duration
+        [
+            "--video_path",
+            "foo.mp4",
+            "--duration",
+            "5",
+        ],  # missing --sampling
+        [
+            "--video_path",
+            "foo.mp4",
+            "--duration",
+            "5",
+            "--sampling",
+            "FOO",
+        ],  # invalid sampling strategy
+    ],
+)
+def test_parse_args_invalid_inputs(argv):
+    """Missing required arguments or invalid ones cause SystemExit."""
     with pytest.raises(SystemExit):
-        parse_args(["--video_path", "foo.mp4"])
+        parse_args(argv)
 
 
-@patch("poseinterface.clips.extract_clip")
-def test_main(mock_extract_clip):
-    """Test main calls extract_clip with parsed arguments."""
+# ---------------------------------------------------------------------------
+# main
+# ---------------------------------------------------------------------------
+
+
+@patch("poseinterface.clips.extract_clips_uniform")
+def test_main_uniform(mock_extract_clips_uniform):
+    """main dispatches uniform sampling to extract_clips_uniform."""
     args = argparse.Namespace(
-        video_path="video.mp4", start_frame=5, duration=10
+        video_path="foo.mp4",
+        duration=5,
+        sampling="uniform",
+        num_clips=3,
+        start_frames=None,
     )
     main(args)
-    mock_extract_clip.assert_called_once_with(
-        "video.mp4", args.start_frame, args.duration
+    mock_extract_clips_uniform.assert_called_once_with(
+        args.video_path,
+        args.duration,
+        args.num_clips,
     )
+
+
+@patch("poseinterface.clips.extract_clips")
+def test_main_manual(mock_extract_clips):
+    """main dispatches manual sampling to extract_clips."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=[0, 10, 20],
+    )
+    main(args)
+    mock_extract_clips.assert_called_once_with(
+        args.video_path,
+        args.duration,
+        args.start_frames,
+    )
+
+
+def test_main_uniform_missing_num_clips():
+    """uniform sampling without --num_clips exits with an error message."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="uniform",
+        num_clips=None,
+        start_frames=None,
+    )
+    with pytest.raises(
+        SystemExit, match="--num_clips is required when --sampling uniform"
+    ):
+        main(args)
+
+
+def test_main_manual_missing_start_frames():
+    """manual sampling without --start_frames exits with an error message."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=None,
+    )
+    with pytest.raises(
+        SystemExit, match="--start_frames is required when --sampling manual"
+    ):
+        main(args)
+
+
+@patch(
+    "poseinterface.clips.extract_clips",
+    side_effect=ValueError("bad frame"),
+)
+def test_main_propagates_value_error(mock_extract_clips):
+    """ValueError raised by extract_clips is caught/re-raised as SystemExit."""
+    args = argparse.Namespace(
+        video_path="foo.mp4",
+        duration=5,
+        sampling="manual",
+        num_clips=None,
+        start_frames=[0, 10],
+    )
+    with pytest.raises(SystemExit, match="bad frame"):
+        main(args)
+
+
+@patch("poseinterface.clips.main")
+def test_wrapper(mock_main, monkeypatch):
+    """wrapper parses sys.argv and calls main with the result."""
+    input_video = "foo.mp4"
+    input_duration = 5
+    input_sampling = "uniform"
+    input_num_clips = 3
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "extract-clips",
+            "--video_path",
+            input_video,
+            "--duration",
+            str(input_duration),
+            "--sampling",
+            input_sampling,
+            "--num_clips",
+            str(input_num_clips),
+        ],
+    )
+    wrapper()
+    mock_main.assert_called_once()
+    args = mock_main.call_args[0][0]
+    assert args.video_path == input_video
+    assert args.duration == input_duration
+    assert args.sampling == input_sampling
+    assert args.num_clips == input_num_clips
