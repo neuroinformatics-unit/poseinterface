@@ -61,6 +61,9 @@ The following capabilities are guiding the project's direction:
   Lightning Pose models via `poseinterface`.
 - Train a Lightning Pose model across multiple mapped datasets from the
   benchmark corpus, as a proof of concept for cross-dataset training.
+- Define and document a stable, agent-callable programmatic interface for
+  running **inference** with additional point trackers on raw video via
+  `poseinterface` (for instance TAPIR).
 
 ## Focus areas for 2025
 
