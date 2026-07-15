@@ -44,7 +44,7 @@ The following capabilities are guiding the project's direction:
 - **Support multi-animal and multi-camera datasets.** The schema and tooling
   should extend naturally beyond single-animal, single-camera use cases.
 
-## Focus areas for 2026
+## Focus areas for 2027
 
 - Complete and publish a versioned data specification for single-animal,
   single-camera pose estimation datasets (images, videos, labels, experimental
@@ -65,9 +65,9 @@ The following capabilities are guiding the project's direction:
   running **inference** with additional point trackers on raw video via
   `poseinterface` (for instance TAPIR).
 
-## Focus areas for 2025
+## Focus areas for 2026
 
-We defined these high-level goals in 2025.
+We defined these high-level goals at the end of 2025.
 Items completed have been checked off.
 
 - [x] Establish the core `poseinterface` framework: standardized folder
