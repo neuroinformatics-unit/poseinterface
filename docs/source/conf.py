@@ -170,6 +170,7 @@ linkcheck_retries = 3  # default is 1
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
     "https://cocodataset.org/",
+    "https://neuroinformatics.zulipchat.com/",
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
