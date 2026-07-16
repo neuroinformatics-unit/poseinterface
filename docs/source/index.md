@@ -37,12 +37,6 @@ Folder structure and file naming conventions for benchmark datasets.
 A gallery of examples using `poseinterface`.
 :::
 
-:::{grid-item-card} {fas}`book;sd-text-primary` API reference
-:link: api_index
-:link-type: doc
-
-Public functions and classes in `poseinterface`.
-:::
 ::::
 
 ![](_static/poseinterface_overview.png)
