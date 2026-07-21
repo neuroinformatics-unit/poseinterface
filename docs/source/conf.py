@@ -120,7 +120,13 @@ html_theme_options = {
             "icon": "fa-brands fa-github",
             # The type of image to be used (see below for details)
             "type": "fontawesome",
-        }
+        },
+        {
+            "name": "Zulip (chat)",
+            "url": "https://neuroinformatics.zulipchat.com/#narrow/channel/617946-PoseInterface",
+            "icon": "fa-solid fa-comments",
+            "type": "fontawesome",
+        },
     ],
     "logo": {
         "text": f"{project} v{release}",
@@ -164,6 +170,7 @@ linkcheck_retries = 3  # default is 1
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
     "https://cocodataset.org/",
+    "https://neuroinformatics.zulipchat.com/",
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
