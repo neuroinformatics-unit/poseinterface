@@ -96,7 +96,7 @@ Items completed have been checked off.
 - Hosting infrastructure/leaderboard for a benchmark competition.
 - Full two-way training/inference integration with DeepLabCut and SLEAP
   (the API is being designed to make this easier to add later).
-- Support for multi-camera and multi-animal datasets
+- Support for multi-camera and multi-animal datasets.
 
 ---
 
