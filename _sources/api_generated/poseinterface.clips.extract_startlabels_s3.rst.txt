@@ -1,0 +1,6 @@
+﻿poseinterface.clips.extract\_startlabels\_s3
+============================================
+
+.. currentmodule:: poseinterface.clips
+
+.. autofunction:: extract_startlabels_s3

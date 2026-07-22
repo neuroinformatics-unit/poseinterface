@@ -417,6 +417,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">s3</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_clip_request</span><span class="p">(</span><span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -696,6 +698,177 @@
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">clip_json</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_suffix_error</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;File must end with &#39;</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&#39;, got </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_startlabels_from_dict</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">start_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">img</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_images</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Clip labels must contain exactly one first-frame image with id 0&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">start_images</span><span class="p">,</span>
+        <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">annot</span>
+            <span class="k">for</span> <span class="n">annot</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="extract_startlabels">
+<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_startlabels.html#poseinterface.clips.extract_startlabels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_startlabels</span><span class="p">(</span>
+    <span class="n">cliplabels_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract only the first frame&#39;s labels from a cliplabels.json file.</span>
+
+<span class="sd">    Reads a ``*_cliplabels.json`` file and creates a corresponding</span>
+<span class="sd">    ``*_startlabels.json`` file containing only the labels for the first</span>
+<span class="sd">    frame (frame with id=0).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cliplabels_path</span>
+<span class="sd">        Path to the input ``*_cliplabels.json`` file.</span>
+<span class="sd">    output_path</span>
+<span class="sd">        Path to the output ``*_startlabels.json`` file. If ``None``</span>
+<span class="sd">        (default), it is derived from ``cliplabels_path`` by replacing</span>
+<span class="sd">        ``_cliplabels.json`` with ``_startlabels.json``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to the output ``*_startlabels.json`` file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If the input file does not exist.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input filename does not end with ``_cliplabels.json``,</span>
+<span class="sd">        ``output_path`` does not end with ``_startlabels.json``, or the</span>
+<span class="sd">        clip labels do not contain exactly one first-frame image (``id: 0``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cliplabels_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="p">)</span>
+
+    <span class="c1"># Validate input file exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input file not found: </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Validate input filename</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="n">_suffix_error</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Read the cliplabels file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">clip_labels</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">start_labels</span> <span class="o">=</span> <span class="n">_extract_startlabels_from_dict</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">)</span>
+
+    <span class="c1"># Generate output path by replacing _cliplabels.json with _startlabels.json</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_startlabels.json&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Save the start labels</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">start_labels</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Extracted start frame labels from </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;to </span><span class="si">{</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_path</span></div>
+
+
+
+<div class="viewcode-block" id="extract_startlabels_s3">
+<a class="viewcode-back" href="../../api_generated/poseinterface.clips.extract_startlabels_s3.html#poseinterface.clips.extract_startlabels_s3">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_startlabels_s3</span><span class="p">(</span>
+    <span class="n">s3_cliplabels_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">aws_profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract first frame&#39;s labels from a cliplabels.json file on S3.</span>
+
+<span class="sd">    Reads a ``*_cliplabels.json`` file from S3 and creates a corresponding</span>
+<span class="sd">    ``*_startlabels.json`` file on S3 containing only the labels for the first</span>
+<span class="sd">    frame (frame with id=0).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s3_cliplabels_uri</span>
+<span class="sd">        S3 URI of the input ``*_cliplabels.json`` file in the format</span>
+<span class="sd">        ``s3://bucket-name/path/to/file_cliplabels.json``.</span>
+<span class="sd">    output_uri</span>
+<span class="sd">        Optional S3 URI for the output file. If ``None`` (default), it is</span>
+<span class="sd">        derived from the ``s3_cliplabels_uri`` by replacing</span>
+<span class="sd">        ``_cliplabels.json`` with ``_startlabels.json``.</span>
+<span class="sd">    aws_profile</span>
+<span class="sd">        Optional AWS profile name to use for authentication. If None, uses</span>
+<span class="sd">        the default AWS credentials chain.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        S3 URI of the output ``*_startlabels.json`` file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the S3 URI format is invalid, the input filename does not end</span>
+<span class="sd">        with ``_cliplabels.json``, ``output_uri`` does not end with</span>
+<span class="sd">        ``_startlabels.json``, or the clip labels do not contain exactly</span>
+<span class="sd">        one first-frame image (``id: 0``).</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If the input file does not exist on S3.</span>
+<span class="sd">    ClientError</span>
+<span class="sd">        If there are other S3 access issues (e.g. permissions).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parse S3 URI and validate filename</span>
+    <span class="n">bucket_name</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">parse_s3_uri</span><span class="p">(</span><span class="n">s3_cliplabels_uri</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Download cliplabels from S3</span>
+    <span class="n">clip_labels</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">download_json_from_s3</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">aws_profile</span><span class="p">)</span>
+
+    <span class="c1"># Extract start labels using local function</span>
+    <span class="n">start_labels</span> <span class="o">=</span> <span class="n">_extract_startlabels_from_dict</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">)</span>
+
+    <span class="c1"># Generate output key/URI if not provided</span>
+    <span class="k">if</span> <span class="n">output_uri</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">)</span>
+        <span class="n">output_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">output_key</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">parse_s3_uri</span><span class="p">(</span><span class="n">output_uri</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_startlabels.json&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_key</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Upload start labels to S3</span>
+    <span class="n">s3</span><span class="o">.</span><span class="n">upload_json_to_s3</span><span class="p">(</span><span class="n">start_labels</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">,</span> <span class="n">output_key</span><span class="p">,</span> <span class="n">aws_profile</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted start frame labels from </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_uri</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

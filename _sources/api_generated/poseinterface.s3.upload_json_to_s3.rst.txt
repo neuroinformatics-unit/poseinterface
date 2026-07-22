@@ -1,0 +1,6 @@
+﻿poseinterface.s3.upload\_json\_to\_s3
+=====================================
+
+.. currentmodule:: poseinterface.s3
+
+.. autofunction:: upload_json_to_s3

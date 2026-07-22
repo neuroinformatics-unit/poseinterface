@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:14.929** total execution time for 2 files **from auto_examples**:
+**00:17.861** total execution time for 2 files **from auto_examples**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_convert_dlc_to_benchmark.py` (``convert_dlc_to_benchmark.py``)
-     - 00:10.845
+     - 00:13.387
      - 0.0
    * - :ref:`sphx_glr_auto_examples_convert_lp_to_benchmark.py` (``convert_lp_to_benchmark.py``)
-     - 00:04.084
+     - 00:04.474
      - 0.0

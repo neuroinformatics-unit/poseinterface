@@ -1,0 +1,6 @@
+﻿poseinterface.s3.download\_json\_from\_s3
+=========================================
+
+.. currentmodule:: poseinterface.s3
+
+.. autofunction:: download_json_from_s3

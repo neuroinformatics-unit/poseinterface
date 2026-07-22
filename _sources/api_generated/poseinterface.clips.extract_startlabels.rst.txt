@@ -1,0 +1,6 @@
+﻿poseinterface.clips.extract\_startlabels
+========================================
+
+.. currentmodule:: poseinterface.clips
+
+.. autofunction:: extract_startlabels

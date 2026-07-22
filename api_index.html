@@ -380,6 +380,13 @@
 <li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.clips.extract_single_clip.html">poseinterface.clips.extract_single_clip</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.clips.extract_clips.html">poseinterface.clips.extract_clips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.clips.extract_clips_uniform.html">poseinterface.clips.extract_clips_uniform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.clips.extract_startlabels.html">poseinterface.clips.extract_startlabels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.clips.extract_startlabels_s3.html">poseinterface.clips.extract_startlabels_s3</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.s3.parse_s3_uri.html">poseinterface.s3.parse_s3_uri</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.s3.download_json_from_s3.html">poseinterface.s3.download_json_from_s3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.s3.upload_json_to_s3.html">poseinterface.s3.upload_json_to_s3</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="api_generated/poseinterface.utils.tree.html">poseinterface.utils.tree</a></li>
@@ -478,6 +485,29 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="api_generated/poseinterface.clips.extract_clips_uniform.html#poseinterface.clips.extract_clips_uniform" title="poseinterface.clips.extract_clips_uniform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_clips_uniform</span></code></a>(video_path, duration, ...)</p></td>
 <td><p>Extract clips with uniformly spaced starting frames from a video.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api_generated/poseinterface.clips.extract_startlabels.html#poseinterface.clips.extract_startlabels" title="poseinterface.clips.extract_startlabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_startlabels</span></code></a>(cliplabels_path[, ...])</p></td>
+<td><p>Extract only the first frame's labels from a cliplabels.json file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api_generated/poseinterface.clips.extract_startlabels_s3.html#poseinterface.clips.extract_startlabels_s3" title="poseinterface.clips.extract_startlabels_s3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_startlabels_s3</span></code></a>(s3_cliplabels_uri[, ...])</p></td>
+<td><p>Extract first frame's labels from a cliplabels.json file on S3.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="s3">
+<h2>s3<a class="headerlink" href="#s3" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api_generated/poseinterface.s3.parse_s3_uri.html#poseinterface.s3.parse_s3_uri" title="poseinterface.s3.parse_s3_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_s3_uri</span></code></a>(s3_uri)</p></td>
+<td><p>Parse an S3 URI into bucket and key components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api_generated/poseinterface.s3.download_json_from_s3.html#poseinterface.s3.download_json_from_s3" title="poseinterface.s3.download_json_from_s3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_json_from_s3</span></code></a>(bucket_name, key[, ...])</p></td>
+<td><p>Download and parse a JSON file from S3.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api_generated/poseinterface.s3.upload_json_to_s3.html#poseinterface.s3.upload_json_to_s3" title="poseinterface.s3.upload_json_to_s3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upload_json_to_s3</span></code></a>(data, bucket_name, key[, ...])</p></td>
+<td><p>Upload a JSON object to S3.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -544,6 +574,7 @@
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#io">io</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clips">clips</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#s3">s3</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utils">utils</a></li>
 </ul>
   </nav></div>
