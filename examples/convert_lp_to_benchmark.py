@@ -127,7 +127,7 @@ project_name = "IBL-paw"
 # Unlike DLC, Lightning Pose stores all session annotations in a single
 # project-level ``CollectedData.csv``.  We split it into per-session
 # ``CollectedData_<scorer>.csv`` files and create a temporary directory
-# mirroring the ``labeled-data/`` structure with symlinks to the original
+# mirroring the ``labeled-data/`` structure with copies of the original
 # frames.  This is necessary because the underlying loader (sleap-io)
 # resolves image paths relative to the CSV location, so the split CSV
 # must live alongside the frame images it references.
@@ -141,7 +141,7 @@ for ses_name, split_csv in split_results.items():
     orig_frames_dir = source_project_dir / "labeled-data" / ses_name
     ses_dir = split_csv.parent
     for img in sorted(orig_frames_dir.glob("*.png")):
-        (ses_dir / img.name).symlink_to(img)
+        shutil.copy(img, ses_dir / img.name)
 print("Split annotation files:")
 for ses_name, csv_path in split_results.items():
     print(f"  {ses_name}: {csv_path.name}")
@@ -190,10 +190,10 @@ for session in sessions:
             " Skipping annotations-to-poseinterface conversion."
         )
     else:
-        # The split CSV lives in the temp dir alongside frame symlinks so
+        # The split CSV lives in the temp dir alongside copied frames so
         # that sleap-io can resolve image paths relative to the CSV location.
         source_annotations_path = split_results[lp_session_name]
-        # Use the original frames dir (not the symlinks) for the copy step.
+        # Use the original frames dir (not the copies) for the copy step.
         source_frames_dir = (
             source_project_dir / "labeled-data" / lp_session_name
         )
