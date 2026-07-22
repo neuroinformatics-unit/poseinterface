@@ -11,28 +11,6 @@ import sleap_io as sio
 from . import s3
 
 
-def _suffix_error(name: str, suffix: str) -> str:
-    return f"File must end with '{suffix}', got {name}"
-
-
-def _extract_startlabels_from_dict(clip_labels: dict) -> dict:
-    start_images = [img for img in clip_labels["images"] if img["id"] == 0]
-    if len(start_images) != 1:
-        raise ValueError(
-            "Clip labels must contain exactly one first-frame image with id 0"
-        )
-
-    return {
-        "images": start_images,
-        "annotations": [
-            annot
-            for annot in clip_labels["annotations"]
-            if annot["image_id"] == 0
-        ],
-        "categories": clip_labels["categories"],
-    }
-
-
 def _validate_clip_request(start_frame: int, duration: int) -> None:
     if start_frame < 0:
         raise ValueError(
@@ -302,6 +280,28 @@ def _extract_cliplabels(
         json.dump(clip_labels, f)
 
     return clip_json
+
+
+def _suffix_error(name: str, suffix: str) -> str:
+    return f"File must end with '{suffix}', got {name}"
+
+
+def _extract_startlabels_from_dict(clip_labels: dict) -> dict:
+    start_images = [img for img in clip_labels["images"] if img["id"] == 0]
+    if len(start_images) != 1:
+        raise ValueError(
+            "Clip labels must contain exactly one first-frame image with id 0"
+        )
+
+    return {
+        "images": start_images,
+        "annotations": [
+            annot
+            for annot in clip_labels["annotations"]
+            if annot["image_id"] == 0
+        ],
+        "categories": clip_labels["categories"],
+    }
 
 
 def extract_startlabels(
