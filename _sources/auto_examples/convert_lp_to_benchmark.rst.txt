@@ -129,7 +129,7 @@ containing videos of mouse paw movements analysed using
 
     2 directories, 1 files
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-2ec50dx3
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-xxl9waqe
 
 
 
@@ -250,7 +250,7 @@ Split the project-level annotation file
 Unlike DLC, Lightning Pose stores all session annotations in a single
 project-level ``CollectedData.csv``.  We split it into per-session
 ``CollectedData_<scorer>.csv`` files and create a temporary directory
-mirroring the ``labeled-data/`` structure with symlinks to the original
+mirroring the ``labeled-data/`` structure with copies of the original
 frames.  This is necessary because the underlying loader (sleap-io)
 resolves image paths relative to the CSV location, so the split CSV
 must live alongside the frame images it references.
@@ -269,7 +269,7 @@ must live alongside the frame images it references.
         orig_frames_dir = source_project_dir / "labeled-data" / ses_name
         ses_dir = split_csv.parent
         for img in sorted(orig_frames_dir.glob("*.png")):
-            (ses_dir / img.name).symlink_to(img)
+            shutil.copy(img, ses_dir / img.name)
     print("Split annotation files:")
     for ses_name, csv_path in split_results.items():
         print(f"  {ses_name}: {csv_path.name}")
@@ -339,10 +339,10 @@ For each session we:
                 " Skipping annotations-to-poseinterface conversion."
             )
         else:
-            # The split CSV lives in the temp dir alongside frame symlinks so
+            # The split CSV lives in the temp dir alongside copied frames so
             # that sleap-io can resolve image paths relative to the CSV location.
             source_annotations_path = split_results[lp_session_name]
-            # Use the original frames dir (not the symlinks) for the copy step.
+            # Use the original frames dir (not the copies) for the copy step.
             source_frames_dir = (
                 source_project_dir / "labeled-data" / lp_session_name
             )
@@ -431,7 +431,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-2ec50dx3/
+    poseinterface-benchmark-xxl9waqe/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -574,7 +574,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-2ec50dx3/
+    poseinterface-benchmark-xxl9waqe/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -713,7 +713,7 @@ end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-2ec50dx3
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-xxl9waqe
 
 
 
@@ -721,7 +721,7 @@ end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.340 seconds)
+   **Total running time of the script:** (0 minutes 4.084 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_lp_to_benchmark.py:
