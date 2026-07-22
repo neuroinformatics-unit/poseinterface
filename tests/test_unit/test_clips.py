@@ -7,11 +7,14 @@ import pytest
 
 from poseinterface.clips import (
     _extract_cliplabels,
+    _extract_startlabels_from_dict,
     _uniform_start_frames,
     _validate_clip_request,
     extract_clips,
     extract_clips_uniform,
     extract_single_clip,
+    extract_startlabels,
+    extract_startlabels_s3,
     main,
     parse_args,
     wrapper,
@@ -326,6 +329,121 @@ def test_extract_clips_uniform(
             dur_clips,
             sf,
         )
+
+
+# ---------------------------------------------------------------------------
+# extract_startlabels
+# ---------------------------------------------------------------------------
+
+
+def test_extract_startlabels(video_labels):
+    """Test start labels contain only the first frame and its annotations."""
+    start_labels = _extract_startlabels_from_dict(video_labels)
+    first_frame_annotations = [
+        annotation
+        for annotation in video_labels["annotations"]
+        if annotation["image_id"] == 0
+    ]
+
+    assert start_labels["images"] == [{"id": 0}]
+    assert start_labels["annotations"] == first_frame_annotations
+    assert start_labels["categories"] == video_labels["categories"]
+
+
+def test_extract_startlabels_requires_first_frame(video_labels):
+    """Test start-label extraction validates the presence of frame 0."""
+    clip_labels = {
+        **video_labels,
+        "images": [{"id": 1}],
+        "annotations": [{"image_id": 1, "id": 1}],
+    }
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Clip labels must contain exactly one first-frame image with id 0"
+        ),
+    ):
+        _extract_startlabels_from_dict(clip_labels)
+
+
+@pytest.fixture
+def cliplabels_path(tmp_path, video_labels):
+    """A valid ``*_cliplabels.json`` file on disk."""
+    path = tmp_path / "sub-01_ses-01_cam-01_start-0_dur-10_cliplabels.json"
+    path.write_text(json.dumps(video_labels))
+    return path
+
+
+def test_extract_startlabels_writes_file(cliplabels_path):
+    """Test reading a cliplabels file and writing a startlabels file."""
+    output_path = extract_startlabels(cliplabels_path)
+
+    assert (
+        output_path.name
+        == "sub-01_ses-01_cam-01_start-0_dur-10_startlabels.json"
+    )
+    assert output_path.exists()
+    start_labels = json.loads(output_path.read_text())
+    assert start_labels["images"] == [{"id": 0}]
+    assert all(a["image_id"] == 0 for a in start_labels["annotations"])
+
+
+def test_extract_startlabels_custom_output_path(tmp_path, cliplabels_path):
+    """Test an explicit output_path is honoured."""
+    output_path = tmp_path / "custom_startlabels.json"
+    result = extract_startlabels(cliplabels_path, output_path=output_path)
+
+    assert result == output_path
+    assert output_path.exists()
+
+
+def test_extract_startlabels_missing_input(tmp_path):
+    """Test a missing input file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        extract_startlabels(tmp_path / "absent_cliplabels.json")
+
+
+def test_extract_startlabels_bad_input_suffix(tmp_path, video_labels):
+    """Test an input not ending in _cliplabels.json is rejected."""
+    path = tmp_path / "sub-01_ses-01_cam-01_framelabels.json"
+    path.write_text(json.dumps(video_labels))
+    with pytest.raises(ValueError, match="_cliplabels.json"):
+        extract_startlabels(path)
+
+
+def test_extract_startlabels_bad_output_suffix(tmp_path, cliplabels_path):
+    """Test an output not ending in _startlabels.json is rejected."""
+    with pytest.raises(ValueError, match="_startlabels.json"):
+        extract_startlabels(
+            cliplabels_path, output_path=tmp_path / "wrong.json"
+        )
+
+
+def test_extract_startlabels_s3(video_labels):
+    """Test S3 extraction downloads, extracts, and uploads to the right key."""
+    uri = "s3://my-bucket/Test/proj/Clips/sub-01_ses-01_cam-01_cliplabels.json"
+    with (
+        patch(
+            "poseinterface.clips.s3.download_json_from_s3",
+            return_value=video_labels,
+        ) as mock_download,
+        patch("poseinterface.clips.s3.upload_json_to_s3") as mock_upload,
+    ):
+        result = extract_startlabels_s3(uri)
+
+    mock_download.assert_called_once_with(
+        "my-bucket",
+        "Test/proj/Clips/sub-01_ses-01_cam-01_cliplabels.json",
+        None,
+    )
+    uploaded_data, bucket, key, _ = mock_upload.call_args.args
+    assert uploaded_data["images"] == [{"id": 0}]
+    assert bucket == "my-bucket"
+    assert key == "Test/proj/Clips/sub-01_ses-01_cam-01_startlabels.json"
+    assert result == (
+        "s3://my-bucket/Test/proj/Clips/sub-01_ses-01_cam-01_startlabels.json"
+    )
 
 
 # ---------------------------------------------------------------------------
