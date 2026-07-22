@@ -8,6 +8,8 @@ from pathlib import Path
 
 import sleap_io as sio
 
+from . import s3
+
 
 def _validate_clip_request(start_frame: int, duration: int) -> None:
     if start_frame < 0:
@@ -278,6 +280,171 @@ def _extract_cliplabels(
         json.dump(clip_labels, f)
 
     return clip_json
+
+
+def _suffix_error(name: str, suffix: str) -> str:
+    return f"File must end with '{suffix}', got {name}"
+
+
+def _extract_startlabels_from_dict(clip_labels: dict) -> dict:
+    start_images = [img for img in clip_labels["images"] if img["id"] == 0]
+    if len(start_images) != 1:
+        raise ValueError(
+            "Clip labels must contain exactly one first-frame image with id 0"
+        )
+
+    return {
+        "images": start_images,
+        "annotations": [
+            annot
+            for annot in clip_labels["annotations"]
+            if annot["image_id"] == 0
+        ],
+        "categories": clip_labels["categories"],
+    }
+
+
+def extract_startlabels(
+    cliplabels_path: str | Path, output_path: str | Path | None = None
+) -> Path:
+    """Extract only the first frame's labels from a cliplabels.json file.
+
+    Reads a ``*_cliplabels.json`` file and creates a corresponding
+    ``*_startlabels.json`` file containing only the labels for the first
+    frame (frame with id=0).
+
+    Parameters
+    ----------
+    cliplabels_path
+        Path to the input ``*_cliplabels.json`` file.
+    output_path
+        Path to the output ``*_startlabels.json`` file. If ``None``
+        (default), it is derived from ``cliplabels_path`` by replacing
+        ``_cliplabels.json`` with ``_startlabels.json``.
+
+    Returns
+    -------
+    Path
+        Path to the output ``*_startlabels.json`` file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the input file does not exist.
+    ValueError
+        If the input filename does not end with ``_cliplabels.json``,
+        ``output_path`` does not end with ``_startlabels.json``, or the
+        clip labels do not contain exactly one first-frame image (``id: 0``).
+    """
+    cliplabels_path = Path(cliplabels_path)
+
+    # Validate input file exists
+    if not cliplabels_path.exists():
+        raise FileNotFoundError(f"Input file not found: {cliplabels_path}")
+
+    # Validate input filename
+    if not cliplabels_path.name.endswith("_cliplabels.json"):
+        raise ValueError(
+            _suffix_error(cliplabels_path.name, "_cliplabels.json")
+        )
+
+    # Read the cliplabels file
+    with open(cliplabels_path) as f:
+        clip_labels = json.load(f)
+
+    start_labels = _extract_startlabels_from_dict(clip_labels)
+
+    # Generate output path by replacing _cliplabels.json with _startlabels.json
+    if output_path is None:
+        output_path = cliplabels_path.parent / cliplabels_path.name.replace(
+            "_cliplabels.json", "_startlabels.json"
+        )
+    else:
+        output_path = Path(output_path)
+        if not output_path.name.endswith("_startlabels.json"):
+            raise ValueError(
+                _suffix_error(output_path.name, "_startlabels.json")
+            )
+
+    # Save the start labels
+    with open(output_path, "w") as f:
+        json.dump(start_labels, f)
+
+    logging.info(
+        f"Extracted start frame labels from {cliplabels_path.name} "
+        f"to {output_path.name}"
+    )
+
+    return output_path
+
+
+def extract_startlabels_s3(
+    s3_cliplabels_uri: str,
+    output_uri: str | None = None,
+    aws_profile: str | None = None,
+) -> str:
+    """Extract first frame's labels from a cliplabels.json file on S3.
+
+    Reads a ``*_cliplabels.json`` file from S3 and creates a corresponding
+    ``*_startlabels.json`` file on S3 containing only the labels for the first
+    frame (frame with id=0).
+
+    Parameters
+    ----------
+    s3_cliplabels_uri
+        S3 URI of the input ``*_cliplabels.json`` file in the format
+        ``s3://bucket-name/path/to/file_cliplabels.json``.
+    output_uri
+        Optional S3 URI for the output file. If ``None`` (default), it is
+        derived from the ``s3_cliplabels_uri`` by replacing
+        ``_cliplabels.json`` with ``_startlabels.json``.
+    aws_profile
+        Optional AWS profile name to use for authentication. If None, uses
+        the default AWS credentials chain.
+
+    Returns
+    -------
+    str
+        S3 URI of the output ``*_startlabels.json`` file.
+
+    Raises
+    ------
+    ValueError
+        If the S3 URI format is invalid, the input filename does not end
+        with ``_cliplabels.json``, ``output_uri`` does not end with
+        ``_startlabels.json``, or the clip labels do not contain exactly
+        one first-frame image (``id: 0``).
+    FileNotFoundError
+        If the input file does not exist on S3.
+    ClientError
+        If there are other S3 access issues (e.g. permissions).
+    """
+    # Parse S3 URI and validate filename
+    bucket_name, key = s3.parse_s3_uri(s3_cliplabels_uri)
+    if not key.endswith("_cliplabels.json"):
+        raise ValueError(_suffix_error(key, "_cliplabels.json"))
+
+    # Download cliplabels from S3
+    clip_labels = s3.download_json_from_s3(bucket_name, key, aws_profile)
+
+    # Extract start labels using local function
+    start_labels = _extract_startlabels_from_dict(clip_labels)
+
+    # Generate output key/URI if not provided
+    if output_uri is None:
+        output_key = key.replace("_cliplabels.json", "_startlabels.json")
+        output_uri = f"s3://{bucket_name}/{output_key}"
+    else:
+        _, output_key = s3.parse_s3_uri(output_uri)
+        if not output_key.endswith("_startlabels.json"):
+            raise ValueError(_suffix_error(output_key, "_startlabels.json"))
+
+    # Upload start labels to S3
+    s3.upload_json_to_s3(start_labels, bucket_name, output_key, aws_profile)
+
+    logging.info(f"Extracted start frame labels from {key} to {output_key}")
+
+    return output_uri
 
 
 def main(args: argparse.Namespace) -> None:
