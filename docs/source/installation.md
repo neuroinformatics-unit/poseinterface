@@ -16,13 +16,13 @@ source .venv/bin/activate  # On macOS and Linux
 
 ## Install the package
 
-With your environment activated, install `poseinterface` from PyPI:
+With your environment activated, install the latest release of `poseinterface` from PyPI:
 
 ```sh
 uv pip install poseinterface
 ```
 
-Or directly from the `main` branch on GitHub:
+Or, to get the latest development version from the `main` branch on GitHub:
 
 ```sh
 uv pip install git+https://github.com/neuroinformatics-unit/poseinterface.git@main
@@ -43,5 +43,6 @@ uv pip install -U poseinterface
 :class: tip
 
 If you would like to contribute to `poseinterface`, see the
-[contributing guide](target-contributing) for developer setup instructions.
+[contributing guide](target-contributing) for developer setup instructions
+and coding guidelines.
 :::
