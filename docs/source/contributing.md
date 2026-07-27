@@ -121,6 +121,7 @@ A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set
 * Linting checks (pre-commit).
 * Testing (only if linting checks pass)
 * Release to PyPI (only if a git tag is present and if tests pass).
+  Release tags must follow the `vX.Y.Z` format, e.g. `v0.1.0`.
 
 Another workflow (`.github/workflows/docs_build_and_deploy.yml`) is set up to build and deploy the documentation to GitHub pages on each push to `main` and on releases (i.e. when a git tag is present).
 
