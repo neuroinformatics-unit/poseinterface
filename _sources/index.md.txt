@@ -16,6 +16,13 @@ tools for running and comparing pose estimation and tracking methods.
 Learn about the project's mission, team and how to contribute.
 :::
 
+:::{grid-item-card} {fas}`download;sd-text-primary` Installation
+:link: installation
+:link-type: doc
+
+How to install the `poseinterface` package.
+:::
+
 :::{grid-item-card} {fas}`database;sd-text-primary` Benchmark dataset
 :link: benchmark-dataset
 :link-type: doc
@@ -30,12 +37,6 @@ Folder structure and file naming conventions for benchmark datasets.
 A gallery of examples using `poseinterface`.
 :::
 
-:::{grid-item-card} {fas}`book;sd-text-primary` API reference
-:link: api_index
-:link-type: doc
-
-Public functions and classes in `poseinterface`.
-:::
 ::::
 
 ![](_static/poseinterface_overview.png)
@@ -46,6 +47,7 @@ Public functions and classes in `poseinterface`.
 :hidden:
 
 about
+installation
 benchmark-dataset
 auto_examples/index
 api_index
