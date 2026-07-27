@@ -541,7 +541,8 @@ This will usually include linting, testing and deployment.</p>
 <ul class="simple">
 <li><p>Linting checks (pre-commit).</p></li>
 <li><p>Testing (only if linting checks pass)</p></li>
-<li><p>Release to PyPI (only if a git tag is present and if tests pass).</p></li>
+<li><p>Release to PyPI (only if a git tag is present and if tests pass).
+Release tags must follow the <code class="docutils literal notranslate"><span class="pre">vX.Y.Z</span></code> format, e.g. <code class="docutils literal notranslate"><span class="pre">v0.1.0</span></code>.</p></li>
 </ul>
 <p>Another workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>) is set up to build and deploy the documentation to GitHub pages on each push to <code class="docutils literal notranslate"><span class="pre">main</span></code> and on releases (i.e. when a git tag is present).</p>
 </section>
