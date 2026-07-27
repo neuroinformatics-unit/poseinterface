@@ -9,7 +9,7 @@ The instructions below use [uv](https://docs.astral.sh/uv/), but feel free to us
 In your working directory, create and activate a new environment:
 
 ```sh
-uv venv --python=3.13
+uv venv --python=">=3.12"
 source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
 ```
