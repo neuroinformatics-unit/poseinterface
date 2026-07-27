@@ -55,7 +55,14 @@ jobs:
     name: Publish build distributions
     needs: [build_sdist_wheels]
     runs-on: ubuntu-latest
+    environment: # use Trusted Publisher route
+      name: pypi
+      url: https://pypi.org/p/poseinterface
+    permissions:
+      id-token: write
     steps:
-    - uses: neuroinformatics-unit/actions/upload_pypi@v2
+    - uses: actions/download-artifact@v8
       with:
-        secret-pypi-key: ${{ secrets.TWINE_API_KEY }}
+        name: artifact
+        path: dist
+    - uses: pypa/gh-action-pypi-publish@release/v1
