@@ -300,7 +300,8 @@ def delete_s3_objects(
                     "; ".join(error_messages),
                 )
                 raise RuntimeError(
-                    f"Failed to delete {len(failed_keys)} objects: {failed_keys}"
+                    f"Failed to delete {len(failed_keys)} objects: "
+                    f"{failed_keys}"
                 )
         except ClientError as e:
             logging.error(
@@ -321,7 +322,8 @@ def copy_s3_folder(
 ) -> tuple[list[str], bool]:
     """Copy a folder from one S3 location to another with optional filtering.
 
-    This function tracks all copied files and supports rollback if the copy fails.
+    This function tracks all copied files and supports rollback if the
+    copy fails.
 
     Parameters
     ----------
@@ -342,9 +344,9 @@ def copy_s3_folder(
     Returns
     -------
     tuple[list[str], bool]
-        Tuple of (copied_keys, success). copied_keys contains all destination keys
-        that were successfully copied. success is always True when the function
-        returns normally (failures raise exceptions).
+        Tuple of (copied_keys, success). copied_keys contains all
+        destination keys that were successfully copied. success is always
+        True when the function returns normally (failures raise exceptions).
 
     Raises
     ------
@@ -412,7 +414,8 @@ def copy_s3_folder(
         # Rollback: delete all partially copied objects
         if copied_keys:
             logging.warning(
-                f"Rolling back: deleting {len(copied_keys)} partially copied objects"
+                f"Rolling back: deleting {len(copied_keys)} partially "
+                f"copied objects"
             )
             try:
                 delete_s3_objects(dest_bucket, copied_keys, aws_profile)
@@ -441,13 +444,15 @@ def create_filename_exclude_filter(
     patterns
         List of patterns to exclude. Can be:
         - Exact paths/filenames (e.g., "temp.txt", "Test/sample.json")
-        - Glob-style patterns (e.g., "*.log", "temp_*", "Test/*", "*/sample.json")
+        - Glob-style patterns (e.g., "*.log", "temp_*", "Test/*",
+          "*/sample.json")
         - Regex patterns (must start with "regex:")
 
     Returns
     -------
     Callable[[str], bool]
-        Function that takes a relative path and returns True if it should be excluded.
+        Function that takes a relative path and returns True if it
+        should be excluded.
 
     Examples
     --------

@@ -12,20 +12,23 @@ Copy entire folder:
     python copy_s3_folder.py s3://source-bucket/data/ s3://dest-bucket/backup/
 
 Copy with file pattern exclusions:
-    python copy_s3_folder.py s3://source-bucket/data/ s3://dest-bucket/backup/ \\
-        --exclude "*.log" --exclude "temp_*" --exclude "debug.txt"
+    python copy_s3_folder.py s3://source-bucket/data/ \\
+        s3://dest-bucket/backup/ --exclude "*.log" --exclude "temp_*" \\
+        --exclude "debug.txt"
 
 Copy excluding specific subdirectories:
-    python copy_s3_folder.py s3://source-bucket/data/ s3://dest-bucket/backup/ \\
-        --exclude "Test/*" --exclude "*/temp/*"
+    python copy_s3_folder.py s3://source-bucket/data/ \\
+        s3://dest-bucket/backup/ --exclude "Test/*" \\
+        --exclude "*/temp/*"
 
 Copy excluding specific files in specific directories:
-    python copy_s3_folder.py s3://source-bucket/data/ s3://dest-bucket/backup/ \\
-        --exclude "Test/sample.json" --exclude "Debug/*.log"
+    python copy_s3_folder.py s3://source-bucket/data/ \\
+        s3://dest-bucket/backup/ --exclude "Test/sample.json" \\
+        --exclude "Debug/*.log"
 
 Use specific AWS profile:
-    python copy_s3_folder.py s3://source-bucket/data/ s3://dest-bucket/backup/ \\
-        --profile my-profile
+    python copy_s3_folder.py s3://source-bucket/data/ \\
+        s3://dest-bucket/backup/ --profile my-profile
 """
 
 import argparse
@@ -77,8 +80,9 @@ def parse_args() -> argparse.Namespace:
         default=[],
         metavar="PATTERN",
         help=(
-            "Path or filename pattern to exclude (can be specified multiple times). "
-            "Supports glob patterns (*.log, Test/*, */sample.json) and regex (regex:^test.*)"
+            "Path or filename pattern to exclude (can be specified "
+            "multiple times). Supports glob patterns (*.log, Test/*, "
+            "*/sample.json) and regex (regex:^test.*)"
         ),
     )
 

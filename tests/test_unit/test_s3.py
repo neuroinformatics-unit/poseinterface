@@ -281,7 +281,7 @@ def test_copy_s3_folder_with_filter():
 
     with (
         patch("poseinterface.s3.list_s3_objects", return_value=mock_objects),
-        patch("poseinterface.s3.copy_s3_object") as mock_copy,
+        patch("poseinterface.s3.copy_s3_object"),
     ):
         copied_keys, success = copy_s3_folder(
             "source-bucket",
@@ -310,7 +310,7 @@ def test_copy_s3_folder_with_path_filter():
 
     with (
         patch("poseinterface.s3.list_s3_objects", return_value=mock_objects),
-        patch("poseinterface.s3.copy_s3_object") as mock_copy,
+        patch("poseinterface.s3.copy_s3_object"),
     ):
         copied_keys, success = copy_s3_folder(
             "source-bucket",

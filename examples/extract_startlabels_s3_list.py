@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Script to extract startlabels from multiple cliplabels files listed in a text file.
+"""Script to extract startlabels from multiple cliplabels files.
 
-This script reads a text file containing S3 URIs to *_cliplabels.json files
-(one per line) and processes each one to create corresponding *_startlabels.json
-files.
+This script reads a text file containing S3 URIs to *_cliplabels.json
+files (one per line) and processes each one to create corresponding
+*_startlabels.json files.
 
 Examples
 --------
@@ -11,7 +11,8 @@ Process all files in a list:
     python extract_startlabels_s3_list.py cliplabels_list.txt
 
 With AWS profile:
-    python extract_startlabels_s3_list.py cliplabels_list.txt --profile my-profile
+    python extract_startlabels_s3_list.py cliplabels_list.txt \\
+        --profile my-profile
 
 With verbose logging:
     python extract_startlabels_s3_list.py cliplabels_list.txt -v
