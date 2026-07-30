@@ -273,11 +273,13 @@ def delete_s3_objects(
     # Delete in batches of 1000 (S3 limit)
     batch_size = 1000
     for i in range(0, len(keys), batch_size):
-        batch = keys[i:i + batch_size]
+        batch = keys[i : i + batch_size]
         objects_to_delete = [{"Key": key} for key in batch]
 
         try:
-            logging.info(f"Deleting {len(batch)} objects from s3://{bucket_name}")
+            logging.info(
+                f"Deleting {len(batch)} objects from s3://{bucket_name}"
+            )
             response = s3_client.delete_objects(
                 Bucket=bucket_name,
                 Delete={"Objects": objects_to_delete},
@@ -368,7 +370,7 @@ def copy_s3_folder(
             continue
 
         # Get the relative path for filtering
-        relative_path = source_key[len(source_prefix):]
+        relative_path = source_key[len(source_prefix) :]
 
         # Apply filter if provided
         if exclude_filter and exclude_filter(relative_path):
@@ -389,7 +391,7 @@ def copy_s3_folder(
     try:
         for source_key in objects_to_copy:
             # Compute destination key by replacing prefix
-            relative_path = source_key[len(source_prefix):]
+            relative_path = source_key[len(source_prefix) :]
             dest_key = dest_prefix + relative_path
 
             copy_s3_object(
@@ -426,7 +428,9 @@ def copy_s3_folder(
     return copied_keys, success
 
 
-def create_filename_exclude_filter(patterns: list[str]) -> Callable[[str], bool]:
+def create_filename_exclude_filter(
+    patterns: list[str],
+) -> Callable[[str], bool]:
     """Create a filter function that excludes files matching given patterns.
 
     Supports both exact matches and regex patterns. Works with both filenames
@@ -447,7 +451,9 @@ def create_filename_exclude_filter(patterns: list[str]) -> Callable[[str], bool]
 
     Examples
     --------
-    >>> filter_fn = create_filename_exclude_filter(["*.log", "temp_*", "Test/*"])
+    >>> filter_fn = create_filename_exclude_filter(
+    ...     ["*.log", "temp_*", "Test/*"]
+    ... )
     >>> filter_fn("test.log")  # True - excluded
     >>> filter_fn("temp_data.json")  # True - excluded
     >>> filter_fn("Test/sample.json")  # True - excluded (in Test directory)

@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -205,9 +205,7 @@ def test_delete_s3_objects_partial_failure():
 
         keys = ["file1.txt", "file2.txt", "file3.txt"]
 
-        with pytest.raises(
-            RuntimeError, match="Failed to delete 2 objects"
-        ):
+        with pytest.raises(RuntimeError, match="Failed to delete 2 objects"):
             delete_s3_objects("test-bucket", keys)
 
 
@@ -417,7 +415,9 @@ def test_copy_s3_folder_skips_folder_markers():
 
 def test_create_filename_exclude_filter_glob_patterns():
     """Test filter with glob patterns."""
-    filter_fn = create_filename_exclude_filter(["*.log", "temp_*", "debug.txt"])
+    filter_fn = create_filename_exclude_filter(
+        ["*.log", "temp_*", "debug.txt"]
+    )
 
     # Should be excluded
     assert filter_fn("test.log") is True
@@ -468,7 +468,9 @@ def test_create_filename_exclude_filter_wildcard_in_path():
 
 def test_create_filename_exclude_filter_regex():
     """Test filter with regex patterns."""
-    filter_fn = create_filename_exclude_filter([r"regex:^test_.*\.py$", "regex:\\d+"])
+    filter_fn = create_filename_exclude_filter(
+        [r"regex:^test_.*\.py$", "regex:\\d+"]
+    )
 
     # Should be excluded
     assert filter_fn("test_file.py") is True

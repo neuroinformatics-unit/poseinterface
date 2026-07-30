@@ -157,7 +157,7 @@ def main() -> int:
 
         if success:
             logging.info("=" * 60)
-            logging.info(f"✓ Copy completed successfully!")
+            logging.info("✓ Copy completed successfully!")
             logging.info(f"  Total files copied: {len(copied_keys)}")
             logging.info("=" * 60)
             return 0
