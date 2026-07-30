@@ -1,4 +1,13 @@
-"""S3 utilities for poseinterface."""
+"""S3 utilities for poseinterface.
+
+Note
+----
+All functions in this module create a new boto3 Session and S3 client on
+each invocation. For operations that call these functions repeatedly (e.g.,
+copying many files), this may result in multiple client creations. This is
+acceptable for most use cases but may be inefficient for high-frequency
+operations.
+"""
 
 import json
 import logging
@@ -182,6 +191,11 @@ def copy_s3_object(
 ) -> None:
     """Copy a single object from one S3 location to another.
 
+    Note
+    ----
+    This function uses the S3 copy_object API which has a 5GB file size
+    limit. For objects larger than 5GB, use multipart copy instead.
+
     Parameters
     ----------
     source_bucket
@@ -247,6 +261,8 @@ def delete_s3_objects(
     ------
     ClientError
         If there are S3 access issues.
+    RuntimeError
+        If some objects fail to delete (partial failure).
     """
     if not keys:
         return
@@ -262,10 +278,28 @@ def delete_s3_objects(
 
         try:
             logging.info(f"Deleting {len(batch)} objects from s3://{bucket_name}")
-            s3_client.delete_objects(
+            response = s3_client.delete_objects(
                 Bucket=bucket_name,
                 Delete={"Objects": objects_to_delete},
             )
+
+            # Check for partial failures
+            if "Errors" in response and response["Errors"]:
+                failed_keys = [error["Key"] for error in response["Errors"]]
+                error_messages = [
+                    f"{error['Key']}: {error['Code']} - {error['Message']}"
+                    for error in response["Errors"]
+                ]
+                logging.error(
+                    "Failed to delete %d/%d objects from s3://%s: %s",
+                    len(failed_keys),
+                    len(batch),
+                    bucket_name,
+                    "; ".join(error_messages),
+                )
+                raise RuntimeError(
+                    f"Failed to delete {len(failed_keys)} objects: {failed_keys}"
+                )
         except ClientError as e:
             logging.error(
                 "Failed to delete objects from s3://%s: %s",
@@ -307,7 +341,8 @@ def copy_s3_folder(
     -------
     tuple[list[str], bool]
         Tuple of (copied_keys, success). copied_keys contains all destination keys
-        that were successfully copied. success is True if all files were copied.
+        that were successfully copied. success is always True when the function
+        returns normally (failures raise exceptions).
 
     Raises
     ------

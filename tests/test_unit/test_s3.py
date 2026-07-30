@@ -179,6 +179,38 @@ def test_delete_s3_objects_batching():
     assert len(second_call_objects) == 500
 
 
+def test_delete_s3_objects_partial_failure():
+    """Test that partial deletion failures raise RuntimeError."""
+    mock_s3_client = MagicMock()
+
+    # Simulate partial failure response
+    mock_s3_client.delete_objects.return_value = {
+        "Deleted": [{"Key": "file1.txt"}],
+        "Errors": [
+            {
+                "Key": "file2.txt",
+                "Code": "AccessDenied",
+                "Message": "Access Denied",
+            },
+            {
+                "Key": "file3.txt",
+                "Code": "NoSuchKey",
+                "Message": "The specified key does not exist.",
+            },
+        ],
+    }
+
+    with patch("poseinterface.s3.boto3.Session") as mock_session:
+        mock_session.return_value.client.return_value = mock_s3_client
+
+        keys = ["file1.txt", "file2.txt", "file3.txt"]
+
+        with pytest.raises(
+            RuntimeError, match="Failed to delete 2 objects"
+        ):
+            delete_s3_objects("test-bucket", keys)
+
+
 # ---------------------------------------------------------------------------
 # copy_s3_folder
 # ---------------------------------------------------------------------------
