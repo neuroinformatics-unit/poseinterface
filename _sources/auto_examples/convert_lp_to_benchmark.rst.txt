@@ -129,7 +129,7 @@ containing videos of mouse paw movements analysed using
 
     2 directories, 1 files
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-srt38k3k
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-7uxqmuaa
 
 
 
@@ -431,7 +431,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-srt38k3k/
+    poseinterface-benchmark-7uxqmuaa/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -574,7 +574,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-srt38k3k/
+    poseinterface-benchmark-7uxqmuaa/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -713,7 +713,7 @@ end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-srt38k3k
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-7uxqmuaa
 
 
 
@@ -721,7 +721,7 @@ end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.403 seconds)
+   **Total running time of the script:** (0 minutes 4.540 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_lp_to_benchmark.py:
