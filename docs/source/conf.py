@@ -175,6 +175,7 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     r"https://docutils\.sourceforge\.io/.*",       # returns 403
+    r"https://stackoverflow\.com/.*",       # returns 403
     r"https://www\.contributor-covenant\.org/.*",  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
