@@ -2,8 +2,36 @@
 
 # Contributing
 
-`poseinterface` follows the same contribution workflow as `movement`.
-See the [corresponding section of the movement contributing guide](https://movement.neuroinformatics.dev/latest/community/contributing.html#contribution-workflow).
+`poseinterface` follows the "fork and pull request" workflow for external contributions.
+
+When you create your own copy (or “fork”) of a project, it’s like making a new workspace that shares code with the original project. Once you’ve made your changes in your copy, you can request these changes to be added to the main (original) project, in the form of a pull request.
+
+You can read more about the fork and pull request workflow in this [step-by-step guide](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github) by DigitalOcean.
+
+## Forking the repository
+
+1. Fork the repository on GitHub.
+   You can read more about [forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+
+2. Clone your fork to your local machine and navigate to the repository folder:
+
+    ```sh
+    git clone [https://github.com/](https://github.com/)<your-github-username>/poseinterface.git
+    cd poseinterface
+    ```
+
+3. Set the upstream remote to the base `poseinterface` repository:
+   This links your local copy to the original project so you can pull the latest changes.
+
+    ```sh
+    git remote add upstream [https://github.com/neuroinformatics-unit/poseinterface.git](https://github.com/neuroinformatics-unit/poseinterface.git)
+    ```
+
+    :::{note}
+    Your repository now has two remotes: `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
+    :::
+
+After successfully setting up a fork, you can make changes and push them to a branch in your fork. Once you are happy with those changes, you can create a pull request to the main repository (see Github's guide to [creating a pull request from a fork](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork) for more details).
 
 ## Development Environment
 
