@@ -2,8 +2,32 @@
 
 # Contributing
 
-`poseinterface` follows the same contribution workflow as `movement`.
-See the [corresponding section of the movement contributing guide](https://movement.neuroinformatics.dev/latest/community/contributing.html#contribution-workflow).
+`poseinterface` follows the "fork and pull request" workflow for external contributions.
+
+When you create your own copy (or "fork") of a project, it’s like making a new workspace that shares code with the original project. Once you’ve made your changes in your copy, you can request these changes to be added to the main (original) project, in the form of a pull request.
+
+## Forking the repository
+
+1. [Fork](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo) the [repository](https://github.com/neuroinformatics-unit/poseinterface/) on GitHub.
+
+2. Clone your fork to your local machine and navigate to the repository folder:
+
+    ```sh
+    git clone https://github.com/<your-github-username>/poseinterface.git
+    cd poseinterface
+    ```
+
+3. Set the upstream remote to the main `poseinterface` repository so you can pull the latest changes from it:
+
+    ```sh
+    git remote add upstream https://github.com/neuroinformatics-unit/poseinterface.git
+    ```
+
+    :::{note}
+    Your repository now has two remotes: `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
+    :::
+
+After successfully setting up a fork, you can make changes and push them to a [branch](https://docs.github.com/en/pull-requests/reference/branches) in your fork. Once you are happy with those changes, you can [create a pull request](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork) to the main repository.
 
 ## Development Environment
 

@@ -452,8 +452,30 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="contributing">
 <span id="target-contributing"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> follows the same contribution workflow as <code class="docutils literal notranslate"><span class="pre">movement</span></code>.
-See the <a class="reference external" href="https://movement.neuroinformatics.dev/latest/community/contributing.html#contribution-workflow">corresponding section of the movement contributing guide</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> follows the “fork and pull request” workflow for external contributions.</p>
+<p>When you create your own copy (or “fork”) of a project, it’s like making a new workspace that shares code with the original project. Once you’ve made your changes in your copy, you can request these changes to be added to the main (original) project, in the form of a pull request.</p>
+<section id="forking-the-repository">
+<h2>Forking the repository<a class="headerlink" href="#forking-the-repository" title="Link to this heading">#</a></h2>
+<ol class="arabic">
+<li><p><a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo">Fork</a> the <a class="reference external" href="https://github.com/neuroinformatics-unit/poseinterface/">repository</a> on GitHub.</p></li>
+<li><p>Clone your fork to your local machine and navigate to the repository folder:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;your-github-username&gt;/poseinterface.git
+<span class="nb">cd</span><span class="w"> </span>poseinterface
+</pre></div>
+</div>
+</li>
+<li><p>Set the upstream remote to the main <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> repository so you can pull the latest changes from it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/neuroinformatics-unit/poseinterface.git
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Your repository now has two remotes: <code class="docutils literal notranslate"><span class="pre">origin</span></code> (your fork, where you push changes) and <code class="docutils literal notranslate"><span class="pre">upstream</span></code> (the main repository, where you pull updates from)</p>
+</div>
+</li>
+</ol>
+<p>After successfully setting up a fork, you can make changes and push them to a <a class="reference external" href="https://docs.github.com/en/pull-requests/reference/branches">branch</a> in your fork. Once you are happy with those changes, you can <a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork">create a pull request</a> to the main repository.</p>
+</section>
 <section id="development-environment">
 <h2>Development Environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
 <p>We use <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> for dependency management. To set up a development environment:</p>
@@ -640,6 +662,7 @@ pattern of the existing <code class="docutils literal notranslate"><span class="
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forking-the-repository">Forking the repository</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment">Development Environment</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a><ul class="nav section-nav flex-column">
