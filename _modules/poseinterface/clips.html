@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=6aee1ebc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -421,7 +421,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for poseinterface.clips</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Functions to extract clips from ``poseinterface`` videos.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Functions to extract clips from ``poseinterface`` videos."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -437,10 +437,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_clip_request</span><span class="p">(</span><span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;start_frame must be non-negative, got </span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"start_frame must be non-negative, got </span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duration must be positive, got </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"duration must be positive, got </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="extract_single_clip">
@@ -450,7 +450,7 @@
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a video clip (and its clip labels if available).</span>
+<span class="w">    </span><span class="sd">"""Extract a video clip (and its clip labels if available).</span>
 
 <span class="sd">    Reads the source video and saves a ``.mp4`` clip to a ``Clips/``</span>
 <span class="sd">    subdirectory next to the source video. If a sibling</span>
@@ -494,57 +494,57 @@
 <span class="sd">    the same schema as ``cliplabels.json`` but it refers to the full video,</span>
 <span class="sd">    rather than to a clip of it. The ``*_videolabels.json`` file is not part</span>
 <span class="sd">    of the published benchmark dataset. For further details, see the</span>
-<span class="sd">    &quot;Intermediate file: `videolabels.json`&quot; section of the benchmark</span>
+<span class="sd">    "Intermediate file: `videolabels.json`" section of the benchmark</span>
 <span class="sd">    dataset specification.</span>
 
 <span class="sd">    This function assumes that the ``id`` field in the ``images`` list of the</span>
 <span class="sd">    source ``*_videolabels.json`` corresponds to 0-based global frame indices</span>
 <span class="sd">    of the full video.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_validate_clip_request</span><span class="p">(</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
-    <span class="c1"># Create &quot;Clips&quot; directory if it doesn&#39;t exist</span>
+    <span class="c1"># Create "Clips" directory if it doesn't exist</span>
     <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
-    <span class="n">clips_dir</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;Clips&quot;</span>
+    <span class="n">clips_dir</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"Clips"</span>
     <span class="n">clips_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Read video as array</span>
     <span class="n">video</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_video</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;filename: </span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, fps: </span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">fps</span><span class="si">}</span><span class="s2">, shape: </span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"filename: </span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, fps: </span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">fps</span><span class="si">}</span><span class="s2">, shape: </span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="c1"># Clamp duration if it exceeds the video length</span>
     <span class="k">if</span> <span class="n">start_frame</span> <span class="o">+</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="n">video</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
         <span class="n">duration</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_frame</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Clip exceeds video length. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Clamping duration to </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames.&quot;</span>
+            <span class="s2">"Clip exceeds video length. "</span>
+            <span class="sa">f</span><span class="s2">"Clamping duration to </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames."</span>
         <span class="p">)</span>
 
     <span class="c1"># Slice clip and save as mp4</span>
     <span class="n">clip</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="n">start_frame</span> <span class="p">:</span> <span class="n">start_frame</span> <span class="o">+</span> <span class="n">duration</span><span class="p">]</span>
     <span class="n">clip_path</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">clips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_start-</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">_dur-</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">.mp4&quot;</span>
+        <span class="n">clips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_start-</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">_dur-</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">.mp4"</span>
     <span class="p">)</span>
     <span class="n">sio</span><span class="o">.</span><span class="n">save_video</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">clip_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">video</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
 
     <span class="c1"># Generate cliplabels.json only if a companion videolabels.json file exists</span>
-    <span class="n">video_json</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_videolabels.json&quot;</span>
+    <span class="n">video_json</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_videolabels.json"</span>
     <span class="k">if</span> <span class="n">video_json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">clip_json</span> <span class="o">=</span> <span class="n">_extract_cliplabels</span><span class="p">(</span>
             <span class="n">video_path</span><span class="p">,</span> <span class="n">clips_dir</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">,</span> <span class="n">duration</span>
         <span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Extracted clip </span><span class="si">{</span><span class="n">clip_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with labels </span><span class="si">{</span><span class="n">clip_json</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames from start_frame=</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="sa">f</span><span class="s2">"Extracted clip </span><span class="si">{</span><span class="n">clip_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with labels </span><span class="si">{</span><span class="n">clip_json</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames from start_frame=</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">)."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">clip_json</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Extracted clip </span><span class="si">{</span><span class="n">clip_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames from start_frame=</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">). &quot;</span>
-            <span class="s2">&quot;No companion *_videolabels.json found; skipping label extraction.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Extracted clip </span><span class="si">{</span><span class="n">clip_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> frames from start_frame=</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">). "</span>
+            <span class="s2">"No companion *_videolabels.json found; skipping label extraction."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">clip_path</span><span class="p">,</span> <span class="n">clip_json</span></div>
@@ -558,7 +558,7 @@
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">start_frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract multiple clips from a video.</span>
+<span class="w">    </span><span class="sd">"""Extract multiple clips from a video.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -576,7 +576,7 @@
 <span class="sd">        One ``(clip_path, clip_json)`` tuple per extracted clip, in the</span>
 <span class="sd">        same order as ``start_frames``. ``clip_json`` is ``None`` when no</span>
 <span class="sd">        sibling ``*_videolabels.json`` file exists.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># duration and start_frame validated in</span>
     <span class="c1"># each call to extract_single_clip()</span>
     <span class="k">return</span> <span class="p">[</span>
@@ -592,7 +592,7 @@
     <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">num_clips</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract clips with uniformly spaced starting frames from a video.</span>
+<span class="w">    </span><span class="sd">"""Extract clips with uniformly spaced starting frames from a video.</span>
 
 <span class="sd">    Clips are guaranteed to be fully within the video, but clips</span>
 <span class="sd">    may overlap when ``duration &gt; (total_n_frames - duration) / num_clips``.</span>
@@ -612,7 +612,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    list[tuple[Path, Path | None]]</span>
 <span class="sd">        See :func:`extract_clips`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">load_video</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">start_frames</span> <span class="o">=</span> <span class="n">_uniform_start_frames</span><span class="p">(</span><span class="n">num_clips</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">extract_clips</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_frames</span><span class="p">)</span></div>
@@ -622,7 +622,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_uniform_start_frames</span><span class="p">(</span>
     <span class="n">num_clips</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute uniformly spaced clip start frames.</span>
+<span class="w">    </span><span class="sd">"""Compute uniformly spaced clip start frames.</span>
 
 <span class="sd">    Starts frames are spread evenly over [0, n_frames - duration]</span>
 <span class="sd">    so every clip of length `duration` fits within the video.</span>
@@ -646,12 +646,12 @@
 <span class="sd">    ValueError</span>
 <span class="sd">        If ``num_clips`` is not positive or ``duration`` exceeds</span>
 <span class="sd">        ``n_frames``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">num_clips</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;num_clips must be positive, got </span><span class="si">{</span><span class="n">num_clips</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"num_clips must be positive, got </span><span class="si">{</span><span class="n">num_clips</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="n">n_frames</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;duration (</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">) exceeds video length (</span><span class="si">{</span><span class="n">n_frames</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"duration (</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">) exceeds video length (</span><span class="si">{</span><span class="n">n_frames</span><span class="si">}</span><span class="s2">)"</span>
         <span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_frames</span> <span class="o">-</span> <span class="n">duration</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_clips</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clips</span><span class="p">)]</span>
@@ -660,9 +660,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_cliplabels</span><span class="p">(</span>
     <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">clips_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract clip labels from the sibling *_videolabels.json file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract clip labels from the sibling *_videolabels.json file."""</span>
     <span class="c1"># Read file with labels for the whole video</span>
-    <span class="n">video_json</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_videolabels.json&quot;</span>
+    <span class="n">video_json</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_videolabels.json"</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">video_json</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">video_labels</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
@@ -673,66 +673,66 @@
     <span class="c1"># 0-based within the clip. file_name is left untouched to retain in it</span>
     <span class="c1"># the global (video-based) frame index</span>
     <span class="n">clip_labels</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"images"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="o">**</span><span class="n">img</span><span class="p">,</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_frame</span><span class="p">,</span>  <span class="c1"># overwrite id</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="n">img</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_frame</span><span class="p">,</span>  <span class="c1"># overwrite id</span>
         <span class="p">}</span>
-        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">end_frame</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">"images"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">img</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">end_frame</span>
     <span class="p">]</span>
 
     <span class="c1"># Keep only annotations within the clip, remapping image_id to the local</span>
     <span class="c1"># (clip-based) frame index, and renumbering annotation ids to be 1-based</span>
     <span class="c1"># within the clip.</span>
-    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"annotations"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="o">**</span><span class="n">annot</span><span class="p">,</span>
-            <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_frame</span><span class="p">,</span>  <span class="c1"># overwrite image_id</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">new_id</span><span class="p">,</span>
+            <span class="s2">"image_id"</span><span class="p">:</span> <span class="n">annot</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_frame</span><span class="p">,</span>  <span class="c1"># overwrite image_id</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="n">new_id</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">new_id</span><span class="p">,</span> <span class="n">annot</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">ant</span>
-                <span class="k">for</span> <span class="n">ant</span> <span class="ow">in</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">ant</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">end_frame</span>
+                <span class="k">for</span> <span class="n">ant</span> <span class="ow">in</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">"annotations"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">ant</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">end_frame</span>
             <span class="p">),</span>  <span class="c1"># generator lazily yields only annotations within the clip</span>
             <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># annotation ids are 1-based within clip</span>
         <span class="p">)</span>
     <span class="p">]</span>
     <span class="c1"># pass categories unchanged</span>
-    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span>
+    <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">]</span> <span class="o">=</span> <span class="n">video_labels</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">]</span>
 
     <span class="c1"># Save json with filtered data to clips directory</span>
     <span class="n">clip_json</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">clips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;start-</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">_dur-</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">_cliplabels.json&quot;</span>
+        <span class="n">clips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_"</span>
+        <span class="sa">f</span><span class="s2">"start-</span><span class="si">{</span><span class="n">start_frame</span><span class="si">}</span><span class="s2">_dur-</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2">_cliplabels.json"</span>
     <span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">clip_json</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">clip_json</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">clip_json</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_suffix_error</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;File must end with &#39;</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&#39;, got </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"File must end with '</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">', got </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_startlabels_from_dict</span><span class="p">(</span><span class="n">clip_labels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-    <span class="n">start_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">img</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">img</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">start_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">img</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"images"</span><span class="p">]</span> <span class="k">if</span> <span class="n">img</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_images</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Clip labels must contain exactly one first-frame image with id 0&quot;</span>
+            <span class="s2">"Clip labels must contain exactly one first-frame image with id 0"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">start_images</span><span class="p">,</span>
-        <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"images"</span><span class="p">:</span> <span class="n">start_images</span><span class="p">,</span>
+        <span class="s2">"annotations"</span><span class="p">:</span> <span class="p">[</span>
             <span class="n">annot</span>
-            <span class="k">for</span> <span class="n">annot</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">annot</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">annot</span> <span class="ow">in</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"annotations"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">annot</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="p">],</span>
-        <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">],</span>
+        <span class="s2">"categories"</span><span class="p">:</span> <span class="n">clip_labels</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">],</span>
     <span class="p">}</span>
 
 
@@ -741,7 +741,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_startlabels</span><span class="p">(</span>
     <span class="n">cliplabels_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract only the first frame&#39;s labels from a cliplabels.json file.</span>
+<span class="w">    </span><span class="sd">"""Extract only the first frame's labels from a cliplabels.json file.</span>
 
 <span class="sd">    Reads a ``*_cliplabels.json`` file and creates a corresponding</span>
 <span class="sd">    ``*_startlabels.json`` file containing only the labels for the first</span>
@@ -769,17 +769,17 @@
 <span class="sd">        If the input filename does not end with ``_cliplabels.json``,</span>
 <span class="sd">        ``output_path`` does not end with ``_startlabels.json``, or the</span>
 <span class="sd">        clip labels do not contain exactly one first-frame image (``id: 0``).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cliplabels_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="p">)</span>
 
     <span class="c1"># Validate input file exists</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input file not found: </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Input file not found: </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Validate input filename</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_cliplabels.json"</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="n">_suffix_error</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">)</span>
+            <span class="n">_suffix_error</span><span class="p">(</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"_cliplabels.json"</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="c1"># Read the cliplabels file</span>
@@ -791,22 +791,22 @@
     <span class="c1"># Generate output path by replacing _cliplabels.json with _startlabels.json</span>
     <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span>
+            <span class="s2">"_cliplabels.json"</span><span class="p">,</span> <span class="s2">"_startlabels.json"</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_startlabels.json&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_startlabels.json"</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">)</span>
+                <span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"_startlabels.json"</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="c1"># Save the start labels</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">start_labels</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Extracted start frame labels from </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;to </span><span class="si">{</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Extracted start frame labels from </span><span class="si">{</span><span class="n">cliplabels_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"to </span><span class="si">{</span><span class="n">output_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output_path</span></div>
@@ -820,7 +820,7 @@
     <span class="n">output_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">aws_profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract first frame&#39;s labels from a cliplabels.json file on S3.</span>
+<span class="w">    </span><span class="sd">"""Extract first frame's labels from a cliplabels.json file on S3.</span>
 
 <span class="sd">    Reads a ``*_cliplabels.json`` file from S3 and creates a corresponding</span>
 <span class="sd">    ``*_startlabels.json`` file on S3 containing only the labels for the first</span>
@@ -855,11 +855,11 @@
 <span class="sd">        If the input file does not exist on S3.</span>
 <span class="sd">    ClientError</span>
 <span class="sd">        If there are other S3 access issues (e.g. permissions).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Parse S3 URI and validate filename</span>
     <span class="n">bucket_name</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">parse_s3_uri</span><span class="p">(</span><span class="n">s3_cliplabels_uri</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_cliplabels.json"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">"_cliplabels.json"</span><span class="p">))</span>
 
     <span class="c1"># Download cliplabels from S3</span>
     <span class="n">clip_labels</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">download_json_from_s3</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">aws_profile</span><span class="p">)</span>
@@ -869,45 +869,45 @@
 
     <span class="c1"># Generate output key/URI if not provided</span>
     <span class="k">if</span> <span class="n">output_uri</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">output_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_cliplabels.json&quot;</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">)</span>
-        <span class="n">output_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">output_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_cliplabels.json"</span><span class="p">,</span> <span class="s2">"_startlabels.json"</span><span class="p">)</span>
+        <span class="n">output_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">output_key</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">parse_s3_uri</span><span class="p">(</span><span class="n">output_uri</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_startlabels.json&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_key</span><span class="p">,</span> <span class="s2">&quot;_startlabels.json&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_startlabels.json"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_suffix_error</span><span class="p">(</span><span class="n">output_key</span><span class="p">,</span> <span class="s2">"_startlabels.json"</span><span class="p">))</span>
 
     <span class="c1"># Upload start labels to S3</span>
     <span class="n">s3</span><span class="o">.</span><span class="n">upload_json_to_s3</span><span class="p">(</span><span class="n">start_labels</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">,</span> <span class="n">output_key</span><span class="p">,</span> <span class="n">aws_profile</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted start frame labels from </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracted start frame labels from </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output_uri</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run multi-clip extraction from parsed command-line arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run multi-clip extraction from parsed command-line arguments."""</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">"uniform"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">num_clips</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
-                    <span class="s2">&quot;error: --num_clips is required when --sampling uniform&quot;</span>
+                    <span class="s2">"error: --num_clips is required when --sampling uniform"</span>
                 <span class="p">)</span>
             <span class="n">extract_clips_uniform</span><span class="p">(</span>
                 <span class="n">args</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_clips</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">sampling</span> <span class="o">==</span> <span class="s2">"manual"</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">start_frames</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
-                    <span class="s2">&quot;error: --start_frames is required when --sampling manual&quot;</span>
+                    <span class="s2">"error: --start_frames is required when --sampling manual"</span>
                 <span class="p">)</span>
             <span class="n">extract_clips</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">start_frames</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command-line arguments for multi-clip extraction.</span>
+<span class="w">    </span><span class="sd">"""Parse command-line arguments for multi-clip extraction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -920,67 +920,67 @@
 <span class="sd">        Parsed arguments with attributes ``video_path`` (str),</span>
 <span class="sd">        ``duration`` (int), ``sampling`` (str), ``num_clips``</span>
 <span class="sd">        (int | None), and ``start_frames`` (list[int] | None).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Extract multiple clips from a video (and corresponding &quot;</span>
-            <span class="s2">&quot;clip labels if available).&quot;</span>
+            <span class="s2">"Extract multiple clips from a video (and corresponding "</span>
+            <span class="s2">"clip labels if available)."</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--video_path&quot;</span><span class="p">,</span>
+        <span class="s2">"--video_path"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to video file to clip. The filename should follow &quot;</span>
-        <span class="s2">&quot;the convention ``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4``, &quot;</span>
-        <span class="s2">&quot;and if a sibling labels file exists, its filename should be &quot;</span>
-        <span class="s2">&quot;``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json``.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to video file to clip. The filename should follow "</span>
+        <span class="s2">"the convention ``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4``, "</span>
+        <span class="s2">"and if a sibling labels file exists, its filename should be "</span>
+        <span class="s2">"``sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_videolabels.json``."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--duration&quot;</span><span class="p">,</span>
+        <span class="s2">"--duration"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of frames per clip.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Number of frames per clip."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--sampling&quot;</span><span class="p">,</span>
+        <span class="s2">"--sampling"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;uniform&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"uniform"</span><span class="p">,</span> <span class="s2">"manual"</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Clip selection strategy. &quot;</span>
-            <span class="s2">&quot;&#39;uniform&#39;: evenly space clips across the video &quot;</span>
-            <span class="s2">&quot;(requires --num_clips). &quot;</span>
-            <span class="s2">&quot;&#39;manual&#39;: use explicit start frames &quot;</span>
-            <span class="s2">&quot;(requires --start_frames).&quot;</span>
+            <span class="s2">"Clip selection strategy. "</span>
+            <span class="s2">"'uniform': evenly space clips across the video "</span>
+            <span class="s2">"(requires --num_clips). "</span>
+            <span class="s2">"'manual': use explicit start frames "</span>
+            <span class="s2">"(requires --start_frames)."</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--num_clips&quot;</span><span class="p">,</span>
+        <span class="s2">"--num_clips"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of clips to extract. Required when --sampling uniform.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Number of clips to extract. Required when --sampling uniform."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--start_frames&quot;</span><span class="p">,</span>
+        <span class="s2">"--start_frames"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Start frame indices (0-based, space-separated). &quot;</span>
-            <span class="s2">&quot;Required when --sampling manual.&quot;</span>
+            <span class="s2">"Start frame indices (0-based, space-separated). "</span>
+            <span class="s2">"Required when --sampling manual."</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point for the ``extract-clips`` console script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entry point for the ``extract-clips`` console script."""</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">wrapper</span><span class="p">()</span>
 </pre></div>
 
@@ -1011,8 +1011,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1046,7 +1046,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

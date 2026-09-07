@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=6aee1ebc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -421,7 +421,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for poseinterface.utils</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;General utility functions for ``poseinterface``.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""General utility functions for ``poseinterface``."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">islice</span>
@@ -438,7 +438,7 @@
     <span class="n">exclude_hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">length_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a visual tree structure of a directory as a string.</span>
+<span class="w">    </span><span class="sd">"""Return a visual tree structure of a directory as a string.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -464,26 +464,26 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    Based on https://stackoverflow.com/a/59109706 by Aaron Hall, modified</span>
-<span class="sd">    by community (see post &#39;Timeline&#39; for change history).</span>
+<span class="sd">    by community (see post 'Timeline' for change history).</span>
 <span class="sd">    Retrieved 2026-03-27. License: CC BY-SA 4.0.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
 <span class="sd">    &gt;&gt;&gt; from poseinterface.utils import tree</span>
-<span class="sd">    &gt;&gt;&gt; print(tree(Path(&quot;.&quot;)))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">space</span> <span class="o">=</span> <span class="s2">&quot;    &quot;</span>
-    <span class="n">branch</span> <span class="o">=</span> <span class="s2">&quot;│   &quot;</span>
-    <span class="n">tee</span> <span class="o">=</span> <span class="s2">&quot;├── &quot;</span>
-    <span class="n">last</span> <span class="o">=</span> <span class="s2">&quot;└── &quot;</span>
+<span class="sd">    &gt;&gt;&gt; print(tree(Path(".")))</span>
+<span class="sd">    """</span>
+    <span class="n">space</span> <span class="o">=</span> <span class="s2">"    "</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="s2">"│   "</span>
+    <span class="n">tee</span> <span class="o">=</span> <span class="s2">"├── "</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="s2">"└── "</span>
 
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
     <span class="n">files</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">directories</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_inner</span><span class="p">(</span>
-        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">nonlocal</span> <span class="n">files</span><span class="p">,</span> <span class="n">directories</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="p">:</span>
@@ -491,7 +491,7 @@
         <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">d</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dir_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">exclude_hidden</span> <span class="ow">and</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">exclude_hidden</span> <span class="ow">and</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">))</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">limit_to_directories</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">contents</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()]</span>
@@ -499,7 +499,7 @@
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
             <span class="n">pointer</span> <span class="o">=</span> <span class="n">last</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">last_index</span> <span class="k">else</span> <span class="n">tee</span>
             <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-                <span class="k">yield</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">pointer</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+                <span class="k">yield</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">pointer</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">"/"</span>
                 <span class="n">directories</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">extension</span> <span class="o">=</span> <span class="n">branch</span> <span class="k">if</span> <span class="n">pointer</span> <span class="o">==</span> <span class="n">tee</span> <span class="k">else</span> <span class="n">space</span>
                 <span class="k">yield from</span> <span class="n">_inner</span><span class="p">(</span>
@@ -509,17 +509,17 @@
                 <span class="k">yield</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">pointer</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
                 <span class="n">files</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">dir_path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">]</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">dir_path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">"/"</span><span class="p">]</span>
     <span class="n">iterator</span> <span class="o">=</span> <span class="n">_inner</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="n">length_limit</span><span class="p">):</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;... length_limit, </span><span class="si">{</span><span class="n">length_limit</span><span class="si">}</span><span class="s2">, reached, counted:&quot;</span><span class="p">)</span>
-    <span class="n">summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">directories</span><span class="si">}</span><span class="s2"> directories&quot;</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"... length_limit, </span><span class="si">{</span><span class="n">length_limit</span><span class="si">}</span><span class="s2">, reached, counted:"</span><span class="p">)</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">directories</span><span class="si">}</span><span class="s2"> directories"</span>
     <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
-        <span class="n">summary</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="s2"> files&quot;</span>
+        <span class="n">summary</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">", </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="s2"> files"</span>
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 </pre></div>
 
@@ -550,8 +550,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -585,7 +585,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>
