@@ -1,4 +1,5 @@
 Examples
 ========
 
-A gallery of examples demonstrating ``poseinterface`` usage.
+A gallery of examples demonstrating usage of the ``poseinterface`` package
+and the *PoseMark* benchmark corpus.
