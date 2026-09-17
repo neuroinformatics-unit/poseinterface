@@ -3,11 +3,12 @@
 `poseinterface` exists to advance pose estimation and point tracking
 applications in animal behaviour videos. The project aims to:
 
-- Build a [**benchmark dataset**](target-benchmark-dataset) with dozens of
-  videos and annotations from multiple institutes,
+- Build a benchmark corpus—named [PoseMark](target-posemark)—with
+  dozens of videos and annotations from multiple institutes,
   open to external contributions.
-- Develop a general-purpose **Python framework** for running pose estimation
-  and point tracking tools on benchmark data, and for comparing their outputs
+- Develop a general-purpose **Python framework**—in the form of the
+  `poseinterface` Python package, for running pose estimation
+  and point tracking tools on *PoseMark*, and for comparing their outputs
   via evaluation metrics.
-- Provide **baseline models** trained using common pose estimation and tracking
-  frameworks on the benchmark datasets.
+- Provide **baseline models** trained on *PoseMark*, using common pose
+  estimation and tracking frameworks.

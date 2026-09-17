@@ -30,7 +30,7 @@ The following capabilities are guiding the project's direction:
   [TAPIR](https://deepmind-tapir.github.io/)
   and
   [CoTracker](https://co-tracker.github.io/).
-- **Grow a shared, community-contributed benchmark corpus.**
+- **Grow [PoseMark](target-posemark), a shared, community-contributed benchmark corpus.**
   Labs should be able to submit labeled and unlabeled data with minimal
   friction, expanding the pool of data available for training and evaluating
   pose estimation and point tracking models.
@@ -55,12 +55,12 @@ The following capabilities are guiding the project's direction:
   standardized schema, sharing code with the Lightning Pose converter where
   possible.
 - Define or adapt a shared keypoint ontology for mouse body parts, and map
-  keypoint labels across contributed benchmark datasets onto it.
-- Host tutorials on dataset conversion and submission to the benchmark corpus.
+  keypoint labels across datasets contributed to *PoseMark* onto it.
+- Host tutorials on dataset conversion and submission to *PoseMark*.
 - Define and document a stable programmatic interface for **training**
   Lightning Pose models via `poseinterface`.
-- Train a Lightning Pose model across multiple mapped datasets from the
-  benchmark corpus, as a proof of concept for cross-dataset training.
+- Train a Lightning Pose model across multiple mapped datasets from
+  *PoseMark*, as a proof of concept for cross-dataset training.
 - Define and document a stable, agent-callable programmatic interface for
   running **inference** with additional point trackers on raw video via
   `poseinterface` (for instance TAPIR).
@@ -71,17 +71,17 @@ We defined these high-level goals at the end of 2025.
 Items completed have been checked off.
 
 - [x] Establish the core `poseinterface` framework: standardized folder
-      structures, file formats, and naming conventions for benchmark datasets.
+      structures, file formats, and naming conventions for *PoseMark*.
 - [x] Release the package on [PyPI](https://pypi.org/project/poseinterface/).
 - [x] Launch a public
-      [documentation website](https://poseinterface.neuroinformatics.dev/).
+      [documentation website](target-poseinterface).
 - [x] Publish contributing guidelines and a Code of Conduct.
 - [x] Draft an initial
-      [benchmark dataset specification](https://poseinterface.neuroinformatics.dev/benchmark-dataset.html),
+      [PoseMark specification](target-posemark),
       including early design decisions such as reliance on COCO-style JSON.
 - [ ] Build a converter from Lightning Pose project exports into the
       standardized schema, plus submission utilities for contributing datasets
-      to the benchmark corpus.
+      to *PoseMark*.
 - [ ] Define standardized evaluation metrics for pose estimators and
       point trackers.
 - [ ] Define and document a stable, agent-callable programmatic interface for
