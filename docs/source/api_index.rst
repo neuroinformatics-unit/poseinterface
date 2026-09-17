@@ -10,11 +10,11 @@ io
     :toctree: api_generated
     :template: function.rst
 
-    annotations_to_poseinterface
-    frames_to_poseinterface
-    predictions_to_poseinterface
+    annotations_to_posemark
+    frames_to_posemark
+    predictions_to_posemark
     split_lp_collected_data
-    video_to_poseinterface
+    video_to_posemark
 
 
 clips

@@ -17,10 +17,10 @@ from pathlib import Path
 import poseinterface
 from poseinterface.clips import extract_single_clip
 from poseinterface.io import (
-    annotations_to_poseinterface,
-    frames_to_poseinterface,
-    predictions_to_poseinterface,
-    video_to_poseinterface,
+    annotations_to_posemark,
+    frames_to_posemark,
+    predictions_to_posemark,
+    video_to_posemark,
 )
 from poseinterface.utils import tree
 
@@ -157,7 +157,7 @@ for session in sessions:
 
     print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
     # Copy the session video, re-encoding to H.264/yuv420p if necessary
-    video_to_poseinterface(
+    video_to_posemark(
         input_video=source_video_path,
         output_video_dir=target_session_dir,
         **ids,
@@ -178,13 +178,13 @@ for session in sessions:
             " Skipping annotations-to-poseinterface conversion."
         )
     else:
-        framelabels_path = annotations_to_poseinterface(
+        framelabels_path = annotations_to_posemark(
             input_path=source_annotations_path,
             output_dir=target_frames_dir,
             format="frame",
             **ids,
         )
-        frames_to_poseinterface(
+        frames_to_posemark(
             input_dir=source_frames_dir,
             output_dir=target_frames_dir,
             framelabels_path=framelabels_path,
@@ -208,7 +208,7 @@ for session in sessions:
             "poseinterface conversion."
         )
     else:
-        predictions_to_poseinterface(
+        predictions_to_posemark(
             input_path=source_predictions_path,
             video_path=source_video_path,
             output_dir=target_session_dir,
