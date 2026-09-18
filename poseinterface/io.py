@@ -1,4 +1,4 @@
-"""Functions to convert annotations and videos to ``poseinterface`` format."""
+"""Functions to convert annotations and videos to *PoseMark* format."""
 
 import copy
 import json
@@ -18,7 +18,7 @@ from sleap_io.io import coco
 from sleap_io.io.cli import _get_video_encoding_info, _is_ffmpeg_available
 from sleap_io.io.dlc import is_dlc_file
 
-PoseInterfaceFormat: TypeAlias = Literal["clip", "frame"]
+PoseMarkFormat: TypeAlias = Literal["clip", "frame"]
 
 _EMPTY_LABELS_ERROR_MSG = {
     "default": (
@@ -33,7 +33,7 @@ _EMPTY_LABELS_ERROR_MSG = {
         "and that the frames files exist."
     ),
 }
-POSEINTERFACE_FRAME_REGEXP = r"frame-(\d+)"
+POSEMARK_FRAME_REGEXP = r"frame-(\d+)"
 DLC_FRAME_REGEXP = r"(\d+)"
 
 # We support sleap's MediaVideo files
@@ -50,23 +50,23 @@ REENCODING_PARAMS = {
 }
 
 
-def annotations_to_poseinterface(
+def annotations_to_posemark(
     input_path: Path,
     output_dir: Path,
     *,
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    format: PoseInterfaceFormat = "frame",
+    format: PoseMarkFormat = "frame",
 ) -> Path:
-    """Export annotations file from a single video to ``poseinterface`` format.
+    """Export annotations file from a single video to *PoseMark* format.
 
     Parameters
     ----------
     input_path
         Path to the input annotations file.
     output_dir
-        Directory where the output ``poseinterface`` COCO JSON file
+        Directory where the output *PoseMark* COCO JSON file
         will be saved.
     sub_id
         Subject ID to include in the generated filenames.
@@ -81,7 +81,7 @@ def annotations_to_poseinterface(
     Returns
     -------
     pathlib.Path
-        Path to the saved ``poseinterface`` COCO JSON file.
+        Path to the saved *PoseMark* COCO JSON file.
 
     Raises
     ------
@@ -106,8 +106,8 @@ def annotations_to_poseinterface(
     Example
     -------
     >>> from pathlib import Path
-    >>> from poseinterface.io import annotations_to_poseinterface
-    >>> coco_json_path = annotations_to_poseinterface(
+    >>> from poseinterface.io import annotations_to_posemark
+    >>> coco_json_path = annotations_to_posemark(
     ...     input_path=Path("path/to/annotations.slp"),
     ...     output_dir=Path("path/to/output_directory"),
     ...     sub_id="testSub123",
@@ -131,8 +131,8 @@ def annotations_to_poseinterface(
             "for a single video only."
         )
 
-    # Generate image filenames in the poseinterface format
-    image_filenames = _generate_poseinterface_filenames(
+    # Generate image filenames in the PoseMark format
+    image_filenames = _generate_posemark_filenames(
         labels,
         sub_id=sub_id,
         ses_id=ses_id,
@@ -166,9 +166,9 @@ def _build_output_json_path(
     sub_id: str,
     ses_id: str,
     cam_id: str,
-    format: PoseInterfaceFormat,
+    format: PoseMarkFormat,
 ) -> Path:
-    """Build output JSON path using poseinterface naming conventions."""
+    """Build output JSON path using PoseMark naming conventions."""
     output_dir.mkdir(parents=True, exist_ok=True)
     prefix = f"sub-{sub_id}_ses-{ses_id}_cam-{cam_id}"
 
@@ -193,7 +193,7 @@ def _build_output_json_path(
 
 
 def _update_image_ids(
-    coco_data: dict, format: PoseInterfaceFormat = "frame"
+    coco_data: dict, format: PoseMarkFormat = "frame"
 ) -> dict:
     """Assign new image IDs based on the format.
 
@@ -238,7 +238,7 @@ def _update_image_ids(
 
 
 def _extract_frame_number(
-    filename: str, frame_regexp: str = POSEINTERFACE_FRAME_REGEXP
+    filename: str, frame_regexp: str = POSEMARK_FRAME_REGEXP
 ) -> int:
     """Extract the frame number in the input filename.
 
@@ -255,7 +255,7 @@ def _extract_frame_number(
     return int(match.group(1))
 
 
-def _generate_poseinterface_filenames(
+def _generate_posemark_filenames(
     labels: sio.Labels,
     *,
     sub_id: str,
@@ -263,7 +263,7 @@ def _generate_poseinterface_filenames(
     cam_id: str,
     include_file_extension: bool = False,
 ) -> list[str]:
-    """Generate PoseInterface image filenames for frames in the input labels.
+    """Generate PoseMark image filenames for frames in the input labels.
 
     The generated filenames are in the format:
     {sub_id}_{ses_id}_{cam_id}_frame-{0-padded_frame_number}
@@ -338,7 +338,7 @@ def _pad_integers_to_same_width(input: list[int]) -> list[str]:
     return padded_numbers
 
 
-def video_to_poseinterface(
+def video_to_posemark(
     input_video: Path | str,
     output_video_dir: Path | str,
     *,
@@ -346,7 +346,7 @@ def video_to_poseinterface(
     ses_id: str,
     cam_id: str,
 ) -> Path:
-    """Reencode and rename a video to ``poseinterface`` format.
+    """Reencode and rename a video to *PoseMark* format.
 
     Copies the input video to ``output_video_dir`` with the filename
     ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>.mp4``.  If the video is
@@ -468,7 +468,7 @@ def _reencode_video(
     return reencoded_video_path
 
 
-def frames_to_poseinterface(
+def frames_to_posemark(
     input_dir: Path,
     output_dir: Path,
     framelabels_path: Path,
@@ -531,7 +531,7 @@ def frames_to_poseinterface(
         )
 
 
-def predictions_to_poseinterface(
+def predictions_to_posemark(
     input_path: Path | str,
     video_path: Path | str,
     output_dir: Path | str,
@@ -540,10 +540,10 @@ def predictions_to_poseinterface(
     ses_id: str,
     cam_id: str,
 ) -> Path:
-    """Convert a prediction file to ``poseinterface`` COCO JSON format.
+    """Convert a prediction file to *PoseMark* COCO JSON format.
 
     This function reads predictions for a given video and writes the
-    corresponding "video-level" COCO JSON labels in the ``poseinterface``
+    corresponding "video-level" COCO JSON labels in the *PoseMark*
     format, (i.e. a
     ``sub-<sub_id>_ses-<ses_id>_cam-<cam_id>_videolabels.json`` file).
 
@@ -740,7 +740,7 @@ def split_lp_collected_data(
     as a DLC-style ``CollectedData_<scorer>.csv`` with a three-level row
     MultiIndex ``(top_dir, session, image)``.  The resulting per-session
     files can be passed directly to
-    :func:`poseinterface.io.annotations_to_poseinterface`.
+    :func:`poseinterface.io.annotations_to_posemark`.
 
     Parameters
     ----------

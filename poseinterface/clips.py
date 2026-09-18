@@ -1,4 +1,4 @@
-"""Functions to extract clips from ``poseinterface`` videos."""
+"""Functions to extract clips from PoseMark videos."""
 
 import argparse
 import json
@@ -68,9 +68,9 @@ def extract_single_clip(
     file is an intermediate cache useful for data contributors: it follows
     the same schema as ``cliplabels.json`` but it refers to the full video,
     rather than to a clip of it. The ``*_videolabels.json`` file is not part
-    of the published benchmark dataset. For further details, see the
-    "Intermediate file: `videolabels.json`" section of the benchmark
-    dataset specification.
+    of the published *PoseMark* corpus. For further details, see the
+    :ref:`Intermediate file: videolabels.json <target-videolabels>` section
+    of the PoseMark specification.
 
     This function assumes that the ``id`` field in the ``images`` list of the
     source ``*_videolabels.json`` corresponds to 0-based global frame indices

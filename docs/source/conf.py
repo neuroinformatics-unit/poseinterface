@@ -104,7 +104,7 @@ html_title = "poseinterface"
 
 # Remove the primary (left) sidebar for specific pages
 html_sidebars = {
-    "benchmark-dataset": [],
+    "posemark": [],
 }
 
 # Customize the theme

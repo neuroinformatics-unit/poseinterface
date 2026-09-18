@@ -12,24 +12,24 @@ from pytest_lazy_fixtures import lf
 
 from poseinterface.io import (
     _EMPTY_LABELS_ERROR_MSG,
-    POSEINTERFACE_FRAME_REGEXP,
+    POSEMARK_FRAME_REGEXP,
     REENCODING_PARAMS,
     _build_output_json_path,
     _check_ffmpeg,
     _convert_movement_ds_to_videolabels,
     _extract_frame_number,
-    _generate_poseinterface_filenames,
+    _generate_posemark_filenames,
     _get_codec_pixelformat,
     _needs_reencoding,
     _pad_integers_to_same_width,
     _parse_lp_image_path,
     _reencode_video,
     _update_image_ids,
-    annotations_to_poseinterface,
-    frames_to_poseinterface,
-    predictions_to_poseinterface,
+    annotations_to_posemark,
+    frames_to_posemark,
+    predictions_to_posemark,
     split_lp_collected_data,
-    video_to_poseinterface,
+    video_to_posemark,
 )
 
 
@@ -109,7 +109,7 @@ def sample_movement_ds():
         ),
     ],
 )
-def test_annotations_to_poseinterface(
+def test_annotations_to_posemark(
     mock_load_file,
     mock_convert_labels,
     format,
@@ -136,7 +136,7 @@ def test_annotations_to_poseinterface(
 
     input_csv = tmp_path / "input.csv"
     output_path = tmp_path / output_filename
-    result = annotations_to_poseinterface(
+    result = annotations_to_posemark(
         input_csv,
         tmp_path,
         format=format,
@@ -175,7 +175,7 @@ def test_annotations_to_poseinterface(
         (lf("dlc_multi_index_in_project_root"), "dlc", True),
     ],
 )
-def test_annotations_to_poseinterface_invalid(
+def test_annotations_to_posemark_invalid(
     mock_load_file,
     mock_is_dlc_file,
     input_file,
@@ -195,7 +195,7 @@ def test_annotations_to_poseinterface_invalid(
     with pytest.raises(
         ValueError, match=_EMPTY_LABELS_ERROR_MSG[error_message]
     ):
-        annotations_to_poseinterface(
+        annotations_to_posemark(
             input_file,
             tmp_path,
             **sub_ses_cam_ids,
@@ -206,7 +206,7 @@ def test_annotations_to_poseinterface_invalid(
 
 
 @patch("poseinterface.io.sio.load_file")
-def test_annotations_to_poseinterface_not_single_video(
+def test_annotations_to_posemark_not_single_video(
     mock_load_file,
     tmp_path,
     sub_ses_cam_ids,
@@ -223,7 +223,7 @@ def test_annotations_to_poseinterface_not_single_video(
         ValueError,
         match=(r"The annotations refer to multiple videos.*Please check .*"),
     ):
-        annotations_to_poseinterface(
+        annotations_to_posemark(
             tmp_path / "input.csv",
             tmp_path,
             **sub_ses_cam_ids,
@@ -371,12 +371,12 @@ def test_update_image_ids_duplicate_frame_numbers():
         ("img0234.png", r"img(0\d*)", 234),
         (
             "sub-M708149_ses-20200317_view-topdown_frame-00000.png",
-            POSEINTERFACE_FRAME_REGEXP,
+            POSEMARK_FRAME_REGEXP,
             0,
         ),
-        ("frame-234", POSEINTERFACE_FRAME_REGEXP, 234),
-        ("frame-0234", POSEINTERFACE_FRAME_REGEXP, 234),
-        ("frame-0234abcd", POSEINTERFACE_FRAME_REGEXP, 234),
+        ("frame-234", POSEMARK_FRAME_REGEXP, 234),
+        ("frame-0234", POSEMARK_FRAME_REGEXP, 234),
+        ("frame-0234abcd", POSEMARK_FRAME_REGEXP, 234),
     ],
 )
 def test_extract_frame_number(filename, frame_regexp, expected_image_id):
@@ -421,10 +421,10 @@ def test_extract_frame_number_invalid(filename, frame_regexp):
         ),
     ],
 )
-def test_generate_poseinterface_filenames(
+def test_generate_posemark_filenames(
     input_file, include_file_extension, expected_json, sub_ses_cam_ids
 ):
-    generated_filenames = _generate_poseinterface_filenames(
+    generated_filenames = _generate_posemark_filenames(
         sio.load_file(input_file),
         **sub_ses_cam_ids,
         include_file_extension=include_file_extension,
@@ -444,7 +444,7 @@ def test_pad_integers_to_same_width():
     assert _pad_integers_to_same_width(input) == expected
 
 
-# ---------- Frames to poseinterface ----------------
+# ---------- Frames to PoseMark ----------------
 
 
 @pytest.fixture
@@ -482,13 +482,11 @@ def frames_target_dir(tmp_path):
     return tgt
 
 
-def test_frames_to_poseinterface_copies_and_renames(
+def test_frames_to_posemark_copies_and_renames(
     frames_source_dir, frames_target_dir, frames_coco_json
 ):
     """Test that frames are copied with standardised names."""
-    frames_to_poseinterface(
-        frames_source_dir, frames_target_dir, frames_coco_json
-    )
+    frames_to_posemark(frames_source_dir, frames_target_dir, frames_coco_json)
 
     expected_names = {
         "sub-A_ses-1_cam-top_frame-0100.png",
@@ -499,21 +497,19 @@ def test_frames_to_poseinterface_copies_and_renames(
     assert actual_names == expected_names
 
 
-def test_frames_to_poseinterface_skips_existing(
+def test_frames_to_posemark_skips_existing(
     frames_source_dir, frames_target_dir, frames_coco_json
 ):
     """Test that existing target files are not overwritten."""
     existing = frames_target_dir / "sub-A_ses-1_cam-top_frame-0100.png"
     existing.write_bytes(b"do not overwrite")
 
-    frames_to_poseinterface(
-        frames_source_dir, frames_target_dir, frames_coco_json
-    )
+    frames_to_posemark(frames_source_dir, frames_target_dir, frames_coco_json)
 
     assert existing.read_bytes() == b"do not overwrite"
 
 
-def test_frames_to_poseinterface_raises_for_missing_source(
+def test_frames_to_posemark_raises_for_missing_source(
     frames_target_dir, frames_coco_json, tmp_path
 ):
     """Test FileNotFoundError when source frame is missing."""
@@ -521,10 +517,10 @@ def test_frames_to_poseinterface_raises_for_missing_source(
     empty_src.mkdir()
 
     with pytest.raises(FileNotFoundError, match="No image files found"):
-        frames_to_poseinterface(empty_src, frames_target_dir, frames_coco_json)
+        frames_to_posemark(empty_src, frames_target_dir, frames_coco_json)
 
 
-def test_frames_to_poseinterface_warns_for_partial_match(
+def test_frames_to_posemark_warns_for_partial_match(
     frames_source_dir, frames_target_dir, frames_coco_json
 ):
     """Test that a warning is emitted when some frames are missing."""
@@ -532,7 +528,7 @@ def test_frames_to_poseinterface_warns_for_partial_match(
     (frames_source_dir / "img0200.png").unlink()
 
     with pytest.warns(UserWarning, match="1 frame.*not found.*skipped"):
-        frames_to_poseinterface(
+        frames_to_posemark(
             frames_source_dir, frames_target_dir, frames_coco_json
         )
 
@@ -544,7 +540,7 @@ def test_frames_to_poseinterface_warns_for_partial_match(
     }
 
 
-# ---------- Video to poseinterface ----------------
+# ---------- Video to PoseMark ----------------
 
 
 @pytest.mark.parametrize(
@@ -555,7 +551,7 @@ def test_frames_to_poseinterface_warns_for_partial_match(
 @patch("poseinterface.io.shutil.copy")
 @patch("poseinterface.io._needs_reencoding")
 @patch("poseinterface.io._check_ffmpeg")
-def test_video_to_poseinterface(
+def test_video_to_posemark(
     mock_check_ffmpeg,
     mock_needs_reencoding,
     mock_copy,
@@ -571,7 +567,7 @@ def test_video_to_poseinterface(
 
     mock_needs_reencoding.return_value = video_needs_reencoding
 
-    output_video_path = video_to_poseinterface(
+    output_video_path = video_to_posemark(
         input_video, output_dir, **sub_ses_cam_ids
     )
 
@@ -697,13 +693,13 @@ def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
     )
 
 
-# ---------- predictions to poseinterface ----------------
+# ---------- predictions to PoseMark ----------------
 
 
 @patch("poseinterface.io._convert_movement_ds_to_videolabels")
 @patch("poseinterface.io.sio.load_video")
 @patch("poseinterface.io.load_dataset")
-def test_predictions_to_poseinterface(
+def test_predictions_to_posemark(
     mock_load_dataset,
     mock_load_video,
     mock_convert,
@@ -738,7 +734,7 @@ def test_predictions_to_poseinterface(
     _, expected_h, expected_w, _ = mock_video.shape
 
     # Convert predictions
-    result = predictions_to_poseinterface(
+    result = predictions_to_posemark(
         input_path="fake.csv",
         video_path=fake_video,
         output_dir=tmp_path / "nested" / "out",
@@ -770,7 +766,7 @@ def test_predictions_to_poseinterface(
 
 
 @patch("poseinterface.io.load_dataset")
-def test_predictions_to_poseinterface_video_file_missing(
+def test_predictions_to_posemark_video_file_missing(
     mock_load_dataset,
     sample_movement_ds,
     sub_ses_cam_ids,
@@ -782,7 +778,7 @@ def test_predictions_to_poseinterface_video_file_missing(
     with pytest.raises(
         FileNotFoundError, match="Input video file does not exist"
     ):
-        predictions_to_poseinterface(
+        predictions_to_posemark(
             input_path="fake.csv",
             video_path=tmp_path / "does_not_exist.mp4",
             output_dir=tmp_path,
@@ -792,7 +788,7 @@ def test_predictions_to_poseinterface_video_file_missing(
 
 @patch("poseinterface.io.sio.load_video")
 @patch("poseinterface.io.load_dataset")
-def test_predictions_to_poseinterface_video_shape_none(
+def test_predictions_to_posemark_video_shape_none(
     mock_load_dataset,
     mock_load_video,
     sample_movement_ds,
@@ -808,7 +804,7 @@ def test_predictions_to_poseinterface_video_shape_none(
     mock_load_video.return_value = MagicMock(shape=None)
 
     with pytest.raises(ValueError, match="Could not extract video shape"):
-        predictions_to_poseinterface(
+        predictions_to_posemark(
             input_path="fake.csv",
             video_path=fake_video,
             output_dir=tmp_path,

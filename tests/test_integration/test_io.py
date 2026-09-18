@@ -1,7 +1,7 @@
 import pytest
 from pytest_lazy_fixtures import lf
 
-from poseinterface.io import annotations_to_poseinterface
+from poseinterface.io import annotations_to_posemark
 
 EXPECTED_FILENAME_BY_FORMAT = {
     "frame": "sub-testSub123_ses-testSes123_cam-testCam123_framelabels.json",
@@ -22,7 +22,7 @@ EXPECTED_FILENAME_BY_FORMAT = {
     ],
 )
 @pytest.mark.parametrize("format", ["frame", "clip"])
-def test_annotations_to_poseinterface(
+def test_annotations_to_posemark(
     input_path,
     expected_start_frame,
     format,
@@ -36,7 +36,7 @@ def test_annotations_to_poseinterface(
     )
 
     output_json_path = tmp_path / expected_filename
-    result = annotations_to_poseinterface(
+    result = annotations_to_posemark(
         input_path,
         tmp_path,
         format=format,
