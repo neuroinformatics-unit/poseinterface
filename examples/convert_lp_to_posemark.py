@@ -183,11 +183,11 @@ for session in sessions:
     print(f"\tvideo: {source_video_path.name} -> {sub_ses_cam_prefix}.mp4")
 
     # Convert LP annotations to COCO frame labels JSON, then copy the
-    # corresponding frame images with standardised poseinterface filenames.
+    # corresponding frame images with standardised PoseMark filenames.
     if lp_session_name is None:
         print(
             f"\tNo matching LP session found for {video_stem!r}."
-            " Skipping annotations-to-poseinterface conversion."
+            " Skipping annotations-to-PoseMark conversion."
         )
     else:
         # The split CSV lives in the temp dir alongside copied frames so
@@ -224,7 +224,7 @@ for session in sessions:
         print(
             f"\tNo prediction CSV found for {video_stem!r} in "
             f"{source_project_dir / 'videos'}. Skipping predictions-to-"
-            "poseinterface conversion."
+            "PoseMark conversion."
         )
     else:
         predictions_to_posemark(

@@ -165,7 +165,7 @@ for session in sessions:
     print(f"\tvideo: {source_video_path.name} -> {sub_ses_cam_prefix}.mp4")
 
     # Convert DLC annotations to COCO frame labels JSON, then copy the
-    # corresponding frame images with standardised poseinterface filenames.
+    # corresponding frame images with standardised PoseMark filenames.
     # In real projects there may be multiple annotation CSVs (e.g. for
     # different labelers); adjust the glob pattern to select the right one.
     source_annotations_path = next(
@@ -175,7 +175,7 @@ for session in sessions:
     if source_annotations_path is None:
         print(
             f"\tNo CollectedData CSV found in {source_frames_dir}."
-            " Skipping annotations-to-poseinterface conversion."
+            " Skipping annotations-to-PoseMark conversion."
         )
     else:
         framelabels_path = annotations_to_posemark(
@@ -205,7 +205,7 @@ for session in sessions:
         print(
             f"\tNo prediction CSV found for {source_video_path.stem!r} in "
             f"{source_project_dir / 'videos'}. Skipping predictions-to-"
-            "poseinterface conversion."
+            "PoseMark conversion."
         )
     else:
         predictions_to_posemark(

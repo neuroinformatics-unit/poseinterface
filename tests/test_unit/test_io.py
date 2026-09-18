@@ -444,7 +444,7 @@ def test_pad_integers_to_same_width():
     assert _pad_integers_to_same_width(input) == expected
 
 
-# ---------- Frames to poseinterface ----------------
+# ---------- Frames to PoseMark ----------------
 
 
 @pytest.fixture
@@ -540,7 +540,7 @@ def test_frames_to_posemark_warns_for_partial_match(
     }
 
 
-# ---------- Video to poseinterface ----------------
+# ---------- Video to PoseMark ----------------
 
 
 @pytest.mark.parametrize(
@@ -693,7 +693,7 @@ def test_reencode_video(mock_load_video, mock_save_video, tmp_path):
     )
 
 
-# ---------- predictions to poseinterface ----------------
+# ---------- predictions to PoseMark ----------------
 
 
 @patch("poseinterface.io._convert_movement_ds_to_videolabels")
