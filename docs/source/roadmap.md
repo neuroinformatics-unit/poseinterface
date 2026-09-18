@@ -14,7 +14,7 @@ We will take community feedback into account when planning future releases.
 
 The following capabilities are guiding the project's direction:
 
-- **Standardize the representation of keypoint datasets.**
+- **standardise the representation of keypoint datasets.**
   Labeled frames, labeled video clips, unlabeled video, and experimental
   metadata should all be representable, queryable, and validatable in a single,
   consistent, machine-readable schema, regardless of which tool produced them.
@@ -23,7 +23,7 @@ The following capabilities are guiding the project's direction:
   [Lightning Pose](https://lightning-pose.readthedocs.io/),
   [DeepLabCut](https://www.mackenziemathislab.org/deeplabcut),
   [SLEAP](https://sleap.ai/),
-  and others into the standardized schema without loss of label fidelity or the
+  and others into the standardised schema without loss of label fidelity or the
   need for re-annotation.
   Labeled video clips will also allow interoperability with point tracking
   models like
@@ -36,7 +36,7 @@ The following capabilities are guiding the project's direction:
   pose estimation and point tracking models.
 - **Expose agent-callable, AI-native interfaces.**
   Automated pipelines and AI agents should be able to run inference and train
-  models on standardized data directly, without a human in the loop.
+  models on standardised data directly, without a human in the loop.
 - **Define shared keypoint ontologies.** A common vocabulary for body parts
   across labs' differing naming conventions should make it possible to combine
   data from multiple independent datasets into a single training set, starting
@@ -52,7 +52,7 @@ The following capabilities are guiding the project's direction:
 - Validate the schema against a range of real-world experimental paradigms
   (e.g., head-fixed vs. freely moving, multiple species).
 - Build converters from DeepLabCut and SLEAP project exports into the
-  standardized schema, sharing code with the Lightning Pose converter where
+  standardised schema, sharing code with the Lightning Pose converter where
   possible.
 - Define or adapt a shared keypoint ontology for mouse body parts, and map
   keypoint labels across datasets contributed to *PoseMark* onto it.
@@ -70,7 +70,7 @@ The following capabilities are guiding the project's direction:
 We defined these high-level goals at the end of 2025.
 Items completed have been checked off.
 
-- [x] Establish the core `poseinterface` framework: standardized folder
+- [x] Establish the core `poseinterface` framework: standardised folder
       structures, file formats, and naming conventions for *PoseMark*.
 - [x] Release the package on [PyPI](https://pypi.org/project/poseinterface/).
 - [x] Launch a public
@@ -80,10 +80,10 @@ Items completed have been checked off.
       [PoseMark specification](target-posemark),
       including early design decisions such as reliance on COCO-style JSON.
 - [x] Build converters from Lightning Pose and DeepLabCut project exports into
-      the standardized *PoseMark* format.
+      the standardised *PoseMark* format.
 - [ ] Build submission utilities for contributing
-      standardized datasets to *PoseMark*.
-- [ ] Define standardized evaluation metrics for pose estimators and
+      standardised datasets to *PoseMark*.
+- [ ] Define standardised evaluation metrics for pose estimators and
       point trackers.
 - [ ] Define and document a stable, agent-callable programmatic interface for
       running Lightning Pose **inference** on raw video via `poseinterface`
