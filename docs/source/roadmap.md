@@ -79,9 +79,10 @@ Items completed have been checked off.
 - [x] Draft an initial
       [PoseMark specification](target-posemark),
       including early design decisions such as reliance on COCO-style JSON.
-- [ ] Build a converter from Lightning Pose project exports into the
-      standardized schema, plus submission utilities for contributing datasets
-      to *PoseMark*.
+- [x] Build converters from Lightning Pose and DeepLabCut project exports into
+      the standardized *PoseMark* format.
+- [ ] Build submission utilities for contributing
+      standardized datasets to *PoseMark*.
 - [ ] Define standardized evaluation metrics for pose estimators and
       point trackers.
 - [ ] Define and document a stable, agent-callable programmatic interface for
