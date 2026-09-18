@@ -69,6 +69,7 @@ This specification describes both the **contributed** and the **published** vers
 │           ├── Clips/    (optional)
 │           │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>.mp4
 │           │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_cliplabels.json
+│           │   ├── sub-<subjectID>_ses-<sessionID>_cam-<camID>_start-<frameID>_dur-<nFrames>_startlabels.json
 │           │   └── ...
 │           └── sub-<subjectID>_ses-<sessionID>_cam-<camID>.mp4
 └── Test/
@@ -176,8 +177,8 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 
 ## Label format
 
-* Data contributors *must* provide ground-truth keypoint annotations for both `Train` and `Test` splits: frame labels (`framelabels.json`) for sampled frames, and clip labels (`cliplabels.json`) for entire clips, if present.
-* In the published dataset, the `Train` split includes all submitted labels. The `Test` split withholds frame labels and full clip labels to support evaluation; only clip start labels (`startlabels.json`), derived from the first frame of each clip's annotations, are published.
+* Data contributors *must* provide ground-truth keypoint annotations for both `Train` and `Test` splits: [frame labels](target-framelabels) (`framelabels.json`) for sampled frames, and [clip labels](target-cliplabels) (`cliplabels.json`) for entire clips, if present.
+* In the published dataset, the `Train` split includes all submitted labels, as well as the [clip start labels](target-startlabels) (`startlabels.json`), which are automatically extracted from the first frame of each clip. The `Test` split withholds frame labels and full clip labels to support evaluation; only clip start labels are published.
 * Labels *must* be stored in the same folder as the corresponding frames or clips.
 * Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 * The `name` field in each `categories` entry *should* be the common English name of the species in lowercase (e.g. `"mouse"`, `"rat"`, `"zebrafish"`, `"macaque"`).
@@ -259,7 +260,7 @@ This file is **not a required part of a benchmark dataset**. It is an intermedia
 (target-startlabels)=
 ### Clip start labels (`startlabels.json`)
 
-* Clip start labels only exist in the published `Test` split and are derived automatically from the contributed [clip labels](target-cliplabels) during the upload process.
+* Clip start labels are derived automatically from the contributed [clip labels](target-cliplabels) during the upload process. They are included in the published dataset for both the `Train` and `Test` splits.
 * They are identical to [clip labels](target-cliplabels), except that the `images` array *must* contain exactly one entry (the first frame of the clip, with `id: 0`). They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.
 
 :::{admonition} Example
@@ -336,7 +337,8 @@ Below is a concrete example. A matching example dataset (with label files) is av
 │           │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
 │           ├── Clips/
 │           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
-│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_startlabels.json
 │           └── sub-M708149_ses-20200317_cam-topdown.mp4
 └── Test/
     └── SWC-plusmaze/
