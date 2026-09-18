@@ -69,8 +69,8 @@ def extract_single_clip(
     the same schema as ``cliplabels.json`` but it refers to the full video,
     rather than to a clip of it. The ``*_videolabels.json`` file is not part
     of the published *PoseMark* corpus. For further details, see the
-    "Intermediate file: ``videolabels.json``" section of the
-    :ref:`PoseMark specification <target-posemark>`.
+    :ref:`Intermediate file: videolabels.json <target-videolabels>` section
+    of the PoseMark specification.
 
     This function assumes that the ``id`` field in the ``images`` list of the
     source ``*_videolabels.json`` corresponds to 0-based global frame indices
