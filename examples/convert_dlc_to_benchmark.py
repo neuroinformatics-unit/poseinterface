@@ -289,7 +289,7 @@ print(tree(benchmark_base_dir, level=5))
 #    In the published dataset, the ``Train`` split includes all
 #    ``cliplabels.json`` files, while the ``Test`` split omits them. Clip
 #    start labels (``startlabels.json``) are automatically derived during
-#    data submission from each clip's first frame, and included in
+#    data submission from each clip's first frame, and are included in
 #    both splits to support point-tracker evaluation.
 #    The ``videolabels.json`` files generated in the previous section are
 #    intermediate artifacts used for clip extraction, and are never shared.

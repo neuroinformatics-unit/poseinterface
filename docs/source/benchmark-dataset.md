@@ -178,7 +178,7 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 ## Label format
 
 * Data contributors *must* provide ground-truth keypoint annotations for both `Train` and `Test` splits: frame labels (`framelabels.json`) for sampled frames, and clip labels (`cliplabels.json`) for entire clips, if present.
-* In the published dataset, the `Train` split includes all submitted labels, plus the clip start labels (`startlabels.json`), which are automaticelly extracted from the first frame of each clip. The `Test` split withholds frame labels and full clip labels to support evaluation; only clip start labels are published.
+* In the published dataset, the `Train` split includes all submitted labels, as well as the [clip start labels](target-start-labels) (`startlabels.json`), which are automatically extracted from the first frame of each clip. The `Test` split withholds frame labels and full clip labels to support evaluation; only clip start labels are published.
 * Labels *must* be stored in the same folder as the corresponding frames or clips.
 * Labels *must* be stored in [COCO keypoints format](https://cocodataset.org/#format-data), with additional requirements described below. Each label file is a JSON file with `images`, `annotations`, and `categories` arrays. Image, annotation and category `id` values *must* be unique integers within a label file.
 * The `name` field in each `categories` entry *should* be the common English name of the species in lowercase (e.g. `"mouse"`, `"rat"`, `"zebrafish"`, `"macaque"`).
