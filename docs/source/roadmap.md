@@ -31,7 +31,7 @@ The following capabilities are guiding the project's direction:
   and
   [CoTracker](https://co-tracker.github.io/).
 - **Grow [PoseMark](target-posemark), a shared, community-contributed benchmark corpus.**
-  Labs should be able to submit labeled and unlabeled data with minimal
+  Labs should be able to contribute labeled and unlabeled data with minimal
   friction, expanding the pool of data available for training and evaluating
   pose estimation and point tracking models.
 - **Expose agent-callable, AI-native interfaces.**

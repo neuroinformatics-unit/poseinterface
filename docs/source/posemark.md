@@ -21,7 +21,7 @@ The current scope is limited to **single-animal pose estimation** from a **singl
 ## Folder structure
 
 :::{note}
-This specification describes both the **contributed** and the **published** versions of the *PoseMark*. Data contributors *must* provide full keypoint annotations (frame labels and clip labels) for both `Train` and `Test` splits. During the upload process, labels for the `Test` split are partially withheld to support evaluation. See [Label format](#label-format) for details.
+This specification describes both the **contributed** and the **published** versions of the *PoseMark* benchmark corpus. Data contributors *must* provide full keypoint annotations (frame labels and clip labels) for both `Train` and `Test` splits. During the upload process, labels for the `Test` split are partially withheld to support evaluation. See [Label format](#label-format) for details.
 :::
 
 :::: {tab-set}

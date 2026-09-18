@@ -2,10 +2,10 @@
 # poseinterface
 
 `poseinterface` exists to advance pose estimation and point tracking
-applications in animal behaviour videos. The project aims to provide
-a benchmark corpus—named *PoseMark*, a framework for running and comparing
-pose estimation and point tracking tools on that corpus,
-as well as baseline models trained on it.
+applications in animal behaviour videos. The project provides
+*PoseMark*, a benchmark corpus for evaluating such methods; a unified framework 
+for running, comparing, and benchmarking pose estimation and point-tracking tools
+on that corpus; and a set of baseline models trained on the benchmark data.
 
 ::::{grid} 1 2 2 4
 :gutter: 3

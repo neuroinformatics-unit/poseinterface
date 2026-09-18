@@ -9,10 +9,9 @@
 `poseinterface` exists to advance pose estimation and point tracking
 applications in animal behaviour videos. The project aims to:
 
-- Build a benchmark corpus—named
-  [PoseMark](https://poseinterface.neuroinformatics.dev/posemark.html)—with
-  dozens of videos and annotations from multiple institutes,
-  open to external contributions.
+- Build [PoseMark](target-posemark), an open benchmark corpus featuring
+  dozens of annotated videos from multiple institutes, with a contribution
+  model that enables participation from the wider community.
 - Develop a general-purpose **Python framework**—in the form of the
   `poseinterface` Python package, for running pose estimation
   and point tracking tools on *PoseMark*, and for comparing their outputs
