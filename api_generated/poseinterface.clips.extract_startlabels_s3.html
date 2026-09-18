@@ -31,7 +31,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -476,12 +476,12 @@ frame (frame with id=0).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>s3_cliplabels_uri</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – S3 URI of the input <code class="docutils literal notranslate"><span class="pre">*_cliplabels.json</span></code> file in the format
+<li><p><strong>s3_cliplabels_uri</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – S3 URI of the input <code class="docutils literal notranslate"><span class="pre">*_cliplabels.json</span></code> file in the format
 <code class="docutils literal notranslate"><span class="pre">s3://bucket-name/path/to/file_cliplabels.json</span></code>.</p></li>
-<li><p><strong>output_uri</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional S3 URI for the output file. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it is
+<li><p><strong>output_uri</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional S3 URI for the output file. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it is
 derived from the <code class="docutils literal notranslate"><span class="pre">s3_cliplabels_uri</span></code> by replacing
 <code class="docutils literal notranslate"><span class="pre">_cliplabels.json</span></code> with <code class="docutils literal notranslate"><span class="pre">_startlabels.json</span></code>.</p></li>
-<li><p><strong>aws_profile</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional AWS profile name to use for authentication. If None, uses
+<li><p><strong>aws_profile</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional AWS profile name to use for authentication. If None, uses
 the default AWS credentials chain.</p></li>
 </ul>
 </dd>
@@ -489,15 +489,15 @@ the default AWS credentials chain.</p></li>
 <dd class="field-even"><p>S3 URI of the output <code class="docutils literal notranslate"><span class="pre">*_startlabels.json</span></code> file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the S3 URI format is invalid, the input filename does not end
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the S3 URI format is invalid, the input filename does not end
     with <code class="docutils literal notranslate"><span class="pre">_cliplabels.json</span></code>, <code class="docutils literal notranslate"><span class="pre">output_uri</span></code> does not end with
     <code class="docutils literal notranslate"><span class="pre">_startlabels.json</span></code>, or the clip labels do not contain exactly
     one first-frame image (<code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code>).</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – If the input file does not exist on S3.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – If the input file does not exist on S3.</p></li>
 <li><p><strong>ClientError</strong> – If there are other S3 access issues (e.g. permissions).</p></li>
 </ul>
 </dd>

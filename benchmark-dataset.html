@@ -31,7 +31,7 @@
 <link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -492,6 +492,7 @@ Published</label><div class="sd-tab-content docutils">
 │           ├── Clips/    (optional)
 │           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;.mp4
 │           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json
+│           │   ├── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_startlabels.json
 │           │   └── ...
 │           └── sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;.mp4
 └── Test/
@@ -647,8 +648,8 @@ Published</label><div class="sd-tab-content docutils">
 <section id="label-format">
 <h2>Label format<a class="headerlink" href="#label-format" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Data contributors <em>must</em> provide ground-truth keypoint annotations for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits: frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) for sampled frames, and clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>) for entire clips, if present.</p></li>
-<li><p>In the published dataset, the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split includes all submitted labels. The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split withholds frame labels and full clip labels to support evaluation; only clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>), derived from the first frame of each clip’s annotations, are published.</p></li>
+<li><p>Data contributors <em>must</em> provide ground-truth keypoint annotations for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits: <a class="reference internal" href="#target-framelabels"><span class="std std-ref">frame labels</span></a> (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) for sampled frames, and <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a> (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>) for entire clips, if present.</p></li>
+<li><p>In the published dataset, the <code class="docutils literal notranslate"><span class="pre">Train</span></code> split includes all submitted labels, as well as the <a class="reference internal" href="#target-startlabels"><span class="std std-ref">clip start labels</span></a> (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>), which are automatically extracted from the first frame of each clip. The <code class="docutils literal notranslate"><span class="pre">Test</span></code> split withholds frame labels and full clip labels to support evaluation; only clip start labels are published.</p></li>
 <li><p>Labels <em>must</em> be stored in the same folder as the corresponding frames or clips.</p></li>
 <li><p>Labels <em>must</em> be stored in <a class="reference external" href="https://cocodataset.org/#format-data">COCO keypoints format</a>, with additional requirements described below. Each label file is a JSON file with <code class="docutils literal notranslate"><span class="pre">images</span></code>, <code class="docutils literal notranslate"><span class="pre">annotations</span></code>, and <code class="docutils literal notranslate"><span class="pre">categories</span></code> arrays. Image, annotation and category <code class="docutils literal notranslate"><span class="pre">id</span></code> values <em>must</em> be unique integers within a label file.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> field in each <code class="docutils literal notranslate"><span class="pre">categories</span></code> entry <em>should</em> be the common English name of the species in lowercase (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mouse&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;rat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;zebrafish&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;macaque&quot;</span></code>).</p></li>
@@ -725,7 +726,7 @@ Published</label><div class="sd-tab-content docutils">
 <section id="clip-start-labels-startlabels-json">
 <span id="target-startlabels"></span><h3>Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)<a class="headerlink" href="#clip-start-labels-startlabels-json" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Clip start labels only exist in the published <code class="docutils literal notranslate"><span class="pre">Test</span></code> split and are derived automatically from the contributed <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a> during the upload process.</p></li>
+<li><p>Clip start labels are derived automatically from the contributed <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a> during the upload process. They are included in the published dataset for both the <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits.</p></li>
 <li><p>They are identical to <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a>, except that the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain exactly one entry (the first frame of the clip, with <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code>). They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.</p></li>
 </ul>
 <div class="tip admonition">
@@ -806,7 +807,8 @@ Published</label><div class="sd-tab-content docutils">
 │           │   └── sub-M708149_ses-20200317_cam-topdown_framelabels.json
 │           ├── Clips/
 │           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5.mp4
-│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           │   ├── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_cliplabels.json
+│           │   └── sub-M708149_ses-20200317_cam-topdown_start-1000_dur-5_startlabels.json
 │           └── sub-M708149_ses-20200317_cam-topdown.mp4
 └── Test/
     └── SWC-plusmaze/

@@ -129,7 +129,7 @@ Elevated Plus Maze (EPM), analysed using
 
     2 directories
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-q6h0u3c5
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-ho8ofg_s
 
 
 
@@ -395,7 +395,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-q6h0u3c5/
+    poseinterface-benchmark-ho8ofg_s/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -538,7 +538,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-q6h0u3c5/
+    poseinterface-benchmark-ho8ofg_s/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -584,10 +584,10 @@ corresponding labels:
 .. note::
 
    In the published dataset, the ``Train`` split includes all
-   ``cliplabels.json`` files. The ``Test`` split omits all
-   ``cliplabels.json`` files and instead provides only clip start labels
-   (``startlabels.json``), derived from each clip's first frame,
-   to support point-tracker evaluation.
+   ``cliplabels.json`` files, while the ``Test`` split omits them. Clip
+   start labels (``startlabels.json``) are automatically derived during
+   data submission from each clip's first frame, and are included in
+   both splits to support point-tracker evaluation.
    The ``videolabels.json`` files generated in the previous section are
    intermediate artifacts used for clip extraction, and are never shared.
    See the :ref:`folder structure specification<target-dataset-folder-\
@@ -675,7 +675,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-q6h0u3c5
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-ho8ofg_s
 
 
 
@@ -683,7 +683,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.599 seconds)
+   **Total running time of the script:** (0 minutes 13.033 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_dlc_to_benchmark.py:

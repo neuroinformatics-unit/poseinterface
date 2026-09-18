@@ -129,7 +129,7 @@ containing videos of mouse paw movements analysed using
 
     2 directories, 1 files
 
-    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-6ar802zf
+    Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-z8gsw_us
 
 
 
@@ -431,7 +431,7 @@ The resulting benchmark dataset:
 
  .. code-block:: none
 
-    poseinterface-benchmark-6ar802zf/
+    poseinterface-benchmark-z8gsw_us/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -574,7 +574,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    poseinterface-benchmark-6ar802zf/
+    poseinterface-benchmark-z8gsw_us/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -620,10 +620,10 @@ corresponding labels:
 .. note::
 
    In the published dataset, the ``Train`` split includes all
-   ``cliplabels.json`` files. The ``Test`` split omits all
-   ``cliplabels.json`` files and instead provides only clip start labels
-   (``startlabels.json``), derived from each clip's first frame,
-   to support point-tracker evaluation.
+   ``cliplabels.json`` files, while the ``Test`` split omits them. Clip
+   start labels (``startlabels.json``) are automatically derived during
+   data submission from each clip's first frame, and are included in
+   both splits to support point-tracker evaluation.
    The ``videolabels.json`` files generated in the previous section are
    intermediate artifacts used for clip extraction, and are never shared.
    See the :ref:`folder structure specification<target-benchmark-dataset>`
@@ -713,7 +713,7 @@ end.
 
  .. code-block:: none
 
-    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-6ar802zf
+    Removed temporary benchmark directory: /tmp/poseinterface-benchmark-z8gsw_us
 
 
 
@@ -721,7 +721,7 @@ end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.318 seconds)
+   **Total running time of the script:** (0 minutes 4.334 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_lp_to_benchmark.py:
