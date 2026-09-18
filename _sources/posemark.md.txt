@@ -1,7 +1,7 @@
-(target-benchmark-dataset)=
-# Benchmark dataset
+(target-posemark)=
+# The PoseMark format
 
-This page describes the expected folder structure and file naming conventions for `poseinterface` benchmark datasets.
+This page describes the folder structure and file naming specification for the *PoseMark* benchmark corpus.
 
 :::{note}
 We mark requirements with italicised *keywords* that should be interpreted as described by the [Network Working Group](https://www.ietf.org/rfc/rfc2119.txt). In decreasing order of requirement, these are: *must*, *should*, and *may*.
@@ -9,7 +9,7 @@ We mark requirements with italicised *keywords* that should be interpreted as de
 
 ## Overview
 
-- A benchmark dataset is organised into a `Train` and a `Test` split.
+- *PoseMark* is organised into a `Train` and a `Test` split.
 - Each split contains one or more [projects](#project) (i.e. datasets contributed by different groups).
 - Each project contains one or more [sessions](#session).
 - A session centres on a single video file (the [session video](#session-video)), from which [frames](#frames) (individually sampled images) and optionally [clips](#clips) (short video segments) are extracted.
@@ -17,11 +17,11 @@ We mark requirements with italicised *keywords* that should be interpreted as de
 
 The current scope is limited to **single-animal pose estimation** from a **single camera view**. Support for multi-camera setups is planned for a future version.
 
-(target-dataset-folder-structure)=
+(target-posemark-folder-structure)=
 ## Folder structure
 
 :::{note}
-This specification describes both the **contributed** and the **published** versions of the dataset. Data contributors *must* provide full keypoint annotations (frame labels and clip labels) for both `Train` and `Test` splits. During the upload process, labels for the `Test` split are partially withheld to support evaluation. See [Label format](#label-format) for details.
+This specification describes both the **contributed** and the **published** versions of the *PoseMark* benchmark corpus. Data contributors *must* provide full keypoint annotations (frame labels and clip labels) for both `Train` and `Test` splits. During the upload process, labels for the `Test` split are partially withheld to support evaluation. See [Label format](#label-format) for details.
 :::
 
 :::: {tab-set}
@@ -163,14 +163,14 @@ All filenames follow a key-value pair convention, similar to the [BIDS standard]
 
 * The following keys are used:
 
-  | Key     | Description                                    | Value format   | Examples         |
-  |---------|------------------------------------------------|----------------|-----------------|
-  | `sub`   | Subject identifier                             | alphanumeric   | `sub-001`, `sub-M708149`   |
-  | `ses`   | Session identifier                             | alphanumeric   | `ses-02`, `ses-25`, `ses-20200317`  |
-  | `cam`   | Camera identifier                              | alphanumeric   | `cam-topdown`, `cam-side2`   |
-  | `frame` | 0-based frame index in the session video        | numeric        | `frame-0000`, `frame-0500`, `frame-1000`   |
-  | `start` | 0-based frame index of the first frame of a clip in the session video | numeric | `start-0000`, `start-0500`, `start-1000` |
-  | `dur`   | Clip duration in number of frames              | numeric        | `dur-5`, `dur-30`         |
+  | Key     | Description                                                           | Value format | Examples                                 |
+  | ------- | --------------------------------------------------------------------- | ------------ | ---------------------------------------- |
+  | `sub`   | Subject identifier                                                    | alphanumeric | `sub-001`, `sub-M708149`                 |
+  | `ses`   | Session identifier                                                    | alphanumeric | `ses-02`, `ses-25`, `ses-20200317`       |
+  | `cam`   | Camera identifier                                                     | alphanumeric | `cam-topdown`, `cam-side2`               |
+  | `frame` | 0-based frame index in the session video                              | numeric      | `frame-0000`, `frame-0500`, `frame-1000` |
+  | `start` | 0-based frame index of the first frame of a clip in the session video | numeric      | `start-0000`, `start-0500`, `start-1000` |
+  | `dur`   | Clip duration in number of frames                                     | numeric      | `dur-5`, `dur-30`                        |
 
 * The keys `sub`, `ses`, and `cam` *must* appear in every filename, in that order.
 * Filenames *must* not contain spaces.
@@ -249,7 +249,7 @@ Here `id: 0` through `id: 4` are the local clip indices, while `frame-1000` thro
 #### Intermediate file `videolabels.json`
 
 :::{note}
-This file is **not a required part of a benchmark dataset**. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the `extract-clips` command and the corresponding {func}`~poseinterface.clips.extract_clips` function.
+This file is **not a required part of _PoseMark_**. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the `extract-clips` command and the corresponding {func}`~poseinterface.clips.extract_clips` function.
 :::
 
 * A `videolabels.json` file uses the **same schema as [`cliplabels.json`](target-cliplabels)**, but it refers to a full video rather than to a clip of it.

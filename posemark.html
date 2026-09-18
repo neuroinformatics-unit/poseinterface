@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Benchmark dataset &#8212; poseinterface</title>
+    <title>The PoseMark format &#8212; poseinterface</title>
   
   
   
@@ -49,9 +49,9 @@
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'benchmark-dataset';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'posemark';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/benchmark-dataset.html" />
+    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/posemark.html" />
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -157,7 +157,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    Benchmark dataset
+    The PoseMark format
   </a>
 </li>
 
@@ -297,7 +297,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    Benchmark dataset
+    The PoseMark format
   </a>
 </li>
 
@@ -405,7 +405,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Benchmark dataset</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">The PoseMark format</span></li>
   </ul>
 </nav>
 </div>
@@ -422,9 +422,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="benchmark-dataset">
-<span id="target-benchmark-dataset"></span><h1>Benchmark dataset<a class="headerlink" href="#benchmark-dataset" title="Link to this heading">#</a></h1>
-<p>This page describes the expected folder structure and file naming conventions for <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> benchmark datasets.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="the-posemark-format">
+<span id="target-posemark"></span><h1>The PoseMark format<a class="headerlink" href="#the-posemark-format" title="Link to this heading">#</a></h1>
+<p>This page describes the folder structure and file naming specification for the <em>PoseMark</em> benchmark corpus.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We mark requirements with italicised <em>keywords</em> that should be interpreted as described by the <a class="reference external" href="https://www.ietf.org/rfc/rfc2119.txt">Network Working Group</a>. In decreasing order of requirement, these are: <em>must</em>, <em>should</em>, and <em>may</em>.</p>
@@ -432,7 +432,7 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A benchmark dataset is organised into a <code class="docutils literal notranslate"><span class="pre">Train</span></code> and a <code class="docutils literal notranslate"><span class="pre">Test</span></code> split.</p></li>
+<li><p><em>PoseMark</em> is organised into a <code class="docutils literal notranslate"><span class="pre">Train</span></code> and a <code class="docutils literal notranslate"><span class="pre">Test</span></code> split.</p></li>
 <li><p>Each split contains one or more <a class="reference internal" href="#project"><span class="std std-ref">projects</span></a> (i.e. datasets contributed by different groups).</p></li>
 <li><p>Each project contains one or more <a class="reference internal" href="#session"><span class="std std-ref">sessions</span></a>.</p></li>
 <li><p>A session centres on a single video file (the <a class="reference internal" href="#session-video"><span class="std std-ref">session video</span></a>), from which <a class="reference internal" href="#frames"><span class="std std-ref">frames</span></a> (individually sampled images) and optionally <a class="reference internal" href="#clips"><span class="std std-ref">clips</span></a> (short video segments) are extracted.</p></li>
@@ -441,10 +441,10 @@
 <p>The current scope is limited to <strong>single-animal pose estimation</strong> from a <strong>single camera view</strong>. Support for multi-camera setups is planned for a future version.</p>
 </section>
 <section id="folder-structure">
-<span id="target-dataset-folder-structure"></span><h2>Folder structure<a class="headerlink" href="#folder-structure" title="Link to this heading">#</a></h2>
+<span id="target-posemark-folder-structure"></span><h2>Folder structure<a class="headerlink" href="#folder-structure" title="Link to this heading">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This specification describes both the <strong>contributed</strong> and the <strong>published</strong> versions of the dataset. Data contributors <em>must</em> provide full keypoint annotations (frame labels and clip labels) for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits. During the upload process, labels for the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split are partially withheld to support evaluation. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for details.</p>
+<p>This specification describes both the <strong>contributed</strong> and the <strong>published</strong> versions of the <em>PoseMark</em> benchmark corpus. Data contributors <em>must</em> provide full keypoint annotations (frame labels and clip labels) for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits. During the upload process, labels for the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split are partially withheld to support evaluation. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for details.</p>
 </div>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -713,7 +713,7 @@ Published</label><div class="sd-tab-content docutils">
 <span id="target-videolabels"></span><h4>Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code><a class="headerlink" href="#intermediate-file-videolabels-json" title="Link to this heading">#</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This file is <strong>not a required part of a benchmark dataset</strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clips</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clips.html#poseinterface.clips.extract_clips" title="poseinterface.clips.extract_clips"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clips()</span></code></a> function.</p>
+<p>This file is <strong>not a required part of <em>PoseMark</em></strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clips</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clips.html#poseinterface.clips.extract_clips" title="poseinterface.clips.extract_clips"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clips()</span></code></a> function.</p>
 </div>
 <ul class="simple">
 <li><p>A <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> file uses the <strong>same schema as <a class="reference internal" href="#target-cliplabels"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code></span></a></strong>, but it refers to a full video rather than to a clip of it.</p></li>
@@ -905,7 +905,7 @@ Published</label><div class="sd-tab-content docutils">
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="_sources/benchmark-dataset.md.txt">
+    <a href="_sources/posemark.md.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

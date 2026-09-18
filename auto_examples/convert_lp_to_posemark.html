@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Convert Lightning Pose project to benchmark dataset &#8212; poseinterface</title>
+    <title>Convert Lightning Pose project to the PoseMark format &#8212; poseinterface</title>
   
   
   
@@ -49,14 +49,14 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/convert_lp_to_benchmark';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/convert_lp_to_posemark';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/auto_examples/convert_lp_to_benchmark.html" />
+    <link rel="canonical" href="https://poseinterface.neuroinformatics.dev/auto_examples/convert_lp_to_posemark.html" />
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API" href="../api_index.html" />
-    <link rel="prev" title="Convert DeepLabCut project to benchmark dataset" href="convert_dlc_to_benchmark.html" />
+    <link rel="prev" title="Convert DeepLabCut project to the PoseMark format" href="convert_dlc_to_posemark.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -156,8 +156,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../benchmark-dataset.html">
-    Benchmark dataset
+  <a class="nav-link nav-internal" href="../posemark.html">
+    The PoseMark format
   </a>
 </li>
 
@@ -296,8 +296,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../benchmark-dataset.html">
-    Benchmark dataset
+  <a class="nav-link nav-internal" href="../posemark.html">
+    The PoseMark format
   </a>
 </li>
 
@@ -384,8 +384,8 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="convert_dlc_to_benchmark.html">Convert DeepLabCut project to benchmark dataset</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Convert Lightning Pose project to benchmark dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_dlc_to_posemark.html">Convert DeepLabCut project to the PoseMark format</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Convert Lightning Pose project to the PoseMark format</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,7 +429,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Convert Lightning Pose project to benchmark dataset</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Convert Lightning Pose project to the PoseMark format</span></li>
   </ul>
 </nav>
 </div>
@@ -448,13 +448,13 @@
                   
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference internal" href="#sphx-glr-download-auto-examples-convert-lp-to-benchmark-py"><span class="std std-ref">Go to the end</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-convert-lp-to-posemark-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="convert-lightning-pose-project-to-benchmark-dataset">
-<span id="sphx-glr-auto-examples-convert-lp-to-benchmark-py"></span><h1>Convert Lightning Pose project to benchmark dataset<a class="headerlink" href="#convert-lightning-pose-project-to-benchmark-dataset" title="Link to this heading">#</a></h1>
-<p>Create a <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> benchmark dataset from a Lightning Pose (LP)
-project.</p>
+<section class="sphx-glr-example-title" id="convert-lightning-pose-project-to-the-posemark-format">
+<span id="sphx-glr-auto-examples-convert-lp-to-posemark-py"></span><h1>Convert Lightning Pose project to the PoseMark format<a class="headerlink" href="#convert-lightning-pose-project-to-the-posemark-format" title="Link to this heading">#</a></h1>
+<p>Prepare a Lightning Pose (LP) project to be contributed to
+the <em>PoseMark</em> corpus.</p>
 <section id="imports">
 <h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w">
@@ -466,11 +466,11 @@ project.</p>
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">poseinterface</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface</span><span class="nn">.</span><span class="nn">clips</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-poseinterface-clips sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.clips.extract_single_clip.html#poseinterface.clips.extract_single_clip" title="poseinterface.clips.extract_single_clip"><span class="n">extract_single_clip</span></a><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface</span><span class="nn">.</span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.annotations_to_poseinterface.html#poseinterface.io.annotations_to_poseinterface" title="poseinterface.io.annotations_to_poseinterface"><span class="n">annotations_to_poseinterface</span></a><span class="p">,</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.frames_to_poseinterface.html#poseinterface.io.frames_to_poseinterface" title="poseinterface.io.frames_to_poseinterface"><span class="n">frames_to_poseinterface</span></a><span class="p">,</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.predictions_to_poseinterface.html#poseinterface.io.predictions_to_poseinterface" title="poseinterface.io.predictions_to_poseinterface"><span class="n">predictions_to_poseinterface</span></a><span class="p">,</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.annotations_to_posemark.html#poseinterface.io.annotations_to_posemark" title="poseinterface.io.annotations_to_posemark"><span class="n">annotations_to_posemark</span></a><span class="p">,</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.frames_to_posemark.html#poseinterface.io.frames_to_posemark" title="poseinterface.io.frames_to_posemark"><span class="n">frames_to_posemark</span></a><span class="p">,</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.predictions_to_posemark.html#poseinterface.io.predictions_to_posemark" title="poseinterface.io.predictions_to_posemark"><span class="n">predictions_to_posemark</span></a><span class="p">,</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.split_lp_collected_data.html#poseinterface.io.split_lp_collected_data" title="poseinterface.io.split_lp_collected_data"><span class="n">split_lp_collected_data</span></a><span class="p">,</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.video_to_poseinterface.html#poseinterface.io.video_to_poseinterface" title="poseinterface.io.video_to_poseinterface"><span class="n">video_to_poseinterface</span></a><span class="p">,</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.video_to_posemark.html#poseinterface.io.video_to_posemark" title="poseinterface.io.video_to_posemark"><span class="n">video_to_posemark</span></a><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">poseinterface</span><span class="nn">.</span><span class="nn">utils</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="w">
 </span></pre></div></div>
@@ -481,13 +481,13 @@ project.</p>
 <ol class="arabic simple">
 <li><p><strong>Convert:</strong> LP project files (videos, frame annotations, and keypoint
 predictions) are restructured into the
-<a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">poseinterface benchmark layout</span></a>.</p></li>
+<a class="reference internal" href="../posemark.html#target-posemark"><span class="std std-ref">PoseMark layout</span></a>.</p></li>
 <li><p><strong>Extract clips:</strong> Short video clips and their labels are extracted
 from the converted videos and their corresponding keypoint predictions,
 ready for expert review.</p></li>
 </ol>
 <p>The workflow is similar to the one followed in
-<a class="reference internal" href="convert_dlc_to_benchmark.html#sphx-glr-auto-examples-convert-dlc-to-benchmark-py"><span class="std std-ref">Convert DeepLabCut project to benchmark dataset</span></a>,
+<a class="reference internal" href="convert_dlc_to_posemark.html#sphx-glr-auto-examples-convert-dlc-to-posemark-py"><span class="std std-ref">Convert DeepLabCut project to the PoseMark format</span></a>,
 with a few differences explained below.</p>
 </section>
 <section id="source-lightning-pose-project">
@@ -500,8 +500,8 @@ containing videos of mouse paw movements analysed using
 <p class="admonition-title">Note</p>
 <p>This example runs against a lightweight fixture shipped with the
 repository (under <code class="docutils literal notranslate"><span class="pre">tests/data/</span></code>). Replace <code class="docutils literal notranslate"><span class="pre">source_project_dir</span></code>
-and <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> with the paths to your LP project and
-benchmark dataset directories, respectively. Keep in mind that your
+and <code class="docutils literal notranslate"><span class="pre">posemark_base_dir</span></code> with the paths to your LP project and
+<em>PoseMark</em> directories, respectively. Keep in mind that your
 project will contain more files than are shown here.</p>
 </div>
 <div class="admonition warning">
@@ -519,8 +519,8 @@ video stem (e.g. <code class="docutils literal notranslate"><span class="pre">&l
 </span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_project_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="c1"># For this example we use a temporary directory, cleaned up at the end.</span><span class="w">
-</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a><span class="p">(</span><a class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">poseinterface-benchmark-</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Benchmark dataset will be saved to: </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a><span class="p">(</span><a class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">posemark-</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">PoseMark dataset will be saved to: </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>ibl-paw/
 ├── CollectedData.csv
@@ -529,7 +529,7 @@ video stem (e.g. <code class="docutils literal notranslate"><span class="pre">&l
 
 2 directories, 1 files
 
-Benchmark dataset will be saved to: /tmp/poseinterface-benchmark-z8gsw_us
+PoseMark dataset will be saved to: /tmp/posemark-wfk9dq47
 </pre></div>
 </div>
 <p>The LP project differs from a DLC project in one key respect: all session
@@ -572,7 +572,7 @@ corresponding prediction CSVs.</p></li>
 <h2>Define sessions to convert<a class="headerlink" href="#define-sessions-to-convert" title="Link to this heading">#</a></h2>
 <p>We select two sessions from the LP project and assign each to either
 the <code class="docutils literal notranslate"><span class="pre">Train</span></code> or <code class="docutils literal notranslate"><span class="pre">Test</span></code> split of the
-<a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">benchmark dataset</span></a>.
+<a class="reference internal" href="../posemark.html#target-posemark"><span class="std std-ref">PoseMark</span></a>.
 You may expand this list with more sessions, but ensure that each session
 belongs to exactly one split, and that the same subject doesn’t appear in
 both splits (to avoid data leakage).</p>
@@ -605,7 +605,7 @@ mirroring the <code class="docutils literal notranslate"><span class="pre">label
 frames.  This is necessary because the underlying loader (sleap-io)
 resolves image paths relative to the CSV location, so the split CSV
 must live alongside the frame images it references.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">lp_session_base</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">.lp_sessions</span><span class="s2">&quot;</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">lp_session_base</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">.lp_sessions</span><span class="s2">&quot;</span><span class="w">
 </span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">split_results</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.split_lp_collected_data.html#poseinterface.io.split_lp_collected_data" title="poseinterface.io.split_lp_collected_data"><span class="n">split_lp_collected_data</span></a><span class="p">(</span><span class="w">
 </span>    <span class="n">input_path</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">CollectedData.csv</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
 </span>    <span class="n">output_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">lp_session_base</span></a><span class="p">,</span><span class="w">
@@ -625,8 +625,8 @@ must live alongside the frame images it references.</p>
 </pre></div>
 </div>
 </section>
-<section id="convert-to-benchmark-format">
-<h2>Convert to benchmark format<a class="headerlink" href="#convert-to-benchmark-format" title="Link to this heading">#</a></h2>
+<section id="convert-to-posemark-format">
+<h2>Convert to PoseMark format<a class="headerlink" href="#convert-to-posemark-format" title="Link to this heading">#</a></h2>
 <p>For each session we:</p>
 <ol class="arabic simple">
 <li><p>copy (and re-encode, if necessary) the session video;</p></li>
@@ -641,7 +641,7 @@ rename the corresponding frame images;</p></li>
 </span>    <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_cam_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">ids</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">cam_id</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_video_path</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">videos</span><span class="s2">&quot;</span> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;</span><span class="s2">source_video</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_session_dir</span></a> <span class="o">=</span> <span class="p">(</span><span class="w">
-</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">split</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">project_name</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="w">
+</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">split</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">project_name</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_frames_dir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_session_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">Frames</span><span class="s2">&quot;</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir" title="pathlib.Path.mkdir"><span class="n">target_frames_dir</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
@@ -653,7 +653,7 @@ rename the corresponding frame images;</p></li>
 </span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">Converting session: </span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">split</span></a><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">project_name</span></a><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span>    <span class="c1"># Copy the session video, re-encoding to H.264/yuv420p if necessary.</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.video_to_poseinterface.html#poseinterface.io.video_to_poseinterface" title="poseinterface.io.video_to_poseinterface"><span class="n">video_to_poseinterface</span></a><span class="p">(</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.video_to_posemark.html#poseinterface.io.video_to_posemark" title="poseinterface.io.video_to_posemark"><span class="n">video_to_posemark</span></a><span class="p">(</span><span class="w">
 </span>        <span class="n">input_video</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_video_path</span></a><span class="p">,</span><span class="w">
 </span>        <span class="n">output_video_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_session_dir</span></a><span class="p">,</span><span class="w">
 </span>        <span class="o">*</span><span class="o">*</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">ids</span></a><span class="p">,</span><span class="w">
@@ -661,11 +661,11 @@ rename the corresponding frame images;</p></li>
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">video: </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-attribute reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name" title="pathlib.PurePath.name"><span class="n">source_video_path</span><span class="o">.</span><span class="n">name</span></a><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_cam_prefix</span></a><span class="si">}</span><span class="s2">.mp4</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span>    <span class="c1"># Convert LP annotations to COCO frame labels JSON, then copy the</span><span class="w">
-</span>    <span class="c1"># corresponding frame images with standardised poseinterface filenames.</span><span class="w">
+</span>    <span class="c1"># corresponding frame images with standardised PoseMark filenames.</span><span class="w">
 </span>    <span class="k">if</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">lp_session_name</span></a> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span><span class="w">
 </span>        <span class="nb">print</span><span class="p">(</span><span class="w">
 </span>            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">No matching LP session found for </span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">video_stem</span></a><span class="si">!r}</span><span class="s2">.</span><span class="s2">&quot;</span><span class="w">
-</span>            <span class="s2">&quot;</span><span class="s2"> Skipping annotations-to-poseinterface conversion.</span><span class="s2">&quot;</span><span class="w">
+</span>            <span class="s2">&quot;</span><span class="s2"> Skipping annotations-to-PoseMark conversion.</span><span class="s2">&quot;</span><span class="w">
 </span>        <span class="p">)</span><span class="w">
 </span>    <span class="k">else</span><span class="p">:</span><span class="w">
 </span>        <span class="c1"># The split CSV lives in the temp dir alongside copied frames so</span><span class="w">
@@ -675,13 +675,13 @@ rename the corresponding frame images;</p></li>
 </span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_frames_dir</span></a> <span class="o">=</span> <span class="p">(</span><span class="w">
 </span>            <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_project_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">labeled-data</span><span class="s2">&quot;</span> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">lp_session_name</span></a><span class="w">
 </span>        <span class="p">)</span><span class="w">
-</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">framelabels_path</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.annotations_to_poseinterface.html#poseinterface.io.annotations_to_poseinterface" title="poseinterface.io.annotations_to_poseinterface"><span class="n">annotations_to_poseinterface</span></a><span class="p">(</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">framelabels_path</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.annotations_to_posemark.html#poseinterface.io.annotations_to_posemark" title="poseinterface.io.annotations_to_posemark"><span class="n">annotations_to_posemark</span></a><span class="p">(</span><span class="w">
 </span>            <span class="n">input_path</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_annotations_path</span></a><span class="p">,</span><span class="w">
 </span>            <span class="n">output_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_frames_dir</span></a><span class="p">,</span><span class="w">
 </span>            <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">frame</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
 </span>            <span class="o">*</span><span class="o">*</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">ids</span></a><span class="p">,</span><span class="w">
 </span>        <span class="p">)</span><span class="w">
-</span>        <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.frames_to_poseinterface.html#poseinterface.io.frames_to_poseinterface" title="poseinterface.io.frames_to_poseinterface"><span class="n">frames_to_poseinterface</span></a><span class="p">(</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.frames_to_posemark.html#poseinterface.io.frames_to_posemark" title="poseinterface.io.frames_to_posemark"><span class="n">frames_to_posemark</span></a><span class="p">(</span><span class="w">
 </span>            <span class="n">input_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_frames_dir</span></a><span class="p">,</span><span class="w">
 </span>            <span class="n">output_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_frames_dir</span></a><span class="p">,</span><span class="w">
 </span>            <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">framelabels_path</span></a><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">framelabels_path</span></a><span class="p">,</span><span class="w">
@@ -702,10 +702,10 @@ rename the corresponding frame images;</p></li>
 </span>        <span class="nb">print</span><span class="p">(</span><span class="w">
 </span>            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">No prediction CSV found for </span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">video_stem</span></a><span class="si">!r}</span><span class="s2"> in </span><span class="s2">&quot;</span><span class="w">
 </span>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_project_dir</span></a><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">'</span><span class="s1">videos</span><span class="s1">'</span><span class="si">}</span><span class="s2">. Skipping predictions-to-</span><span class="s2">&quot;</span><span class="w">
-</span>            <span class="s2">&quot;</span><span class="s2">poseinterface conversion.</span><span class="s2">&quot;</span><span class="w">
+</span>            <span class="s2">&quot;</span><span class="s2">PoseMark conversion.</span><span class="s2">&quot;</span><span class="w">
 </span>        <span class="p">)</span><span class="w">
 </span>    <span class="k">else</span><span class="p">:</span><span class="w">
-</span>        <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.predictions_to_poseinterface.html#poseinterface.io.predictions_to_poseinterface" title="poseinterface.io.predictions_to_poseinterface"><span class="n">predictions_to_poseinterface</span></a><span class="p">(</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-poseinterface-io sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.io.predictions_to_posemark.html#poseinterface.io.predictions_to_posemark" title="poseinterface.io.predictions_to_posemark"><span class="n">predictions_to_posemark</span></a><span class="p">(</span><span class="w">
 </span>            <span class="n">input_path</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_predictions_path</span></a><span class="p">,</span><span class="w">
 </span>            <span class="n">video_path</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">source_video_path</span></a><span class="p">,</span><span class="w">
 </span>            <span class="n">output_dir</span><span class="o">=</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target_session_dir</span></a><span class="p">,</span><span class="w">
@@ -730,10 +730,10 @@ Converting session: Test/IBL-paw/sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4
 Done.
 </pre></div>
 </div>
-<p>The resulting benchmark dataset:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
+<p>The resulting <em>PoseMark</em> dataset:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>poseinterface-benchmark-z8gsw_us/
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-wfk9dq47/
 ├── Test/
 │   └── IBL-paw/
 │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -762,9 +762,8 @@ Done.
 <p class="admonition-title">Note</p>
 <p>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>) are generated for both splits,
 but in the <strong>published</strong> dataset the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split intentionally
-omits them for evaluation. See the
-<a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">folder structure specification</span></a> for
-details.</p>
+omits them for evaluation. See the <a class="reference internal" href="../posemark.html#target-posemark-folder-structure"><span class="std std-ref">folder structure
+specification</span></a> for details.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> files generated alongside each session video
 are intermediate artifacts used for clip extraction in the next
 section, and will not be included in the published dataset.</p>
@@ -777,7 +776,7 @@ videos. When the <code class="docutils literal notranslate"><span class="pre">vi
 clip label files (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>) are generated automatically during
 clip extraction.
 These clip label files should then be proof-read and corrected by
-experts before being included in the benchmark dataset.</p>
+experts before being included in <em>PoseMark</em>.</p>
 <p>First, we specify the clip-extraction parameters. This step can be
 repeated with different parameters to incrementally expand the clip set.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="int"><span class="n">duration</span></a> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># in frames</span><span class="w">
@@ -794,7 +793,7 @@ in a <code class="docutils literal notranslate"><span class="pre">Clips/</span><
 </span>    <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">sub-</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">sub_id</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">_ses-</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">ses_id</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_cam_prefix</span></a> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="si">}</span><span class="s2">_cam-</span><span class="si">{</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">cam_id</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">session_dir</span></a> <span class="o">=</span> <span class="p">(</span><span class="w">
-</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;</span><span class="s2">split</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">project_name</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="w">
+</span>        <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">session</span></a><span class="p">[</span><span class="s2">&quot;</span><span class="s2">split</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">project_name</span></a> <span class="o">/</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">sub_ses_prefix</span></a><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span><span class="w">
 </span>    <span class="k">for</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="int"><span class="n">start_frame</span></a> <span class="ow">in</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="list"><span class="n">start_frames</span></a><span class="p">:</span><span class="w">
@@ -813,11 +812,11 @@ Extracted clip: sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4_cam-left_start-50
 Extracted clip: sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4_cam-left_start-75_dur-5
 </pre></div>
 </div>
-<p>The resulting benchmark dataset, including the extracted clips and their
+<p>The resulting <em>PoseMark</em> dataset, including the extracted clips and their
 corresponding labels:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exclude_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>poseinterface-benchmark-z8gsw_us/
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-wfk9dq47/
 ├── Test/
 │   └── IBL-paw/
 │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -865,8 +864,7 @@ data submission from each clip’s first frame, and are included in
 both splits to support point-tracker evaluation.
 The <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code> files generated in the previous section are
 intermediate artifacts used for clip extraction, and are never shared.
-See the <a class="reference internal" href="../benchmark-dataset.html#target-benchmark-dataset"><span class="std std-ref">folder structure specification</span></a>
-for details.</p>
+See the <a class="reference internal" href="../posemark.html#target-posemark-folder-structure"><span class="std std-ref">folder structure specification</span></a> for details.</p>
 </div>
 </section>
 <section id="record-provenance-optional">
@@ -878,9 +876,9 @@ reproducibility purposes.</p>
 <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> version (including git commit, via <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code>)
 and a UTC timestamp. Both files are written to a top-level
 <code class="docutils literal notranslate"><span class="pre">.provenance/</span></code> folder, named by project, so multiple projects under
-the same <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> stay distinct.</p>
+the same <code class="docutils literal notranslate"><span class="pre">posemark_base_dir</span></code> stay distinct.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># sphinx_gallery_capture_repr = ()</span><span class="w">
-</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">provenance_dir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">benchmark_base_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">.provenance</span><span class="s2">&quot;</span><span class="w">
+</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">provenance_dir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">.provenance</span><span class="s2">&quot;</span><span class="w">
 </span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir" title="pathlib.Path.mkdir"><span class="n">provenance_dir</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="c1"># ``__file__`` is set when running this script directly with Python, but</span><span class="w">
@@ -907,35 +905,35 @@ the same <code class="docutils literal notranslate"><span class="pre">benchmark_
 end.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Only run this cell when <code class="docutils literal notranslate"><span class="pre">benchmark_base_dir</span></code> points to a temporary
+<p>Only run this cell when <code class="docutils literal notranslate"><span class="pre">posemark_base_dir</span></code> points to a temporary
 location. The guard below refuses to delete anything outside the
 system temp directory, so it is safe to leave in place when you adapt
-this example to a real benchmark dataset path.</p>
+this example to a real <em>PoseMark</em> dataset path.</p>
 </div>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">system_tempdir</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a><span class="p">(</span><a class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir" title="tempfile.gettempdir"><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span></a><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.resolve" title="pathlib.Path.resolve"><span class="n">benchmark_base_dir</span><span class="o">.</span><span class="n">resolve</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.resolve" title="pathlib.Path.resolve"><span class="n">posemark_base_dir</span><span class="o">.</span><span class="n">resolve</span></a><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="k">if</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.is_relative_to" title="pathlib.PurePath.is_relative_to"><span class="n">target</span><span class="o">.</span><span class="n">is_relative_to</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">system_tempdir</span></a><span class="p">)</span> <span class="ow">and</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a> <span class="o">!=</span> <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">system_tempdir</span></a><span class="p">:</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/shutil.html#shutil.rmtree" title="shutil.rmtree"><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">Removed temporary benchmark directory: </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">Removed temporary PoseMark directory: </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="k">else</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="w">
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">Refusing to remove </span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">target</span></a><span class="si">}</span><span class="s2">: not inside system temp dir </span><span class="s2">&quot;</span><span class="w">
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">(</span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">system_tempdir</span></a><span class="si">}</span><span class="s2">). Delete manually if you really want to.</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Removed temporary benchmark directory: /tmp/poseinterface-benchmark-z8gsw_us
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Removed temporary PoseMark directory: /tmp/posemark-wfk9dq47
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.334 seconds)</p>
-<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-convert-lp-to-benchmark-py">
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.410 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-convert-lp-to-posemark-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/e81ffc65262a347a92b5707e34a3f61d/convert_lp_to_benchmark.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">convert_lp_to_benchmark.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/e19f3171b405e80b242b14ddecb2d693/convert_lp_to_posemark.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">convert_lp_to_posemark.ipynb</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/4338ce8f6bf404c4fd4686933cd57086/convert_lp_to_benchmark.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">convert_lp_to_benchmark.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/582c43ad17285d82592cf5be62a11326/convert_lp_to_posemark.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">convert_lp_to_posemark.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-zip docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/08ffb6d6db963950c30207e4a003b192/convert_lp_to_benchmark.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">convert_lp_to_benchmark.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/9255edca54c2cf2321a77adfbfa0f636/convert_lp_to_posemark.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">convert_lp_to_posemark.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -953,12 +951,12 @@ this example to a real benchmark dataset path.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="convert_dlc_to_benchmark.html"
+       href="convert_dlc_to_posemark.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Convert DeepLabCut project to benchmark dataset</p>
+        <p class="prev-next-title">Convert DeepLabCut project to the PoseMark format</p>
       </div>
     </a>
     <a class="right-next"
@@ -994,7 +992,7 @@ this example to a real benchmark dataset path.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-lightning-pose-project">Source Lightning Pose project</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-sessions-to-convert">Define sessions to convert</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#split-the-project-level-annotation-file">Split the project-level annotation file</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-to-benchmark-format">Convert to benchmark format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-to-posemark-format">Convert to PoseMark format</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-clips">Extract clips</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#record-provenance-optional">Record provenance (optional)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">Clean up</a></li>
@@ -1004,7 +1002,7 @@ this example to a real benchmark dataset path.</p>
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/auto_examples/convert_lp_to_benchmark.rst.txt">
+    <a href="../_sources/auto_examples/convert_lp_to_posemark.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

@@ -1,10 +1,11 @@
 (target-poseinterface)=
 # poseinterface
 
-**poseinterface** exists to advance pose estimation and point tracking
-applications in animal behaviour videos. The project aims to provide
-benchmark datasets, baseline models trained on those datasets, as well as
-tools for running and comparing pose estimation and tracking methods.
+`poseinterface` exists to advance pose estimation and point tracking
+applications in animal behaviour videos. The project provides
+*PoseMark*, a benchmark corpus for evaluating such methods; a unified framework
+for running, comparing, and benchmarking pose estimation and point-tracking tools
+on that corpus; and a set of baseline models trained on the benchmark data.
 
 ::::{grid} 1 2 2 4
 :gutter: 3
@@ -23,11 +24,11 @@ Learn about the project's mission, team and how to contribute.
 How to install the `poseinterface` package.
 :::
 
-:::{grid-item-card} {fas}`database;sd-text-primary` Benchmark dataset
-:link: benchmark-dataset
+:::{grid-item-card} {fas}`database;sd-text-primary` PoseMark
+:link: posemark
 :link-type: doc
 
-Folder structure and file naming conventions for benchmark datasets.
+Folder structure and file naming specification for the benchmark corpus.
 :::
 
 :::{grid-item-card} {fas}`code;sd-text-primary` Examples
@@ -48,7 +49,7 @@ A gallery of examples using `poseinterface`.
 
 about
 installation
-benchmark-dataset
+posemark
 auto_examples/index
 api_index
 ```

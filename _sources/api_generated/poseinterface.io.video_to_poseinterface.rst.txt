@@ -1,6 +1,0 @@
-﻿poseinterface.io.video\_to\_poseinterface
-=========================================
-
-.. currentmodule:: poseinterface.io
-
-.. autofunction:: video_to_poseinterface

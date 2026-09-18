@@ -1,7 +1,8 @@
-"""Convert DeepLabCut project to benchmark dataset
-==================================================
+"""Convert DeepLabCut project to the PoseMark format
+====================================================
 
-Create a ``poseinterface`` benchmark dataset from a DeepLabCut (DLC) project.
+Prepare a DeepLabCut (DLC) project to be contributed
+to the *PoseMark* corpus.
 """
 
 # %%
@@ -16,10 +17,10 @@ from pathlib import Path
 import poseinterface
 from poseinterface.clips import extract_single_clip
 from poseinterface.io import (
-    annotations_to_poseinterface,
-    frames_to_poseinterface,
-    predictions_to_poseinterface,
-    video_to_poseinterface,
+    annotations_to_posemark,
+    frames_to_posemark,
+    predictions_to_posemark,
+    video_to_posemark,
 )
 from poseinterface.utils import tree
 
@@ -30,14 +31,14 @@ from poseinterface.utils import tree
 #
 # 1. **Convert:** DLC project files (videos, frame annotations, and
 #    keypoint predictions) are restructured into the
-#    :ref:`poseinterface benchmark layout <target-benchmark-dataset>`.
+#    :ref:`PoseMark format <target-posemark>`.
 # 2. **Extract clips:** Short video clips and their labels are extracted
 #    from the converted videos and their corresponding keypoint
 #    predictions, ready for expert review.
 #
-# .. figure:: /_static/DLC_to_poseinterface_worklow.svg
+# .. figure:: /_static/DLC_to_posemark_workflow.svg
 #    :alt: Workflow diagram showing how a DLC project is converted
-#           to a poseinterface benchmark dataset
+#           to the PoseMark format
 #    :align: center
 #
 #    High-level overview of the two-step conversion workflow.
@@ -59,8 +60,8 @@ from poseinterface.utils import tree
 #    of the original DLC project, and is intended for testing and demonstration
 #    purposes.
 #
-#    Replace ``source_project_dir`` and ``benchmark_base_dir`` with the paths
-#    to your DLC project and benchmark dataset directories, respectively. Keep
+#    Replace ``source_project_dir`` and ``posemark_base_dir`` with the paths
+#    to your DLC project and *PoseMark* directories, respectively. Keep
 #    in mind that your project will contain more files than are shown here.
 
 
@@ -74,8 +75,8 @@ source_project_dir = (
 print(tree(source_project_dir, level=1, exclude_hidden=True))
 
 # For this example we use a temporary directory, cleaned up at the end.
-benchmark_base_dir = Path(tempfile.mkdtemp(prefix="poseinterface-benchmark-"))
-print(f"\nBenchmark dataset will be saved to: {benchmark_base_dir}")
+posemark_base_dir = Path(tempfile.mkdtemp(prefix="posemark-"))
+print(f"\nPoseMark dataset will be saved to: {posemark_base_dir}")
 
 # %%
 # The two source project sub-directories we care about are:
@@ -104,7 +105,7 @@ print(tree(source_project_dir / "labeled-data", level=2, exclude_hidden=True))
 # ---------------------------
 # We select two sessions from the DLC project and assign each to either
 # the ``Train`` or ``Test`` split of the
-# :ref:`benchmark dataset <target-benchmark-dataset>`.
+# :ref:`PoseMark <target-posemark>`.
 # You may expand this list with more sessions, but ensure that each session
 # belongs to exactly one split, and that the same subject doesn't appear in
 # both splits (to avoid data leakage).
@@ -130,7 +131,7 @@ sessions = [
 project_name = "SWC-plusmaze"
 
 # %%
-# Convert to benchmark format
+# Convert to PoseMark format
 # ----------------------------
 # For each session we:
 #
@@ -149,14 +150,14 @@ for session in sessions:
         source_project_dir / "labeled-data" / source_video_path.stem
     )
     target_session_dir = (
-        benchmark_base_dir / split / project_name / sub_ses_prefix
+        posemark_base_dir / split / project_name / sub_ses_prefix
     )
     target_frames_dir = target_session_dir / "Frames"
     target_frames_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Converting session: {split}/{project_name}/{sub_ses_prefix}")
     # Copy the session video, re-encoding to H.264/yuv420p if necessary
-    video_to_poseinterface(
+    video_to_posemark(
         input_video=source_video_path,
         output_video_dir=target_session_dir,
         **ids,
@@ -164,7 +165,7 @@ for session in sessions:
     print(f"\tvideo: {source_video_path.name} -> {sub_ses_cam_prefix}.mp4")
 
     # Convert DLC annotations to COCO frame labels JSON, then copy the
-    # corresponding frame images with standardised poseinterface filenames.
+    # corresponding frame images with standardised PoseMark filenames.
     # In real projects there may be multiple annotation CSVs (e.g. for
     # different labelers); adjust the glob pattern to select the right one.
     source_annotations_path = next(
@@ -174,16 +175,16 @@ for session in sessions:
     if source_annotations_path is None:
         print(
             f"\tNo CollectedData CSV found in {source_frames_dir}."
-            " Skipping annotations-to-poseinterface conversion."
+            " Skipping annotations-to-PoseMark conversion."
         )
     else:
-        framelabels_path = annotations_to_poseinterface(
+        framelabels_path = annotations_to_posemark(
             input_path=source_annotations_path,
             output_dir=target_frames_dir,
             format="frame",
             **ids,
         )
-        frames_to_poseinterface(
+        frames_to_posemark(
             input_dir=source_frames_dir,
             output_dir=target_frames_dir,
             framelabels_path=framelabels_path,
@@ -204,10 +205,10 @@ for session in sessions:
         print(
             f"\tNo prediction CSV found for {source_video_path.stem!r} in "
             f"{source_project_dir / 'videos'}. Skipping predictions-to-"
-            "poseinterface conversion."
+            "PoseMark conversion."
         )
     else:
-        predictions_to_poseinterface(
+        predictions_to_posemark(
             input_path=source_predictions_path,
             video_path=source_video_path,
             output_dir=target_session_dir,
@@ -220,18 +221,17 @@ for session in sessions:
     print("Done.\n")
 
 # %%
-# The resulting benchmark dataset:
+# The resulting *PoseMark* dataset:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(posemark_base_dir, level=5))
 
 # %%
 # .. note::
 #
 #    Frame labels (``framelabels.json``) are generated for both splits, but in
 #    the **published** dataset the ``Test`` split intentionally omits them for
-#    evaluation. See the
-#    :ref:`folder structure specification<target-dataset-folder-structure>` for
-#    details.
+#    evaluation. See the :ref:`folder structure specification
+#    <target-posemark-folder-structure>` for details.
 #
 #    The ``videolabels.json`` files generated alongside each session video are
 #    intermediate artifacts used for clip extraction in the next section, and
@@ -246,7 +246,7 @@ print(tree(benchmark_base_dir, level=5))
 # clip label files (``cliplabels.json``) are generated automatically during
 # clip extraction.
 # These clip label files should then be proof-read and corrected by
-# experts before being included in the benchmark dataset.
+# experts before being included in *PoseMark*.
 #
 # First, we specify the clip-extraction parameters. This step can be repeated
 # with different parameters to incrementally expand the clip set.
@@ -264,7 +264,7 @@ for session in sessions:
     sub_ses_prefix = f"sub-{session['sub_id']}_ses-{session['ses_id']}"
     sub_ses_cam_prefix = f"{sub_ses_prefix}_cam-{session['cam_id']}"
     session_dir = (
-        benchmark_base_dir / session["split"] / project_name / sub_ses_prefix
+        posemark_base_dir / session["split"] / project_name / sub_ses_prefix
     )
 
     for start_frame in start_frames:
@@ -277,10 +277,10 @@ for session in sessions:
 
 
 # %%
-# The resulting benchmark dataset, including the extracted clips and their
+# The resulting *PoseMark* dataset, including the extracted clips and their
 # corresponding labels:
 
-print(tree(benchmark_base_dir, level=5))
+print(tree(posemark_base_dir, level=5))
 
 
 # %%
@@ -293,8 +293,8 @@ print(tree(benchmark_base_dir, level=5))
 #    both splits to support point-tracker evaluation.
 #    The ``videolabels.json`` files generated in the previous section are
 #    intermediate artifacts used for clip extraction, and are never shared.
-#    See the :ref:`folder structure specification<target-dataset-folder-\
-#    structure>` for details.
+#    See the :ref:`folder structure specification
+#    <target-posemark-folder-structure>` for details.
 
 
 # %%
@@ -307,10 +307,10 @@ print(tree(benchmark_base_dir, level=5))
 # ``poseinterface`` version (including git commit, via ``setuptools_scm``)
 # and a UTC timestamp. Both files are written to a top-level
 # ``.provenance/`` folder, named by project, so multiple projects under the
-# same ``benchmark_base_dir`` stay distinct.
+# same ``posemark_base_dir`` stay distinct.
 
 # sphinx_gallery_capture_repr = ()
-provenance_dir = benchmark_base_dir / ".provenance"
+provenance_dir = posemark_base_dir / ".provenance"
 provenance_dir.mkdir(parents=True, exist_ok=True)
 
 # ``__file__`` is set when running this script directly with Python, but not
@@ -337,16 +337,16 @@ if script_path_str:
 #
 # .. warning::
 #
-#    Only run this cell when ``benchmark_base_dir`` points to a temporary
+#    Only run this cell when ``posemark_base_dir`` points to a temporary
 #    location. The guard below refuses to delete anything outside the system
 #    temp directory, so it is safe to leave in place when you adapt this
-#    example to a real benchmark dataset path.
+#    example to a real *PoseMark* dataset path.
 
 system_tempdir = Path(tempfile.gettempdir()).resolve()
-target = benchmark_base_dir.resolve()
+target = posemark_base_dir.resolve()
 if target.is_relative_to(system_tempdir) and target != system_tempdir:
     shutil.rmtree(target)
-    print(f"Removed temporary benchmark directory: {target}")
+    print(f"Removed temporary PoseMark directory: {target}")
 else:
     print(
         f"Refusing to remove {target}: not inside system temp dir "

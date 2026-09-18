@@ -1,0 +1,6 @@
+﻿poseinterface.io.frames\_to\_posemark
+=====================================
+
+.. currentmodule:: poseinterface.io
+
+.. autofunction:: frames_to_posemark

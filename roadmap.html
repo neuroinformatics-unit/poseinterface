@@ -156,8 +156,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="benchmark-dataset.html">
-    Benchmark dataset
+  <a class="nav-link nav-internal" href="posemark.html">
+    The PoseMark format
   </a>
 </li>
 
@@ -296,8 +296,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="benchmark-dataset.html">
-    Benchmark dataset
+  <a class="nav-link nav-internal" href="posemark.html">
+    The PoseMark format
   </a>
 </li>
 
@@ -464,7 +464,7 @@ We will take community feedback into account when planning future releases.</p>
 <h2>Long-term vision<a class="headerlink" href="#long-term-vision" title="Link to this heading">#</a></h2>
 <p>The following capabilities are guiding the project’s direction:</p>
 <ul class="simple">
-<li><p><strong>Standardize the representation of keypoint datasets.</strong>
+<li><p><strong>standardise the representation of keypoint datasets.</strong>
 Labeled frames, labeled video clips, unlabeled video, and experimental
 metadata should all be representable, queryable, and validatable in a single,
 consistent, machine-readable schema, regardless of which tool produced them.</p></li>
@@ -473,20 +473,20 @@ We aim to bring datasets from pose estimation packages like
 <a class="reference external" href="https://lightning-pose.readthedocs.io/">Lightning Pose</a>,
 <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut">DeepLabCut</a>,
 <a class="reference external" href="https://sleap.ai/">SLEAP</a>,
-and others into the standardized schema without loss of label fidelity or the
+and others into the standardised schema without loss of label fidelity or the
 need for re-annotation.
 Labeled video clips will also allow interoperability with point tracking
 models like
 <a class="reference external" href="https://deepmind-tapir.github.io/">TAPIR</a>
 and
 <a class="reference external" href="https://co-tracker.github.io/">CoTracker</a>.</p></li>
-<li><p><strong>Grow a shared, community-contributed benchmark corpus.</strong>
-Labs should be able to submit labeled and unlabeled data with minimal
+<li><p><strong>Grow <a class="reference internal" href="posemark.html#target-posemark"><span class="std std-ref">PoseMark</span></a>, a shared, community-contributed benchmark corpus.</strong>
+Labs should be able to contribute labeled and unlabeled data with minimal
 friction, expanding the pool of data available for training and evaluating
 pose estimation and point tracking models.</p></li>
 <li><p><strong>Expose agent-callable, AI-native interfaces.</strong>
 Automated pipelines and AI agents should be able to run inference and train
-models on standardized data directly, without a human in the loop.</p></li>
+models on standardised data directly, without a human in the loop.</p></li>
 <li><p><strong>Define shared keypoint ontologies.</strong> A common vocabulary for body parts
 across labs’ differing naming conventions should make it possible to combine
 data from multiple independent datasets into a single training set, starting
@@ -504,15 +504,15 @@ metadata), building on our existing draft schema.</p></li>
 <li><p>Validate the schema against a range of real-world experimental paradigms
 (e.g., head-fixed vs. freely moving, multiple species).</p></li>
 <li><p>Build converters from DeepLabCut and SLEAP project exports into the
-standardized schema, sharing code with the Lightning Pose converter where
+standardised schema, sharing code with the Lightning Pose converter where
 possible.</p></li>
 <li><p>Define or adapt a shared keypoint ontology for mouse body parts, and map
-keypoint labels across contributed benchmark datasets onto it.</p></li>
-<li><p>Host tutorials on dataset conversion and submission to the benchmark corpus.</p></li>
+keypoint labels across datasets contributed to <em>PoseMark</em> onto it.</p></li>
+<li><p>Host tutorials on dataset conversion and submission to <em>PoseMark</em>.</p></li>
 <li><p>Define and document a stable programmatic interface for <strong>training</strong>
 Lightning Pose models via <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code>.</p></li>
-<li><p>Train a Lightning Pose model across multiple mapped datasets from the
-benchmark corpus, as a proof of concept for cross-dataset training.</p></li>
+<li><p>Train a Lightning Pose model across multiple mapped datasets from
+<em>PoseMark</em>, as a proof of concept for cross-dataset training.</p></li>
 <li><p>Define and document a stable, agent-callable programmatic interface for
 running <strong>inference</strong> with additional point trackers on raw video via
 <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> (for instance TAPIR).</p></li>
@@ -523,19 +523,20 @@ running <strong>inference</strong> with additional point trackers on raw video v
 <p>We defined these high-level goals at the end of 2025.
 Items completed have been checked off.</p>
 <ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Establish the core <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> framework: standardized folder
-structures, file formats, and naming conventions for benchmark datasets.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Establish the core <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code> framework: standardised folder
+structures, file formats, and naming conventions for <em>PoseMark</em>.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Release the package on <a class="reference external" href="https://pypi.org/project/poseinterface/">PyPI</a>.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Launch a public
-<a class="reference external" href="https://poseinterface.neuroinformatics.dev/">documentation website</a>.</p></li>
+<a class="reference internal" href="index.html#target-poseinterface"><span class="std std-ref">documentation website</span></a>.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Publish contributing guidelines and a Code of Conduct.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Draft an initial
-<a class="reference external" href="https://poseinterface.neuroinformatics.dev/benchmark-dataset.html">benchmark dataset specification</a>,
+<a class="reference internal" href="posemark.html#target-posemark"><span class="std std-ref">PoseMark specification</span></a>,
 including early design decisions such as reliance on COCO-style JSON.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox">Build a converter from Lightning Pose project exports into the
-standardized schema, plus submission utilities for contributing datasets
-to the benchmark corpus.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox">Define standardized evaluation metrics for pose estimators and
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">Build converters from Lightning Pose and DeepLabCut project exports into
+the standardised <em>PoseMark</em> format.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox">Build submission utilities for contributing
+standardised datasets to <em>PoseMark</em>.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox">Define standardised evaluation metrics for pose estimators and
 point trackers.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox">Define and document a stable, agent-callable programmatic interface for
 running Lightning Pose <strong>inference</strong> on raw video via <code class="docutils literal notranslate"><span class="pre">poseinterface</span></code>

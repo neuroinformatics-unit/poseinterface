@@ -3,7 +3,8 @@
 Examples
 ========
 
-A gallery of examples demonstrating ``poseinterface`` usage.
+A gallery of examples demonstrating usage of the ``poseinterface`` package
+and the *PoseMark* benchmark corpus.
 
 
 .. raw:: html
@@ -19,35 +20,35 @@ A gallery of examples demonstrating ``poseinterface`` usage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a DeepLabCut (DLC) project.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Prepare a DeepLabCut (DLC) project to be contributed to the PoseMark corpus.">
 
 .. only:: html
 
-  .. image:: /auto_examples/images/thumb/sphx_glr_convert_dlc_to_benchmark_thumb.png
+  .. image:: /auto_examples/images/thumb/sphx_glr_convert_dlc_to_posemark_thumb.png
     :alt:
 
-  :doc:`/auto_examples/convert_dlc_to_benchmark`
+  :doc:`/auto_examples/convert_dlc_to_posemark`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Convert DeepLabCut project to benchmark dataset</div>
+      <div class="sphx-glr-thumbnail-title">Convert DeepLabCut project to the PoseMark format</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Create a poseinterface benchmark dataset from a Lightning Pose (LP) project.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Prepare a Lightning Pose (LP) project to be contributed to the PoseMark corpus.">
 
 .. only:: html
 
-  .. image:: /auto_examples/images/thumb/sphx_glr_convert_lp_to_benchmark_thumb.png
+  .. image:: /auto_examples/images/thumb/sphx_glr_convert_lp_to_posemark_thumb.png
     :alt:
 
-  :doc:`/auto_examples/convert_lp_to_benchmark`
+  :doc:`/auto_examples/convert_lp_to_posemark`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Convert Lightning Pose project to benchmark dataset</div>
+      <div class="sphx-glr-thumbnail-title">Convert Lightning Pose project to the PoseMark format</div>
     </div>
 
 
@@ -61,8 +62,8 @@ A gallery of examples demonstrating ``poseinterface`` usage.
 .. toctree::
    :hidden:
 
-   /auto_examples/convert_dlc_to_benchmark
-   /auto_examples/convert_lp_to_benchmark
+   /auto_examples/convert_dlc_to_posemark
+   /auto_examples/convert_lp_to_posemark
 
 
 .. only:: html

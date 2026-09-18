@@ -1,0 +1,6 @@
+﻿poseinterface.io.predictions\_to\_posemark
+==========================================
+
+.. currentmodule:: poseinterface.io
+
+.. autofunction:: predictions_to_posemark

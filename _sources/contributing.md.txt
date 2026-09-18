@@ -105,8 +105,8 @@ Test CSV files in `tests/data/` represent two DLC CSV formats:
 - `CollectedData_Pranav.csv`: Single-index format (path in one column)
 - `CollectedData_Shailaja.csv`: Multi-index format (path split across 3 columns)
 
-Sample benchmark data lives in `tests/data/Train/SWC-plusmaze/sub-M708149_ses-20200317/`
-and conforms to the dataset spec (session video excluded from git).
+Sample *PoseMark* data lives in `tests/data/Train/SWC-plusmaze/sub-M708149_ses-20200317/`
+and conforms to the [PoseMark specification](target-posemark) (session video excluded from git).
 
 
 ## Documentation

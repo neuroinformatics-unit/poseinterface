@@ -1,0 +1,6 @@
+﻿poseinterface.io.annotations\_to\_posemark
+==========================================
+
+.. currentmodule:: poseinterface.io
+
+.. autofunction:: annotations_to_posemark
