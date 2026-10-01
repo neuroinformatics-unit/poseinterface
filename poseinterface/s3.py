@@ -2,11 +2,30 @@
 
 Note
 ----
-All functions in this module create a new boto3 Session and S3 client on
-each invocation. For operations that call these functions repeatedly (e.g.,
-copying many files), this may result in multiple client creations. This is
-acceptable for most use cases but may be inefficient for high-frequency
-operations.
+By default, functions in this module that talk to S3 create a new boto3
+Session and S3 client on each invocation. Creating a client has a cost
+(reading AWS config, resolving credentials, and opening new HTTPS
+connections), so all of them also accept an optional ``s3_client``
+argument. Pass a client created once with
+``boto3.Session(...).client("s3")`` to reuse it across calls.
+:func:`copy_s3_folder` does this internally.
+
+Copying objects larger than 5 GB
+--------------------------------
+:func:`copy_s3_object` and :func:`copy_s3_folder` use the S3
+``CopyObject`` API, which is limited to source objects of at most 5 GB.
+Larger objects fail with a ``ClientError`` (error code ``InvalidRequest``),
+and :func:`copy_s3_folder` then rolls back any objects already copied.
+To copy larger objects, use boto3's managed transfer, which switches to a
+multipart copy automatically::
+
+    s3_client.copy(
+        {"Bucket": source_bucket, "Key": source_key},
+        dest_bucket,
+        dest_key,
+    )
+
+or the AWS CLI (``aws s3 cp`` / ``aws s3 sync``), which does the same.
 """
 
 import json
@@ -15,7 +34,18 @@ import re
 from typing import Callable
 
 import boto3
+from botocore.client import BaseClient
 from botocore.exceptions import ClientError
+
+
+def _get_s3_client(
+    aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
+) -> BaseClient:
+    """Return ``s3_client`` if given, otherwise create a new S3 client."""
+    if s3_client is not None:
+        return s3_client
+    return boto3.Session(profile_name=aws_profile).client("s3")
 
 
 def parse_s3_uri(s3_uri: str) -> tuple[str, str]:
@@ -51,7 +81,10 @@ def parse_s3_uri(s3_uri: str) -> tuple[str, str]:
 
 
 def download_json_from_s3(
-    bucket_name: str, key: str, aws_profile: str | None = None
+    bucket_name: str,
+    key: str,
+    aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> dict:
     """Download and parse a JSON file from S3.
 
@@ -63,6 +96,9 @@ def download_json_from_s3(
         S3 object key (path within the bucket).
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Returns
     -------
@@ -76,8 +112,7 @@ def download_json_from_s3(
     ClientError
         If there are other S3 access issues.
     """
-    session = boto3.Session(profile_name=aws_profile)
-    s3_client = session.client("s3")
+    s3_client = _get_s3_client(aws_profile, s3_client)
 
     try:
         logging.info(f"Downloading s3://{bucket_name}/{key}")
@@ -103,6 +138,7 @@ def upload_json_to_s3(
     bucket_name: str,
     key: str,
     aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> None:
     """Upload a JSON object to S3.
 
@@ -116,14 +152,16 @@ def upload_json_to_s3(
         S3 object key (path within the bucket).
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Raises
     ------
     ClientError
         If there are S3 access issues.
     """
-    session = boto3.Session(profile_name=aws_profile)
-    s3_client = session.client("s3")
+    s3_client = _get_s3_client(aws_profile, s3_client)
 
     logging.info(f"Uploading to s3://{bucket_name}/{key}")
     s3_client.put_object(
@@ -138,6 +176,7 @@ def list_s3_objects(
     bucket_name: str,
     prefix: str = "",
     aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> list[dict]:
     """List all objects in an S3 bucket with a given prefix.
 
@@ -149,6 +188,9 @@ def list_s3_objects(
         S3 prefix (folder path) to list objects from.
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Returns
     -------
@@ -160,8 +202,7 @@ def list_s3_objects(
     ClientError
         If there are S3 access issues.
     """
-    session = boto3.Session(profile_name=aws_profile)
-    s3_client = session.client("s3")
+    s3_client = _get_s3_client(aws_profile, s3_client)
 
     objects = []
     paginator = s3_client.get_paginator("list_objects_v2")
@@ -188,13 +229,25 @@ def copy_s3_object(
     dest_bucket: str,
     dest_key: str,
     aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> None:
     """Copy a single object from one S3 location to another.
 
     Note
     ----
-    This function uses the S3 copy_object API which has a 5GB file size
-    limit. For objects larger than 5GB, use multipart copy instead.
+    This function uses the S3 ``CopyObject`` API, which only supports
+    source objects up to 5 GB. Copying a larger object raises a
+    ``ClientError`` with error code ``InvalidRequest``. For larger objects,
+    use boto3's managed transfer, which performs a multipart copy
+    automatically::
+
+        s3_client.copy(
+            {"Bucket": source_bucket, "Key": source_key},
+            dest_bucket,
+            dest_key,
+        )
+
+    or the AWS CLI (``aws s3 cp``).
 
     Parameters
     ----------
@@ -208,14 +261,16 @@ def copy_s3_object(
         Destination S3 object key.
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Raises
     ------
     ClientError
         If there are S3 access issues.
     """
-    session = boto3.Session(profile_name=aws_profile)
-    s3_client = session.client("s3")
+    s3_client = _get_s3_client(aws_profile, s3_client)
 
     copy_source = {"Bucket": source_bucket, "Key": source_key}
 
@@ -245,6 +300,7 @@ def delete_s3_objects(
     bucket_name: str,
     keys: list[str],
     aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> None:
     """Delete multiple objects from S3.
 
@@ -256,6 +312,9 @@ def delete_s3_objects(
         List of S3 object keys to delete.
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Raises
     ------
@@ -267,8 +326,7 @@ def delete_s3_objects(
     if not keys:
         return
 
-    session = boto3.Session(profile_name=aws_profile)
-    s3_client = session.client("s3")
+    s3_client = _get_s3_client(aws_profile, s3_client)
 
     # Delete in batches of 1000 (S3 limit)
     batch_size = 1000
@@ -319,11 +377,20 @@ def copy_s3_folder(
     dest_prefix: str,
     exclude_filter: Callable[[str], bool] | None = None,
     aws_profile: str | None = None,
+    s3_client: BaseClient | None = None,
 ) -> tuple[list[str], bool]:
     """Copy a folder from one S3 location to another with optional filtering.
 
     This function tracks all copied files and supports rollback if the
-    copy fails.
+    copy fails. A single S3 client is created (or ``s3_client`` is used)
+    and reused for listing, copying and any rollback deletes.
+
+    Note
+    ----
+    Each object is copied with :func:`copy_s3_object`, so objects larger
+    than 5 GB cannot be copied. If the folder contains such an object, the
+    copy fails when it reaches it and all objects copied so far are rolled
+    back. See :func:`copy_s3_object` for how to copy larger objects.
 
     Parameters
     ----------
@@ -340,6 +407,9 @@ def copy_s3_folder(
         returns True if the file should be excluded from the copy.
     aws_profile
         Optional AWS profile name to use for authentication.
+    s3_client
+        Optional existing boto3 S3 client to reuse. If provided,
+        ``aws_profile`` is ignored.
 
     Returns
     -------
@@ -359,9 +429,14 @@ def copy_s3_folder(
     if dest_prefix and not dest_prefix.endswith("/"):
         dest_prefix += "/"
 
+    # Create the client once and reuse it for all S3 calls below
+    s3_client = _get_s3_client(aws_profile, s3_client)
+
     # List all objects in source
     logging.info(f"Listing objects in s3://{source_bucket}/{source_prefix}")
-    source_objects = list_s3_objects(source_bucket, source_prefix, aws_profile)
+    source_objects = list_s3_objects(
+        source_bucket, source_prefix, s3_client=s3_client
+    )
 
     # Filter objects
     objects_to_copy = []
@@ -401,7 +476,7 @@ def copy_s3_folder(
                 source_key,
                 dest_bucket,
                 dest_key,
-                aws_profile,
+                s3_client=s3_client,
             )
             copied_keys.append(dest_key)
 
@@ -418,7 +493,9 @@ def copy_s3_folder(
                 f"copied objects"
             )
             try:
-                delete_s3_objects(dest_bucket, copied_keys, aws_profile)
+                delete_s3_objects(
+                    dest_bucket, copied_keys, s3_client=s3_client
+                )
                 logging.info("Rollback completed successfully")
             except Exception as rollback_error:
                 logging.error(f"Rollback failed: {rollback_error}")

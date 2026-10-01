@@ -354,12 +354,54 @@ def test_delete_s3_objects_client_error():
             delete_s3_objects("test-bucket", keys)
 
 
+@pytest.mark.parametrize(
+    "func, args, client_method",
+    [
+        (list_s3_objects, ("bucket", "prefix/"), "get_paginator"),
+        (
+            copy_s3_object,
+            ("src-bucket", "src/key", "dst-bucket", "dst/key"),
+            "copy_object",
+        ),
+        (delete_s3_objects, ("bucket", ["key1"]), "delete_objects"),
+        (download_json_from_s3, ("bucket", "key.json"), "get_object"),
+        (upload_json_to_s3, ({"a": 1}, "bucket", "key.json"), "put_object"),
+    ],
+)
+def test_helpers_reuse_provided_client(func, args, client_method):
+    """Test that helpers use a provided s3_client instead of a new one."""
+    provided_client = MagicMock()
+    provided_client.delete_objects.return_value = {}
+    provided_client.get_object.return_value = {
+        "Body": MagicMock(read=MagicMock(return_value=b"{}"))
+    }
+
+    with patch("poseinterface.s3.boto3.Session") as mock_session:
+        func(*args, s3_client=provided_client)
+
+    mock_session.assert_not_called()
+    getattr(provided_client, client_method).assert_called_once()
+
+
 # ---------------------------------------------------------------------------
 # copy_s3_folder
 # ---------------------------------------------------------------------------
 
 
-def test_copy_s3_folder_success():
+@pytest.fixture
+def mock_session():
+    """Patch boto3.Session so no real AWS client is created."""
+    with patch("poseinterface.s3.boto3.Session") as mock_session:
+        yield mock_session
+
+
+@pytest.fixture
+def mock_s3_client(mock_session):
+    """Return the S3 client that the patched session produces."""
+    return mock_session.return_value.client.return_value
+
+
+def test_copy_s3_folder_success(mock_session, mock_s3_client):
     """Test successful folder copy."""
     mock_objects = [
         {"Key": "source/file1.txt", "Size": 100},
@@ -387,6 +429,10 @@ def test_copy_s3_folder_success():
         "dest/subdir/file3.txt",
     ]
 
+    # A single client is created and reused for every copy
+    mock_session.assert_called_once_with(profile_name="test-profile")
+    mock_session.return_value.client.assert_called_once_with("s3")
+
     # Verify all files were copied
     assert mock_copy.call_count == 3
     mock_copy.assert_any_call(
@@ -394,25 +440,25 @@ def test_copy_s3_folder_success():
         "source/file1.txt",
         "dest-bucket",
         "dest/file1.txt",
-        "test-profile",
+        s3_client=mock_s3_client,
     )
     mock_copy.assert_any_call(
         "source-bucket",
         "source/file2.txt",
         "dest-bucket",
         "dest/file2.txt",
-        "test-profile",
+        s3_client=mock_s3_client,
     )
     mock_copy.assert_any_call(
         "source-bucket",
         "source/subdir/file3.txt",
         "dest-bucket",
         "dest/subdir/file3.txt",
-        "test-profile",
+        s3_client=mock_s3_client,
     )
 
 
-def test_copy_s3_folder_with_filter():
+def test_copy_s3_folder_with_filter(mock_session, mock_s3_client):
     """Test folder copy with exclusion filter."""
     mock_objects = [
         {"Key": "source/file1.txt", "Size": 100},
@@ -441,7 +487,7 @@ def test_copy_s3_folder_with_filter():
     assert copied_keys == ["dest/file1.txt", "dest/data.txt"]
 
 
-def test_copy_s3_folder_with_path_filter():
+def test_copy_s3_folder_with_path_filter(mock_session, mock_s3_client):
     """Test folder copy with path-based exclusion filter."""
     mock_objects = [
         {"Key": "source/Train/sample.json", "Size": 100},
@@ -470,7 +516,7 @@ def test_copy_s3_folder_with_path_filter():
     assert copied_keys == ["dest/Train/sample.json", "dest/Train/data.json"]
 
 
-def test_copy_s3_folder_rollback_on_failure():
+def test_copy_s3_folder_rollback_on_failure(mock_session, mock_s3_client):
     """Test folder copy rolls back on failure."""
     mock_objects = [
         {"Key": "source/file1.txt", "Size": 100},
@@ -479,7 +525,7 @@ def test_copy_s3_folder_rollback_on_failure():
     ]
 
     # Make the second copy fail
-    def copy_side_effect(src_bucket, src_key, dst_bucket, dst_key, profile):
+    def copy_side_effect(src_bucket, src_key, dst_bucket, dst_key, **kwargs):
         if src_key == "source/file2.txt":
             raise Exception("Copy failed")
 
@@ -503,11 +549,11 @@ def test_copy_s3_folder_rollback_on_failure():
 
     # Should have rolled back by deleting the first copied file
     mock_delete.assert_called_once_with(
-        "dest-bucket", ["dest/file1.txt"], None
+        "dest-bucket", ["dest/file1.txt"], s3_client=mock_s3_client
     )
 
 
-def test_copy_s3_folder_rollback_failure():
+def test_copy_s3_folder_rollback_failure(mock_session, mock_s3_client):
     """Test folder copy handles rollback failures gracefully."""
     mock_objects = [
         {"Key": "source/file1.txt", "Size": 100},
@@ -515,12 +561,12 @@ def test_copy_s3_folder_rollback_failure():
     ]
 
     # Make the second copy fail
-    def copy_side_effect(src_bucket, src_key, dst_bucket, dst_key, profile):
+    def copy_side_effect(src_bucket, src_key, dst_bucket, dst_key, **kwargs):
         if src_key == "source/file2.txt":
             raise Exception("Copy failed")
 
     # Make the rollback delete also fail
-    def delete_side_effect(bucket, keys, profile):
+    def delete_side_effect(bucket, keys, **kwargs):
         raise Exception("Delete failed during rollback")
 
     with (
@@ -540,7 +586,7 @@ def test_copy_s3_folder_rollback_failure():
         )
 
 
-def test_copy_s3_folder_adds_trailing_slashes():
+def test_copy_s3_folder_adds_trailing_slashes(mock_session, mock_s3_client):
     """Test that copy_s3_folder adds trailing slashes to prefixes."""
     mock_objects = [
         {"Key": "source/file.txt", "Size": 100},
@@ -560,10 +606,12 @@ def test_copy_s3_folder_adds_trailing_slashes():
         )
 
     # Should call list with trailing slash
-    mock_list.assert_called_once_with("source-bucket", "source/", None)
+    mock_list.assert_called_once_with(
+        "source-bucket", "source/", s3_client=mock_s3_client
+    )
 
 
-def test_copy_s3_folder_skips_folder_markers():
+def test_copy_s3_folder_skips_folder_markers(mock_session, mock_s3_client):
     """Test that folder markers (keys ending with /) are skipped."""
     mock_objects = [
         {"Key": "source/", "Size": 0},  # Folder marker
@@ -584,6 +632,38 @@ def test_copy_s3_folder_skips_folder_markers():
     # Should only copy the file, not the folder marker
     assert len(copied_keys) == 1
     assert mock_copy.call_count == 1
+
+
+def test_copy_s3_folder_uses_provided_client(mock_session):
+    """Test that a provided s3_client is reused and no new one is created."""
+    provided_client = MagicMock()
+    mock_objects = [{"Key": "source/file.txt", "Size": 100}]
+
+    with (
+        patch(
+            "poseinterface.s3.list_s3_objects", return_value=mock_objects
+        ) as mock_list,
+        patch("poseinterface.s3.copy_s3_object") as mock_copy,
+    ):
+        copy_s3_folder(
+            "source-bucket",
+            "source",
+            "dest-bucket",
+            "dest",
+            s3_client=provided_client,
+        )
+
+    mock_session.assert_not_called()
+    mock_list.assert_called_once_with(
+        "source-bucket", "source/", s3_client=provided_client
+    )
+    mock_copy.assert_called_once_with(
+        "source-bucket",
+        "source/file.txt",
+        "dest-bucket",
+        "dest/file.txt",
+        s3_client=provided_client,
+    )
 
 
 # ---------------------------------------------------------------------------
