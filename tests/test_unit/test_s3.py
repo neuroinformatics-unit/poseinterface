@@ -654,9 +654,9 @@ def test_create_filename_exclude_filter_regex():
     assert filter_fn("test_file.py") is True
     assert filter_fn("test_something.py") is True
     assert filter_fn("123") is True
-    assert filter_fn("456file") is True
 
     # Should not be excluded
+    assert filter_fn("456file") is False
     assert filter_fn("test_file.txt") is False
     assert filter_fn("file.py") is False
     assert filter_fn("abc") is False

@@ -471,7 +471,7 @@ def create_filename_exclude_filter(
         # Regex pattern
         if pattern.startswith("regex:"):
             regex_pattern = pattern[6:]
-            return bool(re.match(regex_pattern, path))
+            return bool(re.fullmatch(regex_pattern, path))
 
         # Glob-style pattern - convert to regex
         # Escape special regex chars except * and ?
