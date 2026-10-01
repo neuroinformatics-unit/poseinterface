@@ -8,14 +8,14 @@ with id=0).
 Examples
 --------
 Extract with automatic output naming:
-    python extract_startlabels.py s3://bucket/path/video_cliplabels.json
+    python extract_startlabels_s3.py s3://bucket/path/video_cliplabels.json
 
 Specify custom output location:
-    python extract_startlabels.py s3://bucket/path/video_cliplabels.json \\
+    python extract_startlabels_s3.py s3://bucket/path/video_cliplabels.json \\
         s3://bucket/output/video_startlabels.json
 
 Use specific AWS profile:
-    python extract_startlabels.py s3://bucket/path/video_cliplabels.json \\
+    python extract_startlabels_s3.py s3://bucket/path/video_cliplabels.json \\
         --profile my-profile
 """
 

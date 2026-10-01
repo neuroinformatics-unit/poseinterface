@@ -45,6 +45,11 @@ s3
     parse_s3_uri
     download_json_from_s3
     upload_json_to_s3
+    list_s3_objects
+    copy_s3_object
+    delete_s3_objects
+    copy_s3_folder
+    create_filename_exclude_filter
 
 
 utils
