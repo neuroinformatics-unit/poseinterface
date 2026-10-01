@@ -523,6 +523,8 @@ def create_filename_exclude_filter(
         - Exact paths/filenames (e.g., "temp.txt", "Test/sample.json")
         - Glob-style patterns (e.g., "*.log", "temp_*", "Test/*",
           "*/sample.json")
+          Unlike shell globs, * and ? also match /. For example, *.json
+          matches JSON files in all subdirectories, not just the top level.
         - Regex patterns (must start with "regex:")
 
     Returns
