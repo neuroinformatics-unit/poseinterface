@@ -129,7 +129,7 @@ containing videos of mouse paw movements analysed using
 
     2 directories, 1 files
 
-    PoseMark dataset will be saved to: /tmp/posemark-wfk9dq47
+    PoseMark dataset will be saved to: /tmp/posemark-76fx4td3
 
 
 
@@ -431,7 +431,7 @@ The resulting *PoseMark* dataset:
 
  .. code-block:: none
 
-    posemark-wfk9dq47/
+    posemark-76fx4td3/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -573,7 +573,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    posemark-wfk9dq47/
+    posemark-76fx4td3/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -712,7 +712,7 @@ end.
 
  .. code-block:: none
 
-    Removed temporary PoseMark directory: /tmp/posemark-wfk9dq47
+    Removed temporary PoseMark directory: /tmp/posemark-76fx4td3
 
 
 
@@ -720,7 +720,7 @@ end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.410 seconds)
+   **Total running time of the script:** (0 minutes 4.365 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_lp_to_posemark.py:
