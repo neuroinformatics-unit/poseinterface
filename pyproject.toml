@@ -84,6 +84,7 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=poseinterface"
+testpaths = ["tests"]
 filterwarnings = [
     "error",
 ]
@@ -145,8 +146,3 @@ commands =
 skip = '.git,*.svg'
 check-hidden = true
 ignore-words-list = 'reencode'
-
-[tool.uv.workspace]
-members = [
-    "envs/cotracker3",
-]

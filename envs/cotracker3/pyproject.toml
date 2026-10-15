@@ -12,4 +12,10 @@ dependencies = [
 
 [tool.uv.sources]
 cotracker = { git = "https://github.com/facebookresearch/co-tracker" }
-poseinterface = { workspace = true }
+poseinterface = { path = "../..", editable = true }
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

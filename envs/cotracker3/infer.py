@@ -1,33 +1,34 @@
+import argparse
 import sys
-import torch
+from pathlib import Path
+
+import numpy as np
+
+from poseinterface.trackers import PointTracker
 
 
-class PointTrackerCoTracker(PointTracker):
-    def __init__(self):
-        model_name: str
-        config: dict
-        model: torch.nn.Module
+class CoTracker3(PointTracker):
+    def __init__(
+        self, checkpoint: str = "cotracker3_offline", device: str = "cpu"
+    ) -> None:
+        raise NotImplementedError
 
-        self.model = torch.hub.load("facebookresearch/co-tracker", "cotracker3_offline").to(device)
-
-    def infer(self, startlabels: dict, video: torch.Tensor) -> dict:
-        # convert from PoseMark to cotracker format
-        # pred_tracks, pred_visibility = self.model(video, grid_size=grid_size) # B T N 2,  B T N 1
-        pass 
-
-    def evaluate(self, predicted_tracks: dict, gt_tracks: dict) -> dict:
-        pass
+    def track(
+        self, video: np.ndarray, queries: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        raise NotImplementedError
 
 
-def parse_args(args):
-    pass
+def parse_args(args: list[str]) -> argparse.Namespace:
+    # shared across trackers: --startlabels, --video, --out
+    # tool-specific: --checkpoint, --device
+    raise NotImplementedError
 
-def main(args) -> None:
-    point_tracker = PointTrackerCoTracker(args.model, args.config)
-    point_tracker.infer(startlabels={})
-    print("Inference completed successfully. Saved results .")
+
+def main(args: argparse.Namespace) -> None:
+    tracker = CoTracker3(args.checkpoint, args.device)
+    tracker.run(args.startlabels, args.video, Path(args.out))
 
 
 if __name__ == "__main__":
-    infer_args = parse_args(sys.argv[1:])
-    main(infer_args)
+    main(parse_args(sys.argv[1:]))
