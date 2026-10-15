@@ -145,3 +145,8 @@ commands =
 skip = '.git,*.svg'
 check-hidden = true
 ignore-words-list = 'reencode'
+
+[tool.uv.workspace]
+members = [
+    "envs/cotracker3",
+]
