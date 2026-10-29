@@ -81,8 +81,9 @@ print(f"\nPoseMark dataset will be saved to: {posemark_base_dir}")
 #
 # - All annotations live in a **single project-level** labels file
 #   (``labels.v001.slp``), which may cover multiple videos.
-# - Labeled frames are not stored as image files; they are read directly
-#   from the videos referenced by the labels file.
+# - Labeled frames are not stored as separate image files. In this example
+#   they are read directly from the videos referenced by the labels file
+#   (SLEAP package files, ``.pkg.slp``, embed images as an HDF5 image dataset).
 # - Predictions are stored per video in ``predictions/``, as
 #   ``.predictions.slp`` files.
 #
