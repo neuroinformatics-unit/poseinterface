@@ -191,8 +191,8 @@ for session in sessions:
     # PoseMark filenames.
     video = session_labels.video
     for image in json.loads(framelabels_path.read_text())["images"]:
-        frame_idx = int(Path(image["file_name"]).stem.split("frame-")[-1])
-        iio.imwrite(target_frames_dir / image["file_name"], video[frame_idx])
+        frame = video[image["id"]].squeeze()
+        iio.imwrite(target_frames_dir / image["file_name"], frame)
     print(
         f"\tannotations (+ frame images): {session_labels_path.name} "
         f"-> {framelabels_path.name}"
