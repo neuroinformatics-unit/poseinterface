@@ -130,7 +130,7 @@ Elevated Plus Maze (EPM), analysed using
 
     2 directories
 
-    PoseMark dataset will be saved to: /tmp/posemark-g_4pl68z
+    PoseMark dataset will be saved to: /tmp/posemark-5b9dvtu9
 
 
 
@@ -396,7 +396,7 @@ The resulting *PoseMark* dataset:
 
  .. code-block:: none
 
-    posemark-g_4pl68z/
+    posemark-5b9dvtu9/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -538,7 +538,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    posemark-g_4pl68z/
+    posemark-5b9dvtu9/
     ├── Test/
     │   └── SWC-plusmaze/
     │       └── sub-M708154_ses-20200317/
@@ -675,7 +675,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
  .. code-block:: none
 
-    Removed temporary PoseMark directory: /tmp/posemark-g_4pl68z
+    Removed temporary PoseMark directory: /tmp/posemark-5b9dvtu9
 
 
 
@@ -683,7 +683,7 @@ Since this example writes to a temporary directory, we remove it at the end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.866 seconds)
+   **Total running time of the script:** (0 minutes 13.969 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_dlc_to_posemark.py:
