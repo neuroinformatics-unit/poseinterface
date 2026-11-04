@@ -138,6 +138,9 @@ def main(args: argparse.Namespace) -> None:
         args.startlabels,
     )
 
+    print(f"pred tracks shape: {pred_tracks.shape}")
+    print(f"pred vis shape: {pred_visibility.shape}")
+
     # TODO: write results to a cliplabels file
     # using write_cliplabels method?
     # write_cliplabels(pred_tracks, pred_visibility,
