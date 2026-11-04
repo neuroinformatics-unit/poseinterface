@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12.0"
 dependencies = [
-    "imageio[ffmpeg]>=2.38.1", # could be replaced by sleap-io
     "poseinterface",
     "torch>=2.14.1",
 ]

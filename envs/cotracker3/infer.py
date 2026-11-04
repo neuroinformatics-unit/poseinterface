@@ -2,11 +2,9 @@ import argparse
 import sys
 from pathlib import Path
 
-import imageio.v3 as iio
 import numpy as np
 import torch
 
-from poseinterface.io import load_cliplabels
 from poseinterface.trackers import PointTracker
 
 
@@ -40,82 +38,40 @@ class CoTracker3(PointTracker):
         video_path: Path | str,
         startlabels_path: Path | str,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Track video.
+        """Track the start-label keypoints through a video.
 
         Parameters
         ----------
         video_path : Path | str
-            Path to video to track.
+            Path to the clip video.
         startlabels_path : Path | str
-            Path to startlabels json.
+            Path to the clip's startlabels json.
 
         Returns
         -------
         tuple[np.ndarray, np.ndarray]
-            _description_
+            Tracks of shape ``(T, N, 2)`` as ``(x, y)`` and visibility of
+            shape ``(T, N)``.
         """
-        device = self.device
+        video = self.load_video(video_path)  # (T, H, W, 3)
+        queries = self.load_queries(startlabels_path)  # (N, 3) as (t, x, y)
 
-        # Read video as numpy array
-        video = iio.imread(video_path, plugin="FFMPEG")  # (T, H, W, 3)
-
-        # Put video as torch tensor in expected shape and on device
         video_tensor = (
-            torch.tensor(video).permute(0, 3, 1, 2)[None].float().to(device)
-        )  # B, T, 3, H, W
+            torch.from_numpy(video).permute(0, 3, 1, 2)[None].float()
+        ).to(self.device)  # (B, T, 3, H, W)
+        queries_tensor = (
+            torch.from_numpy(queries).float()[None].to(self.device)
+        )  # (B, N, 3)
 
-        # ----------------
-        # Read queries as numpy array
-        # in: json
-        # out: A numpy array of shape (N, 3) in format (t, x, y)
-        queries_from_coco = load_cliplabels(startlabels_path)
-        # for startlabels and one animal:
-        # (n_frames=1, n_instances=1, n_keypoints, 2)
-        n_frames, n_instances, n_keypoints, _ = queries_from_coco.shape
-
-        # frame index broadcast to every
-        # (frame, instance, keypoint) ->
-        # (n_frames, n_instances, n_keypoints, 1)
-        t = np.broadcast_to(
-            np.arange(n_frames)[:, None, None, None],
-            (n_frames, n_instances, n_keypoints, 1),
-        )
-        queries = np.concatenate(
-            [
-                t,
-                queries_from_coco,
-            ],
-            axis=-1,  # (n_frames, n_instances, n_keypoints, 3)
-        ).reshape(-1, 3)  # (N, 3) as (frame, x, y)
-
-        # ----------------
-
-        # Put queries as torch tensor in the right shape and device
-        queries_tensor: torch.Tensor = (
-            torch.from_numpy(queries).to(torch.float).to(device)
-        )[None]  # B, N, 3; (3 == frame, x, y)
-
-        # Run tracking
         pred_tracks, pred_visibility = self.model(
             video=video_tensor,
             queries=queries_tensor,
-        )  # B, T, N, 2;  B, T, N, 1
+        )  # (B, T, N, 2), (B, T, N)
 
-        # Get right shape and to cpu
-        pred_tracks = pred_tracks[0].cpu().numpy()  # (T, N, 2),
-        pred_visibility = pred_visibility[0].cpu().numpy()  # (T, N) -- ok?
-
-        return pred_tracks, pred_visibility
-
-    def write_cliplabels(
-        pred_tracks,
-        pred_visibility,
-        output_dir: Path | str,
-    ) -> Path:
-        """Format output from cotracker as cliplabels.json."""
-        # save pred_tracks, pred_visibility to a cliplabels.json
-        # Derive filename from startlabels, or pass output file?
-        raise NotImplementedError
+        return (
+            pred_tracks[0].cpu().numpy(),
+            pred_visibility[0].cpu().numpy(),
+        )
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:
@@ -124,31 +80,35 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     # shared across trackers
     parser.add_argument("--video", type=Path, required=True)
     parser.add_argument("--startlabels", type=Path, required=True)
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path.cwd(),
+        help="Directory to write the output json. Default: current directory.",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["annotations", "predictions"],
+        default="annotations",
+        help="COCO annotations (PoseMark clip labels) or COCO predictions.",
+    )
 
     # tool-specific
     parser.add_argument("--model-name", default="cotracker3_offline")
     parser.add_argument("--device", default="cpu")
-
-    # TODO: add out path when write_cliplabels gets wired in
 
     return parser.parse_args(args)
 
 
 def main(args: argparse.Namespace) -> None:
     tracker = CoTracker3(args.model_name, args.device)
-
-    pred_tracks, pred_visibility = tracker.track(
+    output_path = tracker.run(
         args.video,
         args.startlabels,
+        args.output_dir,
+        format=args.format,
     )
-
-    print(f"pred tracks shape: {pred_tracks.shape}")
-    print(f"pred vis shape: {pred_visibility.shape}")
-
-    # TODO: write results to a cliplabels file
-    # using write_cliplabels method?
-    # write_cliplabels(pred_tracks, pred_visibility,
-    # output_dir=args.output_dir)
+    print(f"Wrote {output_path}")
 
 
 if __name__ == "__main__":
