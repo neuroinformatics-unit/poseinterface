@@ -32,29 +32,24 @@ uvx --from git+https://github.com/neuroinformatics-unit/poseinterface@<branch-or
 flowchart TD
     U["User runs<br/>uvx poseinterface infer --tool cotracker3 ..."]
     M["Main env (made by uvx)<br/>poseinterface + its dependencies<br/>from the root pyproject.toml (not locked)"]
-    D["✨ poseinterface/cli.py<br/>finds the tool folder, builds a uv command"]
-    B["Tool folder shipped inside the wheel<br/>poseinterface/envs/cotracker3/<br/>infer.py + requirements.txt"]
-    T["Tool env (made by uv run)<br/>torch + imageio + same poseinterface"]
-    W["infer.py<br/>CoTracker3.run(...)"]
+    D["✨ poseinterface/cli.py<br/>finds the tool folder shipped in the wheel<br/>poseinterface/envs/cotracker3/"]
+    T["Tool env (made by uv run)<br/>packages from requirements.txt (torch, imageio, ...)<br/>+ same poseinterface as the main env"]
+    W["infer.py, run inside the tool env<br/>CoTracker3.run(...)"]
     O["clip_cliplabels.json"]
 
     U --> M --> D
-    D -->|"looks up file paths<br/>(no import)"| B
-    D -->|"uv run --isolated --no-project ..."| T
-    B -.->|"requirements.txt: packages to install"| T
-    B -.->|"infer.py: script to run"| W
+    D -->|"calls uv run with the paths of<br/>requirements.txt and infer.py (no import)"| T
     T --> W --> O
 
     style D fill:#fff3b0,stroke:#c9a400
     style T fill:#d6ecff,stroke:#3a7bd5
 
     click D href "https://github.com/neuroinformatics-unit/poseinterface/blob/envs-management/poseinterface" _blank
-    click B href "https://github.com/neuroinformatics-unit/poseinterface/tree/envs-management/envs/cotracker3" _blank
     click W href "https://github.com/neuroinformatics-unit/poseinterface/blob/envs-management/envs/cotracker3/infer.py#L103" _blank
 ```
 
-Solid arrows are the order things happen in when the user runs the command.
-Dashed arrows show where each file from the tool folder ends up.
+Arrows are the order things happen in when the user runs the command.
+The exact `uv run` command is in [section 3](#3-the-command-that-runs-the-tool).
 
 `cli.py` never imports `infer.py`. Importing it in the main env would fail because torch is not
 installed there. `cli.py` only looks up the paths of `requirements.txt` and `infer.py` and passes
@@ -82,18 +77,19 @@ them to `uv run`.
 ## Overview of steps
 
 1. Move `envs/` to `poseinterface/envs/` so the tool folders ship inside the wheel.
-2. Add a `requirements.txt` to each tool folder, exported from that tool's `uv.lock`.
-3. Add `poseinterface/cli.py` with an `infer` subcommand that builds and runs a `uv run` command.
-4. Register a `poseinterface` console script in the main `pyproject.toml`.
-5. Add unit tests for the command builder, plus one opt-in end-to-end test.
-6. Document the one-line usage in the README.
+2. Commit each tool's `uv.lock`. Today `.gitignore` ignores every `uv.lock`.
+3. Add a `requirements.txt` to each tool folder, exported from that tool's `uv.lock`.
+4. Add `poseinterface/cli.py` with an `infer` subcommand that builds and runs a `uv run` command.
+5. Register a `poseinterface` console script in the main `pyproject.toml`.
+6. Add unit tests for the command builder, plus one opt-in end-to-end test.
+7. Document the one-line usage in the README.
 
 ## Key aspects of suggested implementation
 
 ### 1. The tool folders must ship inside the wheel
 
 **Constraint:** `uvx poseinterface` installs the wheel from PyPI.
-There is no repository on disk, so `infer.py` must be inside the wheel.
+There is no cloned repository on disk, so `infer.py` must be inside the wheel.
 
 **What it forces:**
 
@@ -114,8 +110,7 @@ There is no repository on disk, so `infer.py` must be inside the wheel.
 +"*" = ["tests/*"]
 ```
 
-The development workflow from the PR #86 comment keeps working.
-Only the folder changes, and the local path to `poseinterface` moves up one level:
+Because the folder changes, the local path to `poseinterface` moves up one level:
 
 ```diff
  # poseinterface/envs/cotracker3/pyproject.toml
@@ -124,6 +119,7 @@ Only the folder changes, and the local path to `poseinterface` moves up one leve
 +poseinterface = { path = "../../..", editable = true }
 ```
 
+Then the development workflow from the PR #86 comment keeps working.
 ```bash
 uv run --project poseinterface/envs/cotracker3 poseinterface/envs/cotracker3/infer.py --video ...
 ```
@@ -132,17 +128,34 @@ uv run --project poseinterface/envs/cotracker3 poseinterface/envs/cotracker3/inf
 
 **Constraint:** the tool's `pyproject.toml` points at `poseinterface` with a relative path.
 
-- Inside an installed wheel that path leads into `site-packages`, which is not a project.
-    - This is the reason `uv run --project <bundled tool folder>` cannot be used.
-- `uv run --project <folder>` also writes `.venv/` and `uv.lock` into `<folder>`, not into the
-  current directory (checked with uv 0.13.0).
-    - For the bundled tool folder, `<folder>` is inside `site-packages`.
-    - `UV_PROJECT_ENVIRONMENT` and `--frozen` would avoid these writes, but not the broken path.
+- In a clone, `../../..` points to the repo root.
+- In an installed wheel, `../../..` points to `site-packages/`, which has no `pyproject.toml`,
+  so uv cannot install `poseinterface` from it.
+
+Getting `poseinterface` from PyPI instead would fix the path, but two problems remain:
+
+- **uv still writes into the tool folder (fixable).** `uv run --project <folder>` creates `.venv/`
+  and may rewrite `uv.lock` in `<folder>` (which is under `site-packages`), not in the current directory (checked with uv 0.13.0). Here `<folder>` is inside `site-packages`, so:
+    - it may not be writable (for example, a shared conda env or a Docker image);
+    - `pip uninstall` doesn't work along: it leaves the `.venv/` behind;
+    - installed package files should only change on install or upgrade.
+
+  Fix: `UV_PROJECT_ENVIRONMENT=<cache folder>` puts the env outside the tool folder, and
+  `--frozen` installs from the `uv.lock` in the tool folder as it is, without rewriting it (we would ship `uv.lock` in this case).
+
+
+- **The tool env gets an older `poseinterface` (not fixable).** The tool's lock can only pin a
+  version already on PyPI, so release 0.3.0 would run the 0.2.0 `poseinterface` in the tool env.
+    - In development it is worse: the main env runs the working/editable copy, and the tool env runs the last release.
+    - This may be acceptable once `PointTracker` stops changing. See
+      [Points to discuss](#points-to-discuss), point 9.
+
 
 **What it forces:** the command ignores the tool's `pyproject.toml` and uses two inputs instead:
 
 - **The tool's pinned dependencies**, from `requirements.txt`.
-    - The file is generated from `uv.lock`, so the versions are the ones developers tested.
+    - The file is generated from the tool's committed `uv.lock`, so the versions are the ones
+      developers tested.
     - `poseinterface` is left out of the file.
 - **The `poseinterface` that is running the command**, passed separately with `--with`.
     - The tool env then always gets the same `poseinterface` version as the main env.
@@ -152,6 +165,21 @@ uv export --project poseinterface/envs/cotracker3 \
     --no-dev --no-hashes --no-emit-package poseinterface \
     -o poseinterface/envs/cotracker3/requirements.txt
 ```
+
+> [!IMPORTANT]
+> Today the tool's `uv.lock` is not committed:
+> [.gitignore:83](https://github.com/neuroinformatics-unit/poseinterface/blob/envs-management/.gitignore#L83)
+> ignores every `uv.lock`.
+> Each developer then has their own lock, so there is no shared set of tested versions, and the
+> export above would use whatever lock is on that developer's disk. The tool locks must be
+> committed, while the root `uv.lock` can stay ignored:
+>
+> ```diff
+>  # uv
+>  uv.lock
+> +!poseinterface/envs/*/uv.lock
+>  .venv/
+> ```
 
 > [!NOTE]
 > `uv export` writes a `uv.lock` out as a plain `requirements.txt`. The lock is universal, so the
@@ -250,13 +278,14 @@ Arrows are calls, in the order they happen.
 |---|---|---|
 | 1 | Move `envs/` → `poseinterface/envs/` | `git mv envs poseinterface/envs` |
 | 2 | Fix the local path in the tool's `pyproject.toml` | `path = "../../.."` |
-| 3 | Export `requirements.txt` per tool | `uv export ... -o requirements.txt` |
-| 4 | New `poseinterface/cli.py` | `main`, `list_tools`, `build_infer_command`, `_poseinterface_requirement` |
-| 5 | Register the console script | `poseinterface = "poseinterface.cli:main"` |
-| 6 | Keep tool tests out of the wheel | `[tool.setuptools.exclude-package-data]` |
-| 7 | Update `MANIFEST.in` | drop `recursive-exclude envs *`, add `recursive-exclude poseinterface/envs/*/tests *` |
+| 3 | Commit each tool's `uv.lock` | `.gitignore`: add `!poseinterface/envs/*/uv.lock`; `git add poseinterface/envs/*/uv.lock` |
+| 4 | Export `requirements.txt` per tool | `uv export ... -o requirements.txt` |
+| 5 | New `poseinterface/cli.py` | `main`, `list_tools`, `build_infer_command`, `_poseinterface_requirement` |
+| 6 | Register the console script | `poseinterface = "poseinterface.cli:main"` |
+| 7 | Keep tool tests out of the wheel | `[tool.setuptools.exclude-package-data]` |
+| 8 | Update `MANIFEST.in` | drop `recursive-exclude envs *`, add `recursive-exclude poseinterface/envs/*/tests *` |
 
-<details><summary><b>Step 4: <code>cli.py</code> in pseudocode</b></summary>
+<details><summary><b>Step 5: <code>cli.py</code> in pseudocode</b></summary>
 
 ```python
 ENVS_DIR = Path(__file__).parent / "envs"
@@ -314,7 +343,9 @@ def main(argv=None):
 |---|---|
 | `envs/` → `poseinterface/envs/` | moved |
 | `poseinterface/envs/cotracker3/pyproject.toml` | local path to `poseinterface` becomes `../../..` |
+| `poseinterface/envs/cotracker3/uv.lock` | **newly committed** (exists locally today, but ignored) |
 | `poseinterface/envs/cotracker3/requirements.txt` | **new**, exported from `uv.lock` |
+| `.gitignore` | stop ignoring the tool locks: `!poseinterface/envs/*/uv.lock` |
 | `poseinterface/cli.py` | **new**, the `infer` dispatcher |
 | `pyproject.toml` | `poseinterface` console script; `exclude-package-data` for tool tests |
 | `MANIFEST.in` | exclude rules follow the new folder |
