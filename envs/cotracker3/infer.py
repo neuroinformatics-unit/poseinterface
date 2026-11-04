@@ -115,9 +115,19 @@ class CoTracker3(PointTracker):
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:
-    # shared across trackers: --startlabels, --video, --out
-    # tool-specific: --model-name, --device
-    raise NotImplementedError
+    parser = argparse.ArgumentParser()
+
+    # shared across trackers
+    parser.add_argument("--video", type=Path, required=True)
+    parser.add_argument("--startlabels", type=Path, required=True)
+
+    # tool-specific
+    parser.add_argument("--model-name", default="cotracker3_offline")
+    parser.add_argument("--device", default="cpu")
+
+    # TODO: add out path when write_cliplabels gets wired in
+
+    return parser.parse_args(args)
 
 
 def main(args: argparse.Namespace) -> None:
