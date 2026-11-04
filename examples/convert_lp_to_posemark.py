@@ -131,8 +131,10 @@ project_name = "IBL-paw"
 # frames.  This is necessary because the underlying loader (sleap-io)
 # resolves image paths relative to the CSV location, so the split CSV
 # must live alongside the frame images it references.
+# The temporary directory is kept separate from ``posemark_base_dir``, and
+# removed after conversion.
 
-lp_session_base = posemark_base_dir / ".lp_sessions"
+lp_session_base = Path(tempfile.mkdtemp(prefix="lp-sessions-"))
 split_results = split_lp_collected_data(
     input_path=source_project_dir / "CollectedData.csv",
     output_dir=lp_session_base,
@@ -238,6 +240,9 @@ for session in sessions:
             f"{sub_ses_cam_prefix}_videolabels.json"
         )
     print("Done.\n")
+
+# The per-session split files are no longer needed.
+shutil.rmtree(lp_session_base)
 
 # %%
 # The resulting *PoseMark* dataset:
