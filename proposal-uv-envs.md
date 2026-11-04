@@ -512,7 +512,7 @@ uv run --project poseinterface/envs/cotracker3 pytest poseinterface/envs/cotrack
 |---|---|---|
 | 1 | **Move `envs/` into the package?** It is needed to ship the tool folders in the wheel, but it changes the layout from the PR #86 comment. Recommend moving it: the only other way is a custom build step that copies `envs/` into the wheel. | SM: I am happy to move it|
 | 2 | **When to release.** Tagged releases publish to PyPI ([test_and_deploy.yml](https://github.com/neuroinformatics-unit/poseinterface/blob/envs-management/.github/workflows/test_and_deploy.yml#L49)). The latest is 0.2.0, which has neither `trackers.py` nor the `poseinterface` command. Until the next release, the one-liner is `uvx --from git+https://github.com/neuroinformatics-unit/poseinterface@<branch-or-tag> poseinterface infer ...`. Recommend a release once this PR merges, so the short `uvx poseinterface ...` works. | SM: ok|
-| 3 | **PyTorch build per platform.** `uv run` has no `--torch-backend` flag (checked in uv 0.13.0), so the tool env takes torch from PyPI. On Linux the PyPI build already supports CUDA, which may be enough. Not checked: whether `uv export` keeps a custom PyTorch index in `requirements.txt`. Recommend PyPI torch for now. | SM: ideally we would use `uv`' auto - can we? |
+| 3 | **PyTorch build per platform.** `uv run` has no `--torch-backend` flag and ignores `UV_TORCH_BACKEND` (checked in uv 0.13.0), so the tool env takes torch from PyPI. On Linux the PyPI build already supports CUDA, which may be enough. uv's automatic selection (`--torch-backend auto`) only works with `uv pip install`, which would change how the tool env is built. Recommend PyPI torch for now, with an opt-in `--torch-backend` flag as a possible follow-up. See the details below this table. | SM: seems reasonable? |
 | 4 | **Keeping each tool's `uv.lock` in sync with its `pyproject.toml`.** Recommend the `uv-lock` hook from `astral-sh/uv-pre-commit`, one entry per tool, or a local hook that runs `uv lock --check --project <tool folder>`. Not checked yet against that repo's current release. | SM: the astral precommit hook sounds ok|
 | 5 | **Require `uv` on `PATH`, or depend on the `uv` package?** Recommend requiring it on `PATH`: `uvx` users have it already, and the error message names the install page. | SM: ok |
 | 6 | **A `train` subcommand.** It would reuse `build_infer_command` with `train.py`. Recommend a separate PR once a tool has a `train.py`. | SM: ok |
@@ -521,6 +521,104 @@ uv run --project poseinterface/envs/cotracker3 pytest poseinterface/envs/cotrack
 | 9 | **Install `poseinterface` in the tool env from PyPI instead of a local path?** A PyPI source would make `uv run --project <bundled tool folder> --frozen` work, in one uv call instead of two. Recommend keeping the local path for now, for the reasons discussed in this PR. Revisit once `PointTracker` is stable. | SM: ok with recommendation|
 | 10 | **Which minimum uv version to require.** The export reads `uv.lock`, so the user's uv must understand the lock format the developers' uv wrote. Recommend the uv version used to write the committed locks (0.13.0 today), raised whenever the locks are re-written with a newer uv. Not checked: how far back uv can read a lock written by 0.13.0. |SM: ok |
 | 11 | **Layered tool env vs fully isolated one.** Layering on the main env gives the tool env the running `poseinterface` with no per-install-type logic. A fully isolated env (`--isolated`) would need the `poseinterface` requirement rebuilt from `direct_url.json` (see Rejected alternatives). Recommend layering, if the checks in Gotchas pass. |SM: ok |
+
+<details><summary><b>Point 3: can the tool env use uv's automatic torch selection (<code>--torch-backend auto</code>)?</b></summary>
+
+Not with `uv run`, which this proposal uses to build the tool env. It would work with
+`uv pip install`, with the caveats below.
+
+Checked with uv 0.13.0, by resolving the exported cotracker3 lock for Linux x86_64 with
+`uv pip compile` (nothing was installed):
+
+| Check | Result |
+|---|---|
+| `uv run --help` | No `--torch-backend` flag |
+| `UV_TORCH_BACKEND=bogus uv run --no-project --with-requirements ...` | Runs without an error, so `uv run` ignores the env var |
+| `UV_TORCH_BACKEND=bogus uv pip install ...` | Rejects the value, so `uv pip install`, `compile` and `sync` read it |
+| The exported lock | Pins `torch==2.15.0` with no `+cuXXX` suffix, so a build from the PyTorch index also matches. It also pins 15 `nvidia-*` packages and `triton` (Linux only), taken from the dependencies of the PyPI torch build |
+| `--torch-backend cu132` | Resolves to `torch==2.15.0+cu132`; the lock's `nvidia-*` pins still fit |
+| `--torch-backend cu126`, `cu128`, `cu130` | **Fails**: torch 2.15.0 has no build for those CUDA versions |
+| `--torch-backend cpu` on Linux | Resolves to `torch==2.15.0+cpu`, but **still installs the 15 `nvidia-*` packages**, because the export pins them. With those lines removed from the export, it installs none |
+
+What it would take:
+
+1. **Replace `uv run` with three steps:** create a venv, run
+   `uv pip install --torch-backend auto -r requirements.txt` into it, then run
+   `<venv>/bin/python infer.py`.
+    - This is close to the "three uv calls and a venv folder to manage" option rejected in
+      point 8. The dispatcher would have to cache the venv and reuse it.
+2. **Rebuild the layering by hand.** Today `uv run` is what makes the main env's
+   `poseinterface` visible in the tool env.
+    - `uv venv --system-site-packages` does not do this. It exposes the base Python's
+      packages, not those of the `uvx` env.
+    - A `.pth` file in the tool venv that points to the main env's `site-packages` should work.
+      Not tested.
+3. **Leave the `nvidia-*` and `triton` lines out of the export**, so that the PyTorch index
+   picks them. Otherwise a CPU-only machine downloads several GB of CUDA libraries it cannot
+   use.
+4. **Auto only helps when the pinned torch has a build for the machine's CUDA.** torch 2.15.0
+   has builds only for cu132 and CPU.
+    - On a machine whose driver supports only CUDA 12.x, auto would likely pick a backend with
+      no 2.15.0 build, and the install would fail. Not tested (no GPU available).
+    - The fix would be to lock an older torch or let the torch version float. Either way, the
+      tool env no longer gets exactly the versions developers tested.
+
+**Recommendation**
+
+Keep PyPI torch as the default for this PR, and support Windows GPUs and older CUDA versions
+in a later PR.
+
+What PyPI torch gives on each OS (wheel sizes for torch 2.15.0, Python 3.12):
+
+| OS | What the tool env gets | GPU? |
+|---|---|---|
+| macOS | PyPI wheel (139 MB) | Yes, through Apple's GPU backend (MPS). macOS has no CUDA |
+| Linux | PyPI wheel built for CUDA 13.2 (539 MB, plus `nvidia-*` packages) | Only if the driver supports CUDA 13.2 (likely the R580 series or newer). With an older driver, torch should fall back to the CPU (not tested). No AMD (ROCm) |
+| Windows | PyPI wheel (127 MB, no `nvidia-*` packages) | **No**: the PyPI Windows build is CPU-only |
+
+So this PR already covers macOS and Linux machines with a recent driver. Supporting Windows
+GPUs and older drivers needs more than `--torch-backend auto`.
+
+This is a possible approach for
+the later PR, checked with uv 0.13.0 in a scratch project (locking and resolving only, no GPU):
+
+1. **Lock one torch variant per CUDA version in the tool's `uv.lock`.**
+    - Add optional extras (`cpu`, `cu126`, `cu130`, `cu132`), mark them as mutually exclusive
+      with `[tool.uv] conflicts`, and point each one to its own PyTorch index in
+      `[tool.uv.sources]`.
+    - This locks without errors, and every variant gets exact pins.
+    - The newest torch differs per CUDA version. Within cotracker3's `torch>=2.14.1`:
+      `cu132` gives 2.15.0, `cu126` and `cu130` give 2.14.1, and `cu128` has no build. So older
+      drivers get an older torch, and the list of variants needs updating with each torch
+      release.
+2. **Export each variant as `pylock.toml`, not as `requirements.txt`.**
+    - `uv export --extra cu132` keeps the `+cu132` pins but not the index each package comes
+      from, so installing from it fails.
+    - `--emit-index-url` adds every index as a flat list, so uv looks for packages such as
+      `filelock` on the PyTorch index first, and fails to find the pinned version.
+    - `pylock.toml` stores the exact URL of every wheel. `uv pip install --dry-run -r
+      pylock.toml` gives `torch==2.15.0+cu132` on both Linux and Windows.
+3. **Build the tool env with `uv venv` and `uv pip install`, as in step 1 of "What it would
+   take" above.**
+    - `uv run --with-requirements` installs nothing from a `pylock.toml` (see point 8).
+    - The layering on the main env has to be rebuilt by hand (step 2 above).
+4. **The dispatcher picks the variant.**
+    - It reads the highest CUDA version the driver supports (for example with `nvidia-smi`),
+      picks the highest locked variant at or below it, and falls back to `cpu`.
+    - A `--torch-backend` flag lets users override the choice.
+    - `--torch-backend auto` likely does not help here, because `pylock.toml` fixes the wheel
+      URLs. Not tested.
+
+Costs of that approach:
+
+- Every tool's `pyproject.toml` gets several extras and their indexes.
+- Each variant is a separate set of versions to test, ideally on real GPUs on Linux and
+  Windows.
+- The dispatcher gets GPU detection and venv management, so it grows from "export the lock
+  and call `uv run`" into a small environment manager.
+- Not tested yet: a real GPU run, the `.pth` layering, and `nvidia-smi` detection on Windows.
+
+</details>
 
 <details><summary><b>Point 8: <code>uv.lock</code> exported at runtime vs committed <code>requirements.txt</code> vs <code>pylock.toml</code> vs <code>uv sync</code></b></summary>
 
