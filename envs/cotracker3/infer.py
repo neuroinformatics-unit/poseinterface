@@ -25,10 +25,15 @@ class CoTracker3(PointTracker):
             Usual options are 'cuda', 'cpu', and 'mps'. By default 'cpu'.
             Full description at https://docs.pytorch.org/docs/2.15/tensor_attributes.html#torch.device
         """
+        self.device = torch.device(device)
         self.model = torch.hub.load(
             "facebookresearch/co-tracker",
             model_name,
-        ).to(device)
+            # Skip the GitHub API call that checks the repo isn't a fork:
+            # it's rate-limited for unauthenticated requests (60/h per IP).
+            skip_validation=True,
+            trust_repo=True,
+        ).to(self.device)
 
     def track(
         self,
@@ -49,8 +54,7 @@ class CoTracker3(PointTracker):
         tuple[np.ndarray, np.ndarray]
             _description_
         """
-        # Get model's device
-        device = self.model.device
+        device = self.device
 
         # Read video as numpy array
         video = iio.imread(video_path, plugin="FFMPEG")  # (T, H, W, 3)
