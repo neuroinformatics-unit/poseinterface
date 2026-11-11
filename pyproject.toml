@@ -37,6 +37,13 @@ classifiers = [
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
 
+
+[project.optional-dependencies]
+cotracker3 = [
+    "torch>=2.14.1"
+]
+
+
 [dependency-groups]
 dev = [
   "pytest",
