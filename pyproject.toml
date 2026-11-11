@@ -72,6 +72,7 @@ docs = [
 
 [project.scripts]
 extract-clips = "poseinterface.clips:wrapper"
+poseinterface = "poseinterface.cli:main"
 
 [build-system]
 requires = [
