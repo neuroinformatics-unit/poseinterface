@@ -668,3 +668,76 @@ What a PyPI source would give:
 - The dispatcher then needs one uv call instead of two (no `uv export` step).
 
 </details>
+
+---
+
+# Proposal 2: one optional-dependency set per tool
+
+Instead of a separate `uv.lock` per tool and a layered tool env, each tool's dependencies
+become an extra in the root `pyproject.toml`:
+
+```toml
+[project.optional-dependencies]
+cotracker3 = ["torch>=2.14.1"]
+```
+
+The tool code lives inside the package (`poseinterface/tools/<tool>/infer.py`), and `cli.py`
+imports it lazily, so the main package never imports `torch`. `cli.py` does not install
+anything: the user picks the extra in the command.
+
+## Commands
+
+```bash
+# Users: one isolated, cached env per extra
+uvx --from 'poseinterface[cotracker3]' poseinterface infer --tool cotracker3 \
+    --video clip.mp4 --startlabels clip_startlabels.json
+
+# Before a PyPI release includes this (not tested)
+uvx --from 'poseinterface[cotracker3] @ git+https://github.com/neuroinformatics-unit/poseinterface@<branch-or-tag>' \
+    poseinterface infer --tool cotracker3 ...
+
+# Developers, in a clone
+uv run --extra cotracker3 poseinterface infer --tool cotracker3 ...
+```
+
+## How isolation works
+
+- `uvx` runs tools "in temporary, isolated environments", and `--from` accepts extras
+  (`uvx --from 'mypy[faster-cache,reports]' mypy ...`):
+  [uv tools guide](https://docs.astral.sh/uv/guides/tools/).
+- Each distinct requirement (`poseinterface[cotracker3]`, `poseinterface[<other tool>]`) gets
+  its own cached env, so tools with incompatible dependencies never share an env. The guide
+  above does not state the per-requirement caching explicitly; see
+  [uv tools concepts](https://docs.astral.sh/uv/concepts/tools/).
+- In a clone it is different: "uv resolves all project dependencies together, including
+  optional dependencies ('extras')"
+  ([project config](https://docs.astral.sh/uv/concepts/projects/config/)).
+    - If two tools' extras are incompatible, locking fails until they are declared under
+      `[tool.uv] conflicts = [[{ extra = "cotracker3" }, { extra = "<other tool>" }]]`.
+    - There is one `.venv`. `uv run --extra <tool>` syncs it to that extra, so switching tool
+      re-syncs it (the docs show a later plain `uv sync` removing an extra's packages).
+
+## What this removes from proposal 1
+
+- Moving `envs/` into the package as tool folders with their own `pyproject.toml` and `uv.lock`
+  (proposal 1, sections 1 and 2).
+- The `uv export` step, the layered `uv run --no-project` env, and the `MIN_UV_VERSION` check
+  (proposal 1, sections 3 and 4).
+- The broken `../../..` path gotcha, and the drift between the main env's and the tool env's
+  `poseinterface`: the tool runs in the same env as the `poseinterface` that dispatches it.
+- `cli.py` no longer calls uv, so uv is only needed to run `uvx`, not by `poseinterface` itself.
+
+## Trade-offs
+
+| Detail | Consequence | Handling |
+|---|---|---|
+| `uvx` does not read the repo's `uv.lock` | Users get the newest versions within the extra's ranges, not the versions developers tested (the main env already works this way) | Tighter ranges or upper bounds on fragile dependencies (e.g. `torch`) |
+| All extras resolve together in the dev lockfile | Incompatible tools fail to lock | `[tool.uv] conflicts`, one entry per incompatible pair |
+| The user runs `poseinterface infer --tool X` without extra `X` installed | The lazy import fails with `ImportError` | `cli.py` catches it and prints the matching `uvx --from 'poseinterface[X]' ...` command |
+| The tool name appears twice (`[cotracker3]` and `--tool cotracker3`) | Slightly redundant command | Accept for now. `cli.py` could re-exec itself through `uvx` when the extra is missing, but that hides an install and makes uv a runtime requirement |
+| Every tool's dependencies are listed in the main package's metadata | `pip install poseinterface[all]`-style installs could pull conflicting tools | Do not offer an `all` extra |
+| PyTorch build per platform (proposal 1, point 3) | Unlike `uv run`, `uvx` has a `--torch-backend` flag (`auto`, `cpu`, `cu1xx`, `rocm…`; checked with `uv tool run --help`, uv 0.13.6) | Users can add `--torch-backend auto` to the `uvx` command. Not tested on a GPU machine |
+
+This also changes one row of proposal 1's Rejected alternatives table: "Install every tool into the main
+env as optional extras" was rejected for dependency conflicts. That holds when the extras share
+one env, but not when each extra runs in its own `uvx` env.
