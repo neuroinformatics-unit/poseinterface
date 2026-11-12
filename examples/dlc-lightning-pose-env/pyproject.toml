@@ -1,0 +1,27 @@
+[project]
+name = "pose-comparison"
+version = "0.2.0"
+description = "Single environment for comparing DeepLabCut and Lightning Pose"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "deeplabcut>=3.0.2",
+    "lightning-pose>=2.4.2",
+    # Must be a direct dependency: overrides can only rewrite existing requirements.
+    # Pinned below 5 until both tools are tested against OpenCV 5.
+    "opencv-contrib-python-headless>=4.11,<5",
+]
+
+[tool.uv]
+# opencv-python / opencv-contrib-python / opencv-python-headless all install the
+# same cv2 module and clobber each other (aniposelib wants contrib, LP/DLC want
+# headless). Drop all three; opencv-contrib-python-headless above is a superset
+# of the others without GUI libraries.
+override-dependencies = [
+    "opencv-python ; python_version < '0'",
+    "opencv-contrib-python ; python_version < '0'",
+    "opencv-python-headless ; python_version < '0'",
+]
+# NVIDIA DALI (lightning-pose's GPU video reader) is declared upstream with
+# `sys_platform == "linux" and platform_machine == "x86_64"` since LP 2.4, and
+# LP falls back to OpenCV without it, so no override is needed any more.
