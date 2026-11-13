@@ -37,6 +37,13 @@ classifiers = [
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
 
+
+[project.optional-dependencies]
+cotracker3 = [
+    "torch>=2.14.1"
+]
+
+
 [dependency-groups]
 dev = [
   "pytest",
@@ -65,6 +72,7 @@ docs = [
 
 [project.scripts]
 extract-clips = "poseinterface.clips:wrapper"
+poseinterface = "poseinterface.cli:main"
 
 [build-system]
 requires = [
@@ -84,6 +92,7 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=poseinterface"
+testpaths = ["tests"]
 filterwarnings = [
     "error",
 ]
