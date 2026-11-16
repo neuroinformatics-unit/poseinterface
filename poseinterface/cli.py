@@ -15,10 +15,7 @@ import argparse
 import importlib
 import sys
 
-# Tool name -> module defining ``parse_args(args)`` and ``main(args)``.
-TOOLS = {
-    "cotracker3": "poseinterface.tools.cotracker3.infer",
-}
+from poseinterface.tools import TOOLS
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -37,7 +34,7 @@ def main(argv: list[str] | None = None) -> None:
     args, tool_argv = parser.parse_known_args(argv)
 
     if args.command == "infer":
-        tool = importlib.import_module(TOOLS[args.tool])
+        tool = importlib.import_module(TOOLS[args.tool].module)
         tool.main(tool.parse_args(tool_argv))
 
 
