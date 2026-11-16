@@ -40,7 +40,7 @@ classifiers = [
 
 [project.optional-dependencies]
 cotracker3 = ["torch>=2.14.1"]
-
+tapnet = ["tapnet[torch]"]
 
 [dependency-groups]
 dev = [
@@ -77,9 +77,11 @@ requires = ["setuptools>=64", "wheel", "setuptools-scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv]
-# to uv-rebuild whenever a .py changes; it makes uvx local-installs
-# editable too
+# Re-build whenever a .py changes, so uvx local installs are always editable
 cache-keys = [{ file = "pyproject.toml" }, { file = "**/*.py" }]
+
+[tool.uv.sources]
+tapnet = { git = "https://github.com/google-deepmind/tapnet.git", rev = "ceedd60bb9f6c9f7c74796e4445aff6c6ddf7c9b" }
 
 
 [tool.setuptools]
