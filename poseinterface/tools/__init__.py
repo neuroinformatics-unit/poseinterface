@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 
@@ -6,7 +6,7 @@ from typing import Literal
 class Input:
     flag: str  # "--model"
     kind: Literal["file", "dir"] #
-    suffixes: set[str] = set()  # allowed file extensions, empty = any
+    suffixes: frozenset[str] = frozenset() # allowed file extensions, empty = any
     hint: str = ""  # shown in the GUI and in error messages
 
 
@@ -22,13 +22,13 @@ class Tool:
 VIDEO = Input(
     flag="--video",
     kind="file",
-    suffixes={".mp4"},
+    suffixes=frozenset(".mp4"),
     hint="the video to run on",
 )
 STARTLABELS = Input(
     flag="--startlabels",
     kind="file",
-    suffixes={".json"},
+    suffixes=frozenset(".json"),
 )
 TOOLS = {
     "cotracker3": Tool(
