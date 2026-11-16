@@ -16,7 +16,7 @@ class Tool:
     kind: Literal["point-tracker", "pose-estimator"]
     inputs: tuple[Input,...]
     label: str = ""  # GUI display name
-    extra: str = ""  # pyproject extra, defaults to the tool name
+    extra: str = ""  # pyproject extra, defaults to the tool name in cli.py:infer
 
 
 VIDEO = Input(
