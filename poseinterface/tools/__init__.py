@@ -37,4 +37,10 @@ TOOLS = {
         inputs=(VIDEO, STARTLABELS),
         label="CoTracker3",
     ),
+    "tapnet": Tool(
+            module="poseinterface.tools.tapnet.infer",
+            kind="point-tracker",
+            inputs=(VIDEO, STARTLABELS),
+            label="TAPNet",
+    ),
 }
