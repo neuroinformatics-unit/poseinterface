@@ -24,6 +24,7 @@ class CoTracker3(PointTracker):
             Full description at https://docs.pytorch.org/docs/2.15/tensor_attributes.html#torch.device
         """
         self.device = torch.device(device)
+        self.model_name = model_name
         self.model = torch.hub.load(
             "facebookresearch/co-tracker",
             model_name,
