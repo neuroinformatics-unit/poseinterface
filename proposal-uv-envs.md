@@ -229,7 +229,7 @@ The PoseMark predictions format is [cliplabels format](https://poseinterface.neu
 
 ## Hiding `uvx` from users
 
-Users install poseinterface from PyPI and call its CLI in one go with `uvx`. E.g., users should be able to do something like:
+Users install `poseinterface` from PyPI and call its CLI in one go with `uvx`. E.g., users should be able to do something like:
 
 ```bash
 uvx poseinterface[cotracker3] infer --tool cotracker3 --video /path/to/video --startlabels /path/to/startlabels/json --device gpu
@@ -289,6 +289,49 @@ A variant where `poseinterface infer` always builds the tool env itself, layered
 env (as in proposal 1, with the extra's requirements read from the installed metadata), was
 considered. It brings back layering, the choice of which `poseinterface` the tool env gets, and
 the loss of `--torch-backend`, in exchange for removing an `ImportError` path. Rejected.
+
+## Recommended commands
+
+### For users
+
+We recommend users run the `uvx` command when working with `poseinterface`. This is because it creates an ephemeral environment for the different tools. For example to run cotracker3 on some data, users simply need `uv` installed. They don't need to clone the repository locally:
+
+```
+uvx poseinterface[cotracker3] infer --tool cotracker3 --video /path/to/video --startlabels /path/to/startlabels/json --device gpu
+```
+
+
+### For developers
+
+To develop `cotracker3` for example, we recommend using `uv run` from the local clone directory:
+```
+uv run --extra cotracker3 poseinterface infer --tool cotracker3 --video /path/to/mp4 --startlabels /path/to/startlabels.json --device mps
+```
+
+This creates a **non-ephemeral** virtual environment with `poseinterface` installed from the local clone and the `cotracker3` extras installed.
+
+
+
+> [!IMPORTANT]
+> We do not recommend the `uvx` based command for developers because:
+> * it is convenient for developers to have non-ephemeral environments, and
+> * by default, `uvx` does not do an editable install of the local `poseinterface`; it does just a local install.
+>
+> Re the last point, we added a `cache-keys` field under `tools.uv` in `pyproject.toml` to make the local install effectively editable too.
+> * `uv` checks the files listed in `cache-keys` to determine whether it needs to rebuild the cached package.
+> * We set it so that `uvx` rebuilds the package when any `.py` file changes. This makes the `uvx` local install use the latest code, effectively making it an "editable" install.
+> This may be convenient to test the user interface when developing, but it is not the default `uvx` behaviour and we may remove it.
+
+
+
+
+If you want to create the same environment but outside the clone, point `uv` at the repo by running this from another location
+```
+uv run --project /path/to/poseinterface --extra cotracker3 poseinterface infer --tool cotracker3 ...
+```
+
+
+
 
 ## How isolation works
 
