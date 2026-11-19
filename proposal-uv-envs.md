@@ -229,13 +229,22 @@ The PoseMark predictions format is [cliplabels format](https://poseinterface.neu
 
 ## Hiding `uvx` from users
 
-Users install poseinterface once and call it directly:
+Users install poseinterface from PyPI and call its CLI in one go with `uvx`. E.g., users should be able to do something like:
 
 ```bash
-uv tool install poseinterface        # or: pip install poseinterface
-poseinterface infer --tool dlc --video clip.mp4 --model config.yaml
-poseinterface gui
+uvx poseinterface[cotracker3] infer --tool cotracker3 --video /path/to/video --startlabels /path/to/startlabels/json --device gpu
+uvx poseinterface gui
 ```
+> [!IMPORTANT]
+> `uvx` can pick up that the name of the main command is the same as the name of the package if we don't use the `--from` flag.
+> So we can do:
+> ```
+> uvx poseinterface[cotracker3] infer --tool cotracker3 --video /path/to/video --startlabels /path/to/startlabels/json
+> ```
+> But this won't work:
+> ```
+> uvx --from poseinterface[cotracker3] infer --tool cotracker3 --video /path/to/video --startlabels /path/to/startlabels/json
+> ```
 
 When the tool's module cannot be imported, `cli.py` re-runs itself in the tool's env:
 
