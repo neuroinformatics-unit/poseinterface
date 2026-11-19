@@ -97,7 +97,7 @@ UV_PROJECT_ENVIRONMENT=.venv-cotracker3 uv run --extra cotracker3 poseinterface 
 
 `poseinterface infer`:
 
-1. Looks up `--tool` in the tool registry.
+1. Looks up `--tool` in the [tool registry](#tool-registry-and-input-checks).
 2. Checks every path input (`check_input`) and exits with all problems at once.
 3. Imports the tool module and passes the remaining arguments to its own `parse_args`.
 
@@ -113,7 +113,7 @@ interfaces read as a pair (`cli.py`, `app/`), and more apps can be added to the 
 
 The GUI:
 
-1. Shows a form: the tool toggle and that tool's inputs, both built from the tool registry.
+1. Shows a form: the tool toggle and that tool's inputs, both built from the [tool registry](#tool-registry-and-input-checks).
 2. Enables Run once every required field has a value. On click, it checks all inputs with
    `check_input`, then either lists every problem or builds the `infer` command, shows it (so
    users can copy it to the CLI) and runs it in a subprocess. Run is disabled while a run is in
@@ -142,7 +142,7 @@ DeepLabCut and Lightning Pose inside its inference cell. Until `infer` supports 
 inference from the GUI needs one of them installed in the GUI's env. The GUI catches the
 `ImportError` and says what to install. Loading existing predictions works without them.
 
-### Tool registry
+## Tool registry and input checks
 
 A table of plain values in `poseinterface/tools/__init__.py`, readable without importing any
 tool:
@@ -227,7 +227,7 @@ The PoseMark predictions format is [cliplabels format](https://poseinterface.neu
 - The GUI and tool comparisons read only COCO keypoint results (i.e. predictions), with `movement.load_poses.from_coco_file` (movement >= 0.18.0). That loader currently keeps only `score`, not per-keypoint confidence (see #93).
 
 
-## Stage 2: hide `uvx` from users
+## Hiding `uvx` from users
 
 Users install poseinterface once and call it directly:
 
