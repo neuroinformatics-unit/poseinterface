@@ -744,11 +744,11 @@ Steps 1 and 2 never import tool code, so a bad path fails fast, and the GUI can 
 
 ### GUI
 
-A marimo app in `poseinterface/gui/inference.py`, launched with `poseinterface gui` (which runs
+A marimo app in `poseinterface/app/inference.py`, launched with `poseinterface app` (which runs
 `marimo run` on the file, found with `importlib.resources`). Users install it with
-`poseinterface[gui]`. The folder and command are named `gui`, not `apps`, so that the two
-interfaces read as a pair (`cli.py`, `gui/`), and more apps can be added to the folder later
-(`poseinterface gui <app>`).
+`poseinterface[app]`. The folder and command are named `app`, not `apps`, so that the two
+interfaces read as a pair (`cli.py`, `app/`), and more apps can be added to the folder later
+(`poseinterface app <app>`).
 
 The GUI:
 
