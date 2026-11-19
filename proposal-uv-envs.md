@@ -52,8 +52,13 @@ Two kinds of tool share the same command:
 - **Pose estimators** (e.g. DeepLabCut, Lightning Pose) take `--video` and `--model`, and
   subclass a future `PoseEstimator`.
 
-Both always write PoseMark predictions, and can also write PoseMark annotations on request (see
-[Output](#output-posemark-predictions-and-optionally-annotations)).
+Both always write PoseMark predictions.
+
+> [!IMPORTANT]
+> * We decided to only support PoseMark predictions for now, and leave the PoseMark annotation support for when we deal with proofreading.
+> * PoseMark predictions format is [cliplabels format](https://poseinterface.neuroinformatics.dev/posemark.html#clip-labels-cliplabels-json) with keypoint-level confidence, AND consistent identities across frames (potentially adding a new field for each `annotation` that is `individual_id`, and a set of individuals under `individuals`).
+> See [this github comment](https://github.com/neuroinformatics-unit/poseinterface/issues/93#issuecomment-6920459550).
+
 
 ## Two interfaces: CLI and GUI
 
@@ -209,34 +214,18 @@ checkpoint load) need the tool installed, so they stay in the tool's own `parse_
 Options that the GUI does not need to collect (e.g. `--device`, batch size) stay in each tool's
 `parse_args`, as today.
 
-## Output: PoseMark predictions, and optionally annotations
+## Output: PoseMark predictions
 
-**Predictions (always).** Every tool writes `<clip stem>_clippredictions.json` in the PoseMark predictions format
-proposed in [#93](https://github.com/neuroinformatics-unit/poseinterface/issues/93): COCO
-keypoint results, with each keypoint's raw confidence as its third value and the tool's
-instance score (or the mean keypoint confidence) as `score`.
+Every tool writes `<clip stem>_clippredictions.json` in the PoseMark predictions format
+proposed in [#93 - issue comment](https://github.com/neuroinformatics-unit/poseinterface/issues/93#issuecomment-6920459550).
+
+The PoseMark predictions format is [cliplabels format](https://poseinterface.neuroinformatics.dev/posemark.html#clip-labels-cliplabels-json) with keypoint-level confidence, AND consistent identities across frames (potentially adding a new field for each `annotation` that is `individual_id`, and a set of individuals under `individuals`).
 
 - Point trackers write it from their arrays, through a shared writer in `poseinterface.io`.
 - Pose estimators keep their own output file (e.g. DLC/LP CSV) and also write PoseMark
   predictions, by loading their output with `movement` and calling the same writer.
-- The GUI and tool comparisons read only this file, e.g. with
-  `movement.load_poses.from_coco_file` (movement >= 0.18.0). That loader currently keeps only
-  `score`, not per-keypoint confidence (see #93).
+- The GUI and tool comparisons read only COCO keypoint results (i.e. predictions), with `movement.load_poses.from_coco_file` (movement >= 0.18.0). That loader currently keeps only `score`, not per-keypoint confidence (see #93).
 
-**Annotations (on request).** `infer --format annotations` (or `both`) also writes
-`<clip stem>_cliplabels.json`, as `PointTracker.write_cliplabels(format="annotations")` does in
-#91. This is for using a tool's output as labels, e.g. to correct them in a labelling tool or to
-build ground truth.
-
-- Annotations store a visibility flag `v` (0, 1, 2), not a confidence, so they are derived from
-  the predictions by thresholding: `v = 2` if `c >= threshold`, `1` if below, `0` if missing.
-- Confidence scales differ between tools (some exceed 1), so there is no safe default threshold.
-  It is a required option with `--format annotations`, e.g. `--visibility-threshold 0.6`.
-- One shared function in `poseinterface.io` (e.g. `predictions_to_annotations(pred, threshold)`)
-  does the conversion. The tools do not each implement it, and it also works on predictions
-  written earlier.
-- Evaluation and the GUI use predictions only. Annotations are never the only output, so no
-  confidence is lost.
 
 ## Stage 2: hide `uvx` from users
 
