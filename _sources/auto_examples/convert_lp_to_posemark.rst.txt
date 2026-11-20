@@ -129,7 +129,7 @@ containing videos of mouse paw movements analysed using
 
     2 directories, 1 files
 
-    PoseMark dataset will be saved to: /tmp/posemark-b8jn6d5j
+    PoseMark dataset will be saved to: /tmp/posemark-y1l52i1b
 
 
 
@@ -243,7 +243,7 @@ both splits (to avoid data leakage).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-134
+.. GENERATED FROM PYTHON SOURCE LINES 125-136
 
 Split the project-level annotation file
 ----------------------------------------
@@ -254,13 +254,15 @@ mirroring the ``labeled-data/`` structure with copies of the original
 frames.  This is necessary because the underlying loader (sleap-io)
 resolves image paths relative to the CSV location, so the split CSV
 must live alongside the frame images it references.
+The temporary directory is kept separate from ``posemark_base_dir``, and
+removed after conversion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-149
+.. GENERATED FROM PYTHON SOURCE LINES 136-151
 
 .. code-block:: Python
 
 
-    lp_session_base = posemark_base_dir / ".lp_sessions"
+    lp_session_base = Path(tempfile.mkdtemp(prefix="lp-sessions-"))
     split_results = split_lp_collected_data(
         input_path=source_project_dir / "CollectedData.csv",
         output_dir=lp_session_base,
@@ -289,7 +291,7 @@ must live alongside the frame images it references.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-158
+.. GENERATED FROM PYTHON SOURCE LINES 152-160
 
 Convert to PoseMark format
 ----------------------------
@@ -300,7 +302,7 @@ For each session we:
    rename the corresponding frame images;
 3. convert LP keypoint predictions to COCO JSON.
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-242
+.. GENERATED FROM PYTHON SOURCE LINES 160-247
 
 .. code-block:: Python
 
@@ -388,6 +390,9 @@ For each session we:
             )
         print("Done.\n")
 
+    # The per-session split files are no longer needed.
+    shutil.rmtree(lp_session_base)
+
 
 
 
@@ -412,11 +417,11 @@ For each session we:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-244
+.. GENERATED FROM PYTHON SOURCE LINES 248-249
 
 The resulting *PoseMark* dataset:
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-247
+.. GENERATED FROM PYTHON SOURCE LINES 249-252
 
 .. code-block:: Python
 
@@ -431,7 +436,7 @@ The resulting *PoseMark* dataset:
 
  .. code-block:: none
 
-    posemark-b8jn6d5j/
+    posemark-y1l52i1b/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -458,7 +463,7 @@ The resulting *PoseMark* dataset:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-258
+.. GENERATED FROM PYTHON SOURCE LINES 253-263
 
 .. note::
 
@@ -471,7 +476,7 @@ The resulting *PoseMark* dataset:
    are intermediate artifacts used for clip extraction in the next
    section, and will not be included in the published dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-272
+.. GENERATED FROM PYTHON SOURCE LINES 266-277
 
 Extract clips
 -------------
@@ -485,7 +490,7 @@ experts before being included in *PoseMark*.
 First, we specify the clip-extraction parameters. This step can be
 repeated with different parameters to incrementally expand the clip set.
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-277
+.. GENERATED FROM PYTHON SOURCE LINES 277-282
 
 .. code-block:: Python
 
@@ -507,13 +512,13 @@ repeated with different parameters to incrementally expand the clip set.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-281
+.. GENERATED FROM PYTHON SOURCE LINES 283-286
 
 We loop over all sessions and extract clips at each start frame.
 The resulting video clips and their ``cliplabels.json`` files are saved
 in a ``Clips/`` subdirectory within each session folder.
 
-.. GENERATED FROM PYTHON SOURCE LINES 281-298
+.. GENERATED FROM PYTHON SOURCE LINES 286-303
 
 .. code-block:: Python
 
@@ -552,12 +557,12 @@ in a ``Clips/`` subdirectory within each session folder.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 299-301
+.. GENERATED FROM PYTHON SOURCE LINES 304-306
 
 The resulting *PoseMark* dataset, including the extracted clips and their
 corresponding labels:
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-305
+.. GENERATED FROM PYTHON SOURCE LINES 306-310
 
 .. code-block:: Python
 
@@ -573,7 +578,7 @@ corresponding labels:
 
  .. code-block:: none
 
-    posemark-b8jn6d5j/
+    posemark-y1l52i1b/
     ├── Test/
     │   └── IBL-paw/
     │       └── sub-KS023_ses-a92c4b1d46bd457ea1f4414265f0e2d4/
@@ -614,7 +619,7 @@ corresponding labels:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-317
+.. GENERATED FROM PYTHON SOURCE LINES 311-322
 
 .. note::
 
@@ -628,7 +633,7 @@ corresponding labels:
    See the :ref:`folder structure specification
    <target-posemark-folder-structure>` for details.
 
-.. GENERATED FROM PYTHON SOURCE LINES 320-331
+.. GENERATED FROM PYTHON SOURCE LINES 325-336
 
 Record provenance (optional)
 ----------------------------
@@ -642,7 +647,7 @@ and a UTC timestamp. Both files are written to a top-level
 ``.provenance/`` folder, named by project, so multiple projects under
 the same ``posemark_base_dir`` stay distinct.
 
-.. GENERATED FROM PYTHON SOURCE LINES 331-353
+.. GENERATED FROM PYTHON SOURCE LINES 336-358
 
 .. code-block:: Python
 
@@ -675,7 +680,7 @@ the same ``posemark_base_dir`` stay distinct.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 354-365
+.. GENERATED FROM PYTHON SOURCE LINES 359-370
 
 Clean up
 --------
@@ -689,7 +694,7 @@ end.
    system temp directory, so it is safe to leave in place when you adapt
    this example to a real *PoseMark* dataset path.
 
-.. GENERATED FROM PYTHON SOURCE LINES 365-376
+.. GENERATED FROM PYTHON SOURCE LINES 370-381
 
 .. code-block:: Python
 
@@ -712,7 +717,7 @@ end.
 
  .. code-block:: none
 
-    Removed temporary PoseMark directory: /tmp/posemark-b8jn6d5j
+    Removed temporary PoseMark directory: /tmp/posemark-y1l52i1b
 
 
 
@@ -720,7 +725,7 @@ end.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.280 seconds)
+   **Total running time of the script:** (0 minutes 5.574 seconds)
 
 
 .. _sphx_glr_download_auto_examples_convert_lp_to_posemark.py:

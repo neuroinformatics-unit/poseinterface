@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -47,7 +47,7 @@
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'posemark';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -423,8 +423,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="the-posemark-format">
-<span id="target-posemark"></span><h1>The PoseMark format<a class="headerlink" href="#the-posemark-format" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="target-posemark">
+<span id="the-posemark-format"></span><h1>The PoseMark format<a class="headerlink" href="#target-posemark" title="Link to this heading">#</a></h1>
 <p>This page describes the folder structure and file naming specification for the <em>PoseMark</em> benchmark corpus.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -441,16 +441,16 @@
 </ul>
 <p>The current scope is limited to <strong>single-animal pose estimation</strong> from a <strong>single camera view</strong>. Support for multi-camera setups is planned for a future version.</p>
 </section>
-<section id="folder-structure">
-<span id="target-posemark-folder-structure"></span><h2>Folder structure<a class="headerlink" href="#folder-structure" title="Link to this heading">#</a></h2>
+<section id="target-posemark-folder-structure">
+<span id="folder-structure"></span><h2>Folder structure<a class="headerlink" href="#target-posemark-folder-structure" title="Link to this heading">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This specification describes both the <strong>contributed</strong> and the <strong>published</strong> versions of the <em>PoseMark</em> benchmark corpus. Data contributors <em>must</em> provide full keypoint annotations (frame labels and clip labels) for both <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits. During the upload process, labels for the <code class="docutils literal notranslate"><span class="pre">Test</span></code> split are partially withheld to support evaluation. See <a class="reference internal" href="#label-format"><span class="std std-ref">Label format</span></a> for details.</p>
 </div>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-Contributed</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+Contributed</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── &lt;ProjectName&gt;/
@@ -480,8 +480,8 @@ Contributed</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-Published</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+Published</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── &lt;ProjectName&gt;/
@@ -512,7 +512,7 @@ Published</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <section id="train-test">
-<h3>Train / Test<a class="headerlink" href="#train-test" title="Link to this heading">#</a></h3>
+<span id="train--test"></span><h3>Train / Test<a class="headerlink" href="#train-test" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The top level <em>must</em> contain a <code class="docutils literal notranslate"><span class="pre">Train</span></code> and a <code class="docutils literal notranslate"><span class="pre">Test</span></code> folder.</p></li>
 <li><p>Each split <em>must</em> contain at least one project folder.</p></li>
@@ -661,8 +661,8 @@ Published</label><div class="sd-tab-content docutils">
 <p>Image <code class="docutils literal notranslate"><span class="pre">id</span></code> values are always 0-indexed. The indexing origin differs for frame labels and clip labels, and clip start labels follow the same conventions as clip labels. Details are provided below.</p>
 <p>Complete examples of label files are available in the repository under <a class="reference external" href="https://github.com/neuroinformatics-unit/poseinterface/tree/main/tests/data/Train#">tests/data/Train</a>.</p>
 </div>
-<section id="frame-labels-framelabels-json">
-<span id="target-framelabels"></span><h3>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)<a class="headerlink" href="#frame-labels-framelabels-json" title="Link to this heading">#</a></h3>
+<section id="target-framelabels">
+<span id="frame-labels-framelabels-json"></span><span id="frame-labels-framelabelsjson"></span><h3>Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)<a class="headerlink" href="#target-framelabels" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Within the <code class="docutils literal notranslate"><span class="pre">Frames</span></code> folder, there <em>must</em> be one frame label file per camera view, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_framelabels.json</span></code>.</p></li>
 <li><p>Each entry in the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> have an <code class="docutils literal notranslate"><span class="pre">id</span></code> equal to the 0-based frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the corresponding image filename).</p></li>
@@ -683,8 +683,8 @@ Published</label><div class="sd-tab-content docutils">
 <p>Here each <code class="docutils literal notranslate"><span class="pre">id</span></code> is the 0-based frame index in the session video (matching the <code class="docutils literal notranslate"><span class="pre">&lt;frameID&gt;</span></code> in the filename), and each <code class="docutils literal notranslate"><span class="pre">file_name</span></code> includes the <code class="docutils literal notranslate"><span class="pre">.png</span></code> extension.</p>
 </div>
 </section>
-<section id="clip-labels-cliplabels-json">
-<span id="target-cliplabels"></span><h3>Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)<a class="headerlink" href="#clip-labels-cliplabels-json" title="Link to this heading">#</a></h3>
+<section id="target-cliplabels">
+<span id="clip-labels-cliplabels-json"></span><span id="clip-labels-cliplabelsjson"></span><h3>Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)<a class="headerlink" href="#target-cliplabels" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>If a <code class="docutils literal notranslate"><span class="pre">Clips</span></code> folder is present, there <em>must</em> be one clip label file per clip, named <code class="docutils literal notranslate"><span class="pre">sub-&lt;subjectID&gt;_ses-&lt;sessionID&gt;_cam-&lt;camID&gt;_start-&lt;frameID&gt;_dur-&lt;nFrames&gt;_cliplabels.json</span></code>.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain an entry for every frame in the clip, in consecutive, monotonically increasing order (covering the entire clip duration).</p></li>
@@ -710,8 +710,8 @@ Published</label><div class="sd-tab-content docutils">
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">4</span></code> are the local clip indices, while <code class="docutils literal notranslate"><span class="pre">frame-1000</span></code> through <code class="docutils literal notranslate"><span class="pre">frame-1004</span></code> in the <code class="docutils literal notranslate"><span class="pre">file_name</span></code> values refer to the original frame positions in the session video.</p>
 </div>
-<section id="intermediate-file-videolabels-json">
-<span id="target-videolabels"></span><h4>Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code><a class="headerlink" href="#intermediate-file-videolabels-json" title="Link to this heading">#</a></h4>
+<section id="target-videolabels">
+<span id="intermediate-file-videolabels-json"></span><h4>Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code><a class="headerlink" href="#target-videolabels" title="Link to this heading">#</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This file is <strong>not a required part of <em>PoseMark</em></strong>. It is an intermediate cache file useful for data contributors when preparing labelled clips, and it is documented here only because it is optionally auto-discovered by the <code class="docutils literal notranslate"><span class="pre">extract-clips</span></code> command and the corresponding <a class="reference internal" href="api_generated/poseinterface.clips.extract_clips.html#poseinterface.clips.extract_clips" title="poseinterface.clips.extract_clips"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_clips()</span></code></a> function.</p>
@@ -724,8 +724,8 @@ Published</label><div class="sd-tab-content docutils">
 </ul>
 </section>
 </section>
-<section id="clip-start-labels-startlabels-json">
-<span id="target-startlabels"></span><h3>Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)<a class="headerlink" href="#clip-start-labels-startlabels-json" title="Link to this heading">#</a></h3>
+<section id="target-startlabels">
+<span id="clip-start-labels-startlabels-json"></span><span id="clip-start-labels-startlabelsjson"></span><h3>Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)<a class="headerlink" href="#target-startlabels" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Clip start labels are derived automatically from the contributed <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a> during the upload process. They are included in the published dataset for both the <code class="docutils literal notranslate"><span class="pre">Train</span></code> and <code class="docutils literal notranslate"><span class="pre">Test</span></code> splits.</p></li>
 <li><p>They are identical to <a class="reference internal" href="#target-cliplabels"><span class="std std-ref">clip labels</span></a>, except that the <code class="docutils literal notranslate"><span class="pre">images</span></code> array <em>must</em> contain exactly one entry (the first frame of the clip, with <code class="docutils literal notranslate"><span class="pre">id:</span> <span class="pre">0</span></code>). They are intended for point-tracker evaluation, where the annotated points serve as the initial positions from which a tracker should propagate.</p></li>
@@ -758,8 +758,8 @@ Published</label><div class="sd-tab-content docutils">
 <p>Below is a concrete example. A matching example dataset (with label files) is available in the repository under <a class="reference external" href="https://github.com/neuroinformatics-unit/poseinterface/tree/main/tests/data/Train#">tests/data/Train</a>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-Contributed</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+Contributed</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── SWC-plusmaze/
@@ -793,8 +793,8 @@ Contributed</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-Published</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+Published</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
 ├── Train/
 │   └── SWC-plusmaze/
@@ -879,7 +879,7 @@ Published</label><div class="sd-tab-content docutils">
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#folder-structure">Folder structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-posemark-folder-structure">Folder structure</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-test">Train / Test</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#project">Project</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#session">Session</a></li>
@@ -890,12 +890,12 @@ Published</label><div class="sd-tab-content docutils">
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-naming">File naming</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#label-format">Label format</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-labels-framelabels-json">Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clip-labels-cliplabels-json">Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#intermediate-file-videolabels-json">Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-framelabels">Frame labels (<code class="docutils literal notranslate"><span class="pre">framelabels.json</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-cliplabels">Clip labels (<code class="docutils literal notranslate"><span class="pre">cliplabels.json</span></code>)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-videolabels">Intermediate file <code class="docutils literal notranslate"><span class="pre">videolabels.json</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clip-start-labels-startlabels-json">Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-startlabels">Clip start labels (<code class="docutils literal notranslate"><span class="pre">startlabels.json</span></code>)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visibility-encoding">Visibility encoding</a></li>
 </ul>
 </li>

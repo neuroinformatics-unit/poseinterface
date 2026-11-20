@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:20.250** total execution time for 2 files **from auto_examples**:
+**00:38.572** total execution time for 3 files **from auto_examples**:
 
 .. container::
 
@@ -32,9 +32,12 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_convert_sleap_to_posemark.py` (``convert_sleap_to_posemark.py``)
+     - 00:19.680
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_convert_dlc_to_posemark.py` (``convert_dlc_to_posemark.py``)
-     - 00:13.969
+     - 00:13.318
      - 0.0
    * - :ref:`sphx_glr_auto_examples_convert_lp_to_posemark.py` (``convert_lp_to_posemark.py``)
-     - 00:06.280
+     - 00:05.574
      - 0.0

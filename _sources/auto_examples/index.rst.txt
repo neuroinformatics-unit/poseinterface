@@ -37,6 +37,23 @@ and the *PoseMark* benchmark corpus.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Prepare a SLEAP project to be contributed to the PoseMark corpus.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_convert_sleap_to_posemark_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/convert_sleap_to_posemark`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Convert SLEAP project to the PoseMark format</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Prepare a Lightning Pose (LP) project to be contributed to the PoseMark corpus.">
 
 .. only:: html
@@ -63,6 +80,7 @@ and the *PoseMark* benchmark corpus.
    :hidden:
 
    /auto_examples/convert_dlc_to_posemark
+   /auto_examples/convert_sleap_to_posemark
    /auto_examples/convert_lp_to_posemark
 
 

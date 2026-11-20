@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -47,7 +47,7 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/convert_dlc_to_posemark';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -55,7 +55,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Convert Lightning Pose project to the PoseMark format" href="convert_lp_to_posemark.html" />
+    <link rel="next" title="Convert SLEAP project to the PoseMark format" href="convert_sleap_to_posemark.html" />
     <link rel="prev" title="Examples" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -386,6 +386,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Convert DeepLabCut project to the PoseMark format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_sleap_to_posemark.html">Convert SLEAP project to the PoseMark format</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convert_lp_to_posemark.html">Convert Lightning Pose project to the PoseMark format</a></li>
 </ul>
 </div>
@@ -530,7 +531,7 @@ in mind that your project will contain more files than are shown here.</p>
 
 2 directories
 
-PoseMark dataset will be saved to: /tmp/posemark-5b9dvtu9
+PoseMark dataset will be saved to: /tmp/posemark-5gl89gz6
 </pre></div>
 </div>
 <p>The two source project sub-directories we care about are:</p>
@@ -708,7 +709,7 @@ Done.
 <p>The resulting <em>PoseMark</em> dataset:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-5b9dvtu9/
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-5gl89gz6/
 ├── Test/
 │   └── SWC-plusmaze/
 │       └── sub-M708154_ses-20200317/
@@ -790,7 +791,7 @@ Extracted clip: sub-M708154_ses-20200317_cam-topdown_start-75_dur-5
 corresponding labels:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-poseinterface-utils sphx-glr-backref-type-py-function reference internal" href="../api_generated/poseinterface.utils.tree.html#poseinterface.utils.tree" title="poseinterface.utils.tree"><span class="n">tree</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">posemark_base_dir</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-5b9dvtu9/
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posemark-5gl89gz6/
 ├── Test/
 │   └── SWC-plusmaze/
 │       └── sub-M708154_ses-20200317/
@@ -893,10 +894,10 @@ example to a real <em>PoseMark</em> dataset path.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">(</span><span class="si">{</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">system_tempdir</span></a><span class="si">}</span><span class="s2">). Delete manually if you really want to.</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Removed temporary PoseMark directory: /tmp/posemark-5b9dvtu9
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Removed temporary PoseMark directory: /tmp/posemark-5gl89gz6
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.969 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.318 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-convert-dlc-to-posemark-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/cd0180862cdc947730d55c12e074ec78/convert_dlc_to_posemark.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">convert_dlc_to_posemark.ipynb</span></code></a></p>
@@ -932,11 +933,11 @@ example to a real <em>PoseMark</em> dataset path.</p>
       </div>
     </a>
     <a class="right-next"
-       href="convert_lp_to_posemark.html"
+       href="convert_sleap_to_posemark.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Convert Lightning Pose project to the PoseMark format</p>
+        <p class="prev-next-title">Convert SLEAP project to the PoseMark format</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
