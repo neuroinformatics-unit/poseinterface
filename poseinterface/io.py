@@ -159,6 +159,68 @@ def annotations_to_posemark(
     return output_json_path
 
 
+def load_cliplabels(path: Path | str) -> np.ndarray:
+    """Load PoseMark clip labels or clip start labels as a numpy array.
+
+    Works for both :ref:`clip labels<target-cliplabels>` and clip start
+    labels, which share the same format. Unlike
+    :func:`sleap_io.load_coco`, this does not need the image files to
+    exist on disk.
+
+    Parameters
+    ----------
+    path
+        Path to a ``*_cliplabels.json`` or ``*_startlabels.json`` file.
+
+    Returns
+    -------
+    numpy.ndarray
+        Keypoint coordinates with shape
+        ``(n_frames, n_instances, n_keypoints, 2)`` as ``(x, y)``.
+        The frame axis is indexed by image ``id`` (the 0-based index within
+        the clip). Unlabelled keypoints (visibility 0) are NaN.
+
+    Raises
+    ------
+    ValueError
+        If the image IDs are not ``0, 1, ..., n_frames - 1``.
+
+    Example
+    -------
+    >>> from poseinterface.io import load_cliplabels
+    >>> start = load_cliplabels("path/to/..._startlabels.json")
+    >>> start.shape  # (1, n_instances, n_keypoints, 2)
+    """
+    with open(path) as f:
+        coco_data = json.load(f)
+
+    image_ids = sorted(img["id"] for img in coco_data["images"])
+    n_frames = len(image_ids)
+    if image_ids != list(range(n_frames)):
+        raise ValueError(
+            "Image IDs must be 0, 1, ..., n_frames - 1 (clip-style labels). "
+            f"Got {image_ids[:5]}... in {path}."
+        )
+
+    # ponytail: instances are stacked in file order per frame, so identity
+    # across frames is not guaranteed; key on track_id if that matters.
+    per_frame: list[list[np.ndarray]] = [[] for _ in range(n_frames)]
+    for annot in coco_data["annotations"]:
+        kpts = np.asarray(annot["keypoints"], dtype=float).reshape(-1, 3)
+        kpts[kpts[:, 2] == 0, :2] = np.nan
+        per_frame[annot["image_id"]].append(kpts[:, :2])
+
+    n_keypoints = max(
+        len(cat.get("keypoints", [])) for cat in coco_data["categories"]
+    )
+    n_instances = max((len(f) for f in per_frame), default=0)
+    out = np.full((n_frames, n_instances, n_keypoints, 2), np.nan)
+    for t, instances in enumerate(per_frame):
+        for i, xy in enumerate(instances):
+            out[t, i] = xy
+    return out
+
+
 def _build_output_json_path(
     *,
     output_dir: Path,

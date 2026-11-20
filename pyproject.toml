@@ -1,9 +1,9 @@
 [project]
 name = "poseinterface"
 authors = [
-  {name = "Sofia Minano", email = "s.minano@ucl.ac.uk"},
-  {name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk" },
-  {name = "Nikoloz Sirmpilatze", email = "n.sirmpilatze@ucl.ac.uk" },
+  { name = "Sofia Minano", email = "s.minano@ucl.ac.uk" },
+  { name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk" },
+  { name = "Nikoloz Sirmpilatze", email = "n.sirmpilatze@ucl.ac.uk" },
 ]
 description = "A framework for benchmarking pose estimation and point tracking methods on animal behaviour videos."
 readme = "README.md"
@@ -17,17 +17,17 @@ dependencies = [
   "sleap-io>=0.7.1",
 ]
 
-license = {text = "BSD-3-Clause"}
+license = { text = "BSD-3-Clause" }
 
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Operating System :: OS Independent",
-    "License :: OSI Approved :: BSD License",
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: BSD License",
 ]
 
 [project.urls]
@@ -36,6 +36,11 @@ classifiers = [
 "Documentation" = "https://poseinterface.neuroinformatics.dev"
 "Source Code" = "https://github.com/neuroinformatics-unit/poseinterface"
 "User Support" = "https://github.com/neuroinformatics-unit/poseinterface/issues"
+
+
+[project.optional-dependencies]
+cotracker3 = ["torch>=2.14.1"]
+tapnet = ["tapnet[torch]", "einops", "huggingface_hub"]
 
 [dependency-groups]
 dev = [
@@ -65,14 +70,19 @@ docs = [
 
 [project.scripts]
 extract-clips = "poseinterface.clips:wrapper"
+poseinterface = "poseinterface.cli:main"
 
 [build-system]
-requires = [
-    "setuptools>=64",
-    "wheel",
-    "setuptools-scm[toml]>=8",
-]
+requires = ["setuptools>=64", "wheel", "setuptools-scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
+
+[tool.uv]
+# Re-build whenever a .py changes, so uvx local installs are always editable
+cache-keys = [{ file = "pyproject.toml" }, { file = "**/*.py" }]
+
+[tool.uv.sources]
+tapnet = { git = "https://github.com/google-deepmind/tapnet.git", rev = "ceedd60bb9f6c9f7c74796e4445aff6c6ddf7c9b" }
+
 
 [tool.setuptools]
 include-package-data = true
@@ -84,9 +94,8 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=poseinterface"
-filterwarnings = [
-    "error",
-]
+testpaths = ["tests"]
+filterwarnings = ["error"]
 
 [tool.setuptools_scm]
 
@@ -106,9 +115,9 @@ ignore = [
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
 lint.select = [
-  "E",   # pycodestyle errors
-  "F",   # Pyflakes
-  "I",   # isort
+  "E", # pycodestyle errors
+  "F", # Pyflakes
+  "I", # isort
   # You can see what all the rules do here: https://docs.astral.sh/ruff/rules/
   # Some additional ruff rules that might be useful (uncomment to enable)
   #"UP",  # pyupgrade
